@@ -1300,6 +1300,14 @@ class BaseSessionsWatcher:
         self._pending_source_releases.clear()
         self._line_limits.clear()
 
+    def watch_paths(self) -> list[Path]:
+        """Provider roots to observe, including explicitly supported shared folders."""
+        return [self.projects_dir]
+
+    def normalize_watch_path(self, path: Path) -> Path:
+        """Map physical watcher events back to provider-relative logical paths."""
+        return path
+
     async def start_watcher(self) -> None:
         """
         Start the file watcher for this provider's :attr:`projects_dir`.
@@ -1355,10 +1363,10 @@ class BaseSessionsWatcher:
                 self._ensure_consumer()
             if catch_up:
                 await self._catch_up_existing_files(channel_layer)
-            async for changes in awatch(projects_dir, stop_event=stop_event):
+            async for changes in awatch(*self.watch_paths(), stop_event=stop_event):
                 # Deletions invalidate the previous source before recreation.
                 for change_type, path_str in sorted(changes, key=lambda change: change[0] != Change.deleted):
-                    self._enqueue(Path(path_str), change_type)
+                    self._enqueue(self.normalize_watch_path(Path(path_str)), change_type)
         finally:
             self.stop_watcher()
             try:

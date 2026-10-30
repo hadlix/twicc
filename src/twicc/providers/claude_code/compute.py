@@ -36,6 +36,7 @@ from twicc.core.models import (
 from twicc.paths import get_artifacts_dir
 from twicc.pricing import calculate_line_context_usage
 from twicc.provider_homes import claude_plans_dir, claude_projects_dir
+from .shared_paths import normalize_shared_path
 from twicc.providers.history_facts import HistoryFact, HistoryFactContext
 from twicc.providers.compute_base import (
     _EMPTY_ANALYSIS,
@@ -768,6 +769,7 @@ class ClaudeCodeSessionCompute(BaseSessionCompute):
             if tool_name in _DOC_EDIT_FILE_TOOLS:
                 file_path = tool_input.get('file_path')
                 if isinstance(file_path, str) and file_path:
+                    file_path = normalize_shared_path(file_path)
                     if not os.path.isabs(file_path):
                         if not cwd:
                             continue
@@ -778,6 +780,7 @@ class ClaudeCodeSessionCompute(BaseSessionCompute):
                 command = tool_input.get('command')
                 if command:
                     for target, action in extract_shell_write_targets(command):
+                        target = normalize_shared_path(target)
                         path = target if os.path.isabs(target) else (os.path.join(cwd, target) if cwd else None)
                         if path and is_plan_doc_path(path):
                             events.append(DocEditEvent(path, action))
@@ -1873,7 +1876,7 @@ class ClaudeCodeSessionCompute(BaseSessionCompute):
             'slug': None,
         }
         if cwd := parsed_json.get('cwd'):
-            fields['cwd'] = cwd
+            fields['cwd'] = normalize_shared_path(cwd)
         if branch := parsed_json.get('gitBranch'):
             fields['cwd_git_branch'] = branch
         if (message := parsed_json.get('message')) and isinstance(message, dict):
@@ -2463,8 +2466,10 @@ class ClaudeCodeSessionCompute(BaseSessionCompute):
             if not isinstance(inputs, dict):
                 continue
             path = inputs.get(field_name)
-            if isinstance(path, str) and path.startswith('/'):
-                paths.append(path)
+            if isinstance(path, str):
+                path = normalize_shared_path(path)
+                if path.startswith('/'):
+                    paths.append(path)
         return paths
 
     def compute_link_extra(

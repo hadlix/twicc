@@ -102,6 +102,73 @@ class ClaudeCodeSessionsWatcher(BaseSessionsWatcher):
         # STATE 1 (rebuild returns None, or its real envelope lands).
         self._workflow_surfaced: dict[str, set[str]] = {}
 
+    def watch_paths(self) -> list[Path]:
+        """Observe physical targets too and retain their logical project aliases."""
+        from django.conf import settings
+
+        self._shared_project_roots: dict[Path, Path] = {}
+        if settings.CLAUDE_WINDOWS_PATHS_ENABLED and self.projects_dir.is_dir():
+            for alias in sorted(self.projects_dir.iterdir()):
+                if not alias.is_symlink():
+                    continue
+                try:
+                    target = alias.resolve(strict=True)
+                    if target.is_dir() and not target.is_relative_to(self.projects_dir.resolve()):
+                        self._shared_project_roots.setdefault(target, alias)
+                except (OSError, RuntimeError):
+                    logger.warning("Cannot watch shared Claude project: %s", alias)
+        return [self.projects_dir, *self._shared_project_roots]
+
+    def normalize_watch_path(self, path: Path) -> Path:
+        for target, alias in getattr(self, '_shared_project_roots', {}).items():
+            if path.is_relative_to(target):
+                return alias / path.relative_to(target)
+        return path
+
+    def shared_file_snapshot(self) -> dict[Path, tuple[int, int, int, int]]:
+        """Use size and nanosecond timestamps, including same-second native writes."""
+        snapshot = {}
+        for alias in getattr(self, '_shared_project_roots', {}).values():
+            try:
+                for path in alias.rglob('*.jsonl'):
+                    try:
+                        stat = path.stat()
+                        snapshot[path] = (stat.st_dev, stat.st_ino, stat.st_size, stat.st_mtime_ns)
+                    except OSError:
+                        continue
+            except OSError:
+                logger.debug("Shared project is temporarily unavailable: %s", alias)
+        return snapshot
+
+    async def poll_shared_projects(self) -> None:
+        """Supplement filesystem notifications where mounted-drive timestamps coalesce."""
+        previous = {}
+        stop = self.get_stop_event()
+        while not stop.is_set():
+            current = await asyncio.to_thread(self.shared_file_snapshot)
+            if stop.is_set():
+                break
+            for path, fingerprint in current.items():
+                if previous.get(path) != fingerprint:
+                    self._enqueue(path, Change.modified if path in previous else Change.added)
+            for path in previous.keys() - current.keys():
+                self._enqueue(path, Change.deleted)
+            previous = current
+            try:
+                await asyncio.wait_for(stop.wait(), timeout=1)
+            except TimeoutError:
+                pass
+
+    async def start_watcher(self) -> None:
+        self.watch_paths()
+        poll = asyncio.create_task(self.poll_shared_projects()) if self._shared_project_roots else None
+        try:
+            await super().start_watcher()
+        finally:
+            if poll is not None:
+                poll.cancel()
+                await asyncio.gather(poll, return_exceptions=True)
+
     async def parse_session_file(self, path: Path) -> ParsedSessionFile | None:
         try:
             relative = path.relative_to(self.projects_dir)
