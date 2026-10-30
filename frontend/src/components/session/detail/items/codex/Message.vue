@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../../../../i18n/index.js'
+
 import { computed } from 'vue'
 import { SYNTHETIC_ITEM } from '../../../../../constants'
 import { useDataStore } from '../../../../../stores/data'
@@ -159,7 +161,7 @@ const nativeContent = computed(() => {
 <template>
     <WorkingAssistantMessage
         v-if="isStartingAssistantMessage"
-        label="starting"
+        :label="$t(&quot;starting&quot;)"
         process-state="starting"
         :session-id="sessionId"
     />

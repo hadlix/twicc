@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { t as $t } from '../../../../../i18n/index.js'
+
 import { computed, type CSSProperties } from 'vue'
 import { useGraphContext } from '../../composables/useGraphContext'
 import type { BreakPointTheme } from '../../types'
@@ -32,13 +34,13 @@ const commonStyles = computed<CSSProperties>(() => ({
  * and position modifier.
  */
 const themeClassMap: Record<BreakPointTheme, string> = {
-  'slash': 'Slash',
-  'dot': 'Dot',
-  'ring': 'Ring',
+  get 'slash'() { return $t("Slash") },
+  get 'dot'() { return $t("Dot") },
+  get 'ring'() { return $t("Ring") },
   'zig-zag': 'ZigZag',
-  'line': 'Line',
+  get 'line'() { return $t("Line") },
   'double-line': 'DoubleLine',
-  'arrow': 'Arrow',
+  get 'arrow'() { return $t("Arrow") },
 }
 
 const themeClass = computed(() => {

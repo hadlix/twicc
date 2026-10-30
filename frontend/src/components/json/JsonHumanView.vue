@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // JsonHumanView.vue - Recursive component that renders any JSON value in a human-friendly way.
 //
 // Renders objects, arrays, strings, numbers, booleans, and null/undefined
@@ -475,7 +477,7 @@ function isScalarArray(arr) {
  * @returns {string}
  */
 function formatScalar(val) {
-    if (val === null || val === undefined) return '\u2014'
+    if (val === null || val === undefined) return $t("—")
     if (typeof val === 'boolean') return val ? 'true' : 'false'
     if (typeof val === 'number') return String(val)
     return String(val)
@@ -626,7 +628,7 @@ const readDiffEditorRefs = reactive({})
             <div class="jhv-entry">
                 <span v-if="name != null" class="jhv-key">{{ formatLabel(name) }}</span>
                 <span v-if="name != null" class="jhv-separator">: </span>
-                <span class="jhv-null">&mdash;</span>
+                <span class="jhv-null">{{ $t("—") }}</span>
             </div>
         </template>
 
@@ -642,7 +644,7 @@ const readDiffEditorRefs = reactive({})
                     <template v-if="value">
                         <wa-icon name="square-check" class="jhv-boolean-icon jhv-boolean-true"></wa-icon>
                     </template>
-                    <span v-else class="jhv-boolean-false">no</span>
+                    <span v-else class="jhv-boolean-false">{{ $t("no") }}</span>
                 </template>
             </div>
         </template>
@@ -677,7 +679,7 @@ const readDiffEditorRefs = reactive({})
                     :value.prop="value"
                     @change="onSelectChange"
                 >
-                    <wa-option v-for="opt in override.options" :key="opt" :value="opt">{{ opt || 'Allow all' }}</wa-option>
+                    <wa-option v-for="opt in override.options" :key="opt" :value="opt">{{ opt || $t("Allow all") }}</wa-option>
                 </wa-select>
             </div>
         </template>
@@ -883,7 +885,7 @@ const readDiffEditorRefs = reactive({})
                 <div class="jhv-entry">
                     <span v-if="name != null" class="jhv-key">{{ formatLabel(name) }}</span>
                     <span v-if="name != null" class="jhv-separator">: </span>
-                    <span class="jhv-null">&mdash;</span>
+                    <span class="jhv-null">{{ $t("—") }}</span>
                 </div>
             </template>
             <template v-else>
@@ -900,7 +902,7 @@ const readDiffEditorRefs = reactive({})
                 <div class="jhv-entry">
                     <span v-if="name != null" class="jhv-key">{{ formatLabel(name) }}</span>
                     <span v-if="name != null" class="jhv-separator">: </span>
-                    <span class="jhv-null">&mdash;</span>
+                    <span class="jhv-null">{{ $t("—") }}</span>
                 </div>
             </template>
             <!-- Scalar array: editable as individual inputs, read-only as comma-separated -->
@@ -950,7 +952,7 @@ const readDiffEditorRefs = reactive({})
                 <div class="jhv-entry">
                     <span v-if="name != null" class="jhv-key">{{ formatLabel(name) }}</span>
                     <span v-if="name != null" class="jhv-separator">: </span>
-                    <span class="jhv-null">&mdash;</span>
+                    <span class="jhv-null">{{ $t("—") }}</span>
                 </div>
             </template>
             <template v-else>
@@ -974,7 +976,7 @@ const readDiffEditorRefs = reactive({})
                         <!-- Diff pairs: DiffEditor or split old/new -->
                         <template v-for="pair in diffPairs.pairs" :key="'diff_' + pair.baseName">
                             <div class="jhv-diff-header">
-                                <span class="jhv-key jhv-block-key">{{ formatLabel(pair.baseName) }} diff:</span>
+                                <span class="jhv-key jhv-block-key">{{ formatLabel(pair.baseName) }} {{ $t("diff:") }}</span>
                                 <wa-button
                                     size="small"
                                     variant="neutral"
@@ -986,7 +988,7 @@ const readDiffEditorRefs = reactive({})
                                         :name="diffSplitMode[pair.baseName] ? 'code-compare' : 'pen'"
                                         variant="classic"
                                     ></wa-icon>
-                                    <span>{{ diffSplitMode[pair.baseName] ? 'Diff mode' : 'Old/new mode' }}</span>
+                                    <span>{{ diffSplitMode[pair.baseName] ? $t("Diff mode") : $t("Old/new mode") }}</span>
                                 </wa-button>
                             </div>
                             <!-- Diff editor mode (default) — v-show keeps the DiffEditor alive
@@ -1036,7 +1038,7 @@ const readDiffEditorRefs = reactive({})
                                 <template v-if="key === 'data' && contentBlockSource">
                                     <!-- Image: show the image inline, clickable to open preview -->
                                     <template v-if="contentBlockSource.kind === 'image'">
-                                        <div class="jhv-key jhv-block-key">{{ formatLabel('data') }}:</div>
+                                        <div class="jhv-key jhv-block-key">{{ formatLabel($t("data")) }}:</div>
                                         <div class="jhv-content-block">
                                             <img :src="'data:' + contentBlockSource.mediaType + ';base64,' + contentBlockSource.data" class="jhv-content-image jhv-content-image-clickable" loading="lazy" @click="openImagePreview" />
                                         </div>
@@ -1044,9 +1046,9 @@ const readDiffEditorRefs = reactive({})
                                     <!-- Binary: show placeholder instead of raw data -->
                                     <template v-else>
                                         <div class="jhv-entry">
-                                            <span class="jhv-key">{{ formatLabel('data') }}</span>
+                                            <span class="jhv-key">{{ formatLabel($t("data")) }}</span>
                                             <span class="jhv-separator">: </span>
-                                            <span class="jhv-null jhv-binary-blob">&lsquo;binary blob&rsquo;</span>
+                                            <span class="jhv-null jhv-binary-blob">{{ $t("‘binary blob’") }}</span>
                                         </div>
                                     </template>
                                 </template>
@@ -1063,7 +1065,7 @@ const readDiffEditorRefs = reactive({})
                         </template>
                         <!-- Render auto-generated diffs for old/new pairs -->
                         <template v-for="pair in diffPairs.pairs" :key="'diff_' + pair.baseName">
-                            <div class="jhv-key jhv-block-key">{{ formatLabel(pair.baseName) }} diff:</div>
+                            <div class="jhv-key jhv-block-key">{{ formatLabel(pair.baseName) }} {{ $t("diff:") }}</div>
                             <div class="jhv-read-diff">
                                 <JhvEditorToolbar mode="diff" :editor-ref="readDiffEditorRefs[pair.baseName]">
                                     <template #default="{ wordWrap: ww, sideBySide: sbs, editorReady }">
@@ -1082,7 +1084,7 @@ const readDiffEditorRefs = reactive({})
                                 </JhvEditorToolbar>
                             </div>
                             <details class="jhv-diff-originals">
-                                <summary class="jhv-diff-originals-toggle">Old/new values</summary>
+                                <summary class="jhv-diff-originals-toggle">{{ $t("Old/new values") }}</summary>
                                 <div class="jhv-children">
                                     <JsonHumanView
                                         :value="value[pair.oldKey]"

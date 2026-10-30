@@ -1,3 +1,5 @@
+
+import { t as $t } from '../i18n/index.js'
 import { getProviderLabel } from '../providers'
 
 /**
@@ -13,7 +15,7 @@ import { getProviderLabel } from '../providers'
  * @returns {string} Markdown source for the replacement text.
  */
 export function emptyAssistantMessageMarkdown(provider) {
-    return `*${getProviderLabel(provider)} had nothing to add here.*`
+    return $t("*{p0} had nothing to add here.*", { p0: (getProviderLabel(provider)) })
 }
 
 /**

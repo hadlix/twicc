@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from './i18n/index.js'
+
 import { ref, onMounted, onBeforeUnmount, watch, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Notivue, Notification, lightTheme, slateTheme } from 'notivue'
@@ -147,7 +149,7 @@ for (const provider of getRegisteredProviders()) {
         if (show && !existing) {
             const item = toast.custom(ProviderAuthToastContent, {
                 type: 'warning',
-                title: `${helpers.constructor.label} CLI not authenticated`,
+                get title() { return $t("{p0} CLI not authenticated", { p0: (helpers.constructor.label) }) },
                 duration: Infinity,
                 props: {
                     provider,
@@ -802,7 +804,7 @@ const toastTheme = computed(() => {
     <wa-dialog :open="versionMismatchDetected || undefined" without-header @wa-hide.prevent>
         <div class="version-reload-content">
             <BrandLogo :size="56" animated busy />
-            <p class="version-reload-text">TwiCC has been updated, reloading…</p>
+            <p class="version-reload-text">{{ $t("TwiCC has been updated, reloading…") }}</p>
         </div>
     </wa-dialog>
 
@@ -810,7 +812,7 @@ const toastTheme = computed(() => {
     <div v-if="isConnecting" class="connecting-backdrop">
         <div class="connecting-content">
             <BrandLogo :size="56" animated busy />
-            <p class="connecting-text">Connecting to server...</p>
+            <p class="connecting-text">{{ $t("Connecting to server...") }}</p>
         </div>
     </div>
 

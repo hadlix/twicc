@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 /**
  * PeerMessageReviewDialog — read a pending peer message and route it.
  *
@@ -130,7 +132,7 @@ const activeResolutionAction = computed(() =>
 )
 // Every provider accepts every attachment (the server decides how each file
 // is sent): delivery only needs an active provider.
-const NO_ACTIVE_PROVIDER_ERROR = 'No active provider is available. Activate a provider to continue.'
+const NO_ACTIVE_PROVIDER_ERROR = $t("No active provider is available. Activate a provider to continue.")
 
 // Ordinary request-lifetime state. The boolean carries no target identity or
 // reason. The generation invalidates every result from a closed or reused
@@ -164,8 +166,8 @@ const attachmentCount = computed(() => detail.value?.attachments_meta?.length ||
 const attachmentByteCount = computed(() => peerAttachmentBytes(detail.value?.attachments_meta))
 const attachmentSizeLabel = computed(() => formatPeerContentBytes(attachmentByteCount.value))
 const attachmentPrompt = computed(() => attachmentCount.value === 1
-    ? `This attachment is large (${attachmentSizeLabel.value}). Load it?`
-    : `These ${attachmentCount.value} attachments total ${attachmentSizeLabel.value}. Load them?`
+    ? $t("This attachment is large ({p0}). Load it?", { p0: (attachmentSizeLabel.value) })
+    : $t("These {p0} attachments total {p1}. Load them?", { p0: (attachmentCount.value), p1: (attachmentSizeLabel.value) })
 )
 // Attachment bytes are dropped 7 days after resolution — a late redelivery
 // carries the text only.
@@ -181,7 +183,7 @@ const headIcon = computed(() => {
     return isInbound.value ? 'arrow-down' : 'arrow-up'
 })
 const directionLabel = computed(() =>
-    isInbound.value ? `Received from ${peerName.value}` : `Sent to ${peerName.value}`
+    isInbound.value ? $t("Received from {p0}", { p0: (peerName.value) }) : $t("Sent to {p0}", { p0: (peerName.value) })
 )
 const statusVariant = computed(() => {
     if (detail.value?.status === 'delivered' || detail.value?.status === 'done') return 'success'
@@ -204,13 +206,13 @@ const localRoute = computed(() => {
     if (!routing?.sessionId) return null
     return {
         label: routing.fromConversation
-            ? 'Session'
-            : isInbound.value ? 'Delivered to session' : 'Sent from session',
+            ? $t("Session")
+            : isInbound.value ? $t("Delivered to session") : $t("Sent from session"),
         title: routing.sessionTitle,
         display: peerRoutingSessionTitle(routing),
         projectId: routing.projectId,
         sessionId: routing.sessionId,
-        hint: routing.fromConversation ? 'from the conversation' : '',
+        hint: routing.fromConversation ? $t("from the conversation") : '',
     }
 })
 
@@ -258,7 +260,7 @@ async function attachProject(projectId) {
             detail.value = { ...detail.value, project_id, effective_project }
         }
     } catch {
-        actionError.value = 'Request failed.'
+        actionError.value = $t("Request failed.")
     } finally {
         attachingProject.value = false
     }
@@ -274,7 +276,7 @@ const replyRoute = computed(() => {
     const reply = detail.value?.reply_to_ref
     if (!reply?.title) return null
     return {
-        label: reply.direction === 'out' ? 'In reply to your' : 'In reply to their',
+        label: reply.direction === 'out' ? $t("In reply to your") : $t("In reply to their"),
         title: reply.title,
         // The answered message is a local row: the dialog can show it. Absent
         // on rows serialized before the id joined the ref.
@@ -299,8 +301,8 @@ function openRepliedMessage() {
 const authorLine = computed(() => {
     if (origin.value.author !== 'human') return null
     return isInbound.value
-        ? `Written directly by ${peerName.value}'s user`
-        : 'Written directly by you'
+        ? $t("Written directly by {p0}'s user", { p0: (peerName.value) })
+        : $t("Written directly by you")
 })
 
 /** Reply — the direct human answer to a received message. It opens the
@@ -477,10 +479,10 @@ function buildSessionRows(projectScopeId, textFilter, paginationTarget = null) {
     const nowMs = Date.now()
     const entries = candidates.map((session) => {
         if (session.pinned) {
-            return { session, sectionKey: 'n-pinned', separator: { label: 'Pinned' } }
+            return { session, sectionKey: 'n-pinned', separator: { get label() { return $t("Pinned") } } }
         }
         if (processStates[session.id] != null) {
-            return { session, sectionKey: 'n-active', separator: { label: 'Active' } }
+            return { session, sectionKey: 'n-active', separator: { get label() { return $t("Active") } } }
         }
         const bucket = dateBucketSeparator(session.mtime, nowMs)
         return { session, sectionKey: `n-${bucket.key}`, separator: bucket.entry }
@@ -851,7 +853,7 @@ watch(() => [props.open, props.messageId], async ([open, messageId]) => {
         )
         if (!isCurrentOpen(generation, messageId)) return
         if (!response.ok) {
-            loadError.value = 'Could not load the message.'
+            loadError.value = $t("Could not load the message.")
             return
         }
         loadedDetail = await response.json()
@@ -864,7 +866,7 @@ watch(() => [props.open, props.messageId], async ([open, messageId]) => {
     } catch {
         if (!isCurrentOpen(generation, messageId)) return
         // fetch rejects on network failure — never leave the dialog blank.
-        loadError.value = 'Could not load the message — is the server reachable?'
+        loadError.value = $t("Could not load the message — is the server reachable?")
         return
     }
 
@@ -974,11 +976,11 @@ function errorText(payload) {
     if (Array.isArray(errors) && errors.length) {
         return errors.map(e => e.message || e.code).join(' — ')
     }
-    return payload?.error || 'Request failed.'
+    return payload?.error || $t("Request failed.")
 }
 
 const PEER_RESOLUTION_TIMEOUT_MS = 40_000
-const PEER_RESOLUTION_TIMEOUT_MESSAGE = 'The request did not complete in time. Refresh before trying again.'
+const PEER_RESOLUTION_TIMEOUT_MESSAGE = $t("The request did not complete in time. Refresh before trying again.")
 
 class PeerResolutionTimeoutError extends Error {}
 
@@ -1005,7 +1007,7 @@ async function requestPeerResolution(url, options = {}) {
 function setActionFailure(error) {
     actionError.value = error instanceof PeerResolutionTimeoutError
         ? PEER_RESOLUTION_TIMEOUT_MESSAGE
-        : 'Network error — could not reach the server.'
+        : $t("Network error — could not reach the server.")
 }
 
 /** Ask the backend to resolve the message as delivered; returns the envelope
@@ -1065,10 +1067,10 @@ async function rollbackDelivery(sessionId, addedRecords, { dropDraft }) {
 /** One message for every delivery failure (attachments, server, network):
  *  what failed, that the status did not move, and the way out. */
 function setDeliveryFailure() {
-    actionError.value = 'TwiCC could not prepare the composer. Nothing was delivered '
-        + 'and the message status did not change — you can try again, on this session '
-        + `or another one. If it keeps failing, use “Reply manually” to ask ${peerName.value} `
-        + 'to send it again.'
+    actionError.value = $t("TwiCC could not prepare the composer. Nothing was delivered ")
+        + $t("and the message status did not change — you can try again, on this session ")
+        + $t("or another one. If it keeps failing, use “Reply manually” to ask {p0} ", { p0: (peerName.value) })
+        + $t("to send it again.")
 }
 
 function navigateToComposer(sessionId, projectId) {
@@ -1222,11 +1224,11 @@ function onHide(event) {
 
 <template>
     <wa-dialog
-        ref="dialogRef" :open="open" label="Peer message"
+        ref="dialogRef" :open="open" :label="$t(&quot;Peer message&quot;)"
         style="--width: min(720px, calc(100vw - 2rem))"
         @wa-hide="onHide"
     >
-        <wa-callout v-if="loadError" variant="danger" size="small">{{ loadError }}</wa-callout>
+        <wa-callout v-if="loadError" variant="danger" size="small">{{ $t(loadError) }}</wa-callout>
 
         <template v-if="detail">
             <!-- Header — the inbox row's header, verbatim: direction arrow,
@@ -1266,30 +1268,30 @@ function onHide(event) {
                     <template v-if="markdownState === 'loading' || markdownState === 'rendering'">
                         <span class="pr-content-state__status" role="status" aria-live="polite">
                             <wa-spinner></wa-spinner>
-                            {{ markdownState === 'rendering' ? 'Rendering message…' : 'Loading message…' }}
+                            {{ markdownState === 'rendering' ? $t("Rendering message…") : $t("Loading message…") }}
                         </span>
                     </template>
                     <template v-else-if="markdownState === 'confirm'">
-                        <span>This message is large ({{ textSizeLabel }}). Render it?</span>
+                        <span>{{ $t("This message is large (") }}{{ textSizeLabel }}{{ $t("). Render it?") }}</span>
                         <span class="pr-content-state__actions">
                             <wa-button size="small" variant="brand" @click="renderCurrentMessage">
-                                Render message
+                                {{ $t("Render message") }}
                             </wa-button>
                             <wa-button size="small" appearance="outlined" @click="declineMarkdown">
-                                Do not render
+                                {{ $t("Do not render") }}
                             </wa-button>
                         </span>
                     </template>
                     <template v-else-if="markdownState === 'declined'">
-                        <span>Message not rendered.</span>
+                        <span>{{ $t("Message not rendered.") }}</span>
                         <wa-button size="small" variant="brand" @click="renderCurrentMessage">
-                            Render message
+                            {{ $t("Render message") }}
                         </wa-button>
                     </template>
                     <template v-else>
-                        <span>Could not render the message.</span>
+                        <span>{{ $t("Could not render the message.") }}</span>
                         <wa-button size="small" variant="brand" @click="renderCurrentMessage">
-                            Try again
+                            {{ $t("Try again") }}
                         </wa-button>
                     </template>
                 </div>
@@ -1305,36 +1307,36 @@ function onHide(event) {
                     <template v-if="attachmentsState === 'loading' || attachmentsState === 'unknown'">
                         <span class="pr-content-state__status" role="status" aria-live="polite">
                             <wa-spinner></wa-spinner>
-                            Loading attachments…
+                            {{ $t("Loading attachments…") }}
                         </span>
                     </template>
                     <template v-else-if="attachmentsState === 'confirm'">
                         <span>{{ attachmentPrompt }}</span>
                         <span class="pr-content-state__actions">
                             <wa-button size="small" variant="brand" @click="loadMessageAttachments()">
-                                Load attachments
+                                {{ $t("Load attachments") }}
                             </wa-button>
                             <wa-button size="small" appearance="outlined" @click="declineAttachments">
-                                Do not load
+                                {{ $t("Do not load") }}
                             </wa-button>
                         </span>
                     </template>
                     <template v-else-if="attachmentsState === 'declined'">
-                        <span>Attachments not loaded.</span>
+                        <span>{{ $t("Attachments not loaded.") }}</span>
                         <wa-button size="small" variant="brand" @click="loadMessageAttachments()">
-                            Load attachments
+                            {{ $t("Load attachments") }}
                         </wa-button>
                     </template>
                     <template v-else-if="attachmentsState === 'error'">
-                        <span>Could not load attachments.</span>
+                        <span>{{ $t("Could not load attachments.") }}</span>
                         <wa-button size="small" variant="brand" @click="loadMessageAttachments()">
-                            Try again
+                            {{ $t("Try again") }}
                         </wa-button>
                     </template>
                 </div>
             </template>
             <p v-else-if="detail.purged && attachmentCount && !attachmentsLost" class="pr-purged">
-                {{ detail.attachments_meta.length }} attachment(s) — bytes purged.
+                {{ detail.attachments_meta.length }} {{ $t("attachment(s) — bytes purged.") }}
             </p>
 
             <!-- Which message this one answers, then where it went / came
@@ -1352,7 +1354,7 @@ function onHide(event) {
                 <button
                     v-if="replyRoute.messageId != null"
                     type="button" class="pr-route__title pr-route__title--link"
-                    :title="`Show “${replyRoute.title}”`"
+                    :title="$t(&quot;Show “{p0}”&quot;, { p0: (replyRoute.title) })"
                     @click="openRepliedMessage"
                 >“{{ replyRoute.title }}”</button>
                 <span v-else class="pr-route__title" :title="replyRoute.title">“{{ replyRoute.title }}”</span>
@@ -1364,25 +1366,25 @@ function onHide(event) {
                 <button
                     v-if="localRoute.sessionId"
                     type="button" class="pr-route__title pr-route__title--link"
-                    :title="`Open “${localRoute.title}”`"
+                    :title="$t(&quot;Open “{p0}”&quot;, { p0: (localRoute.title) })"
                     @click="openLocalSession"
                 >“{{ localRoute.display }}”</button>
                 <span v-else class="pr-route__title" :title="localRoute.title">“{{ localRoute.display }}”</span>
                 <template v-if="localRoute.projectId">
-                    <span class="pr-route__label">in</span>
+                    <span class="pr-route__label">{{ $t("in") }}</span>
                     <ProjectBadge :project-id="localRoute.projectId" class="pr-route__project" />
                 </template>
                 <span v-if="localRoute.hint" class="pr-route__label">{{ localRoute.hint }}</span>
             </p>
             <p v-if="projectRoute" class="pr-route">
-                <span class="pr-route__label">In project</span>
+                <span class="pr-route__label">{{ $t("In project") }}</span>
                 <ProjectBadge :project-id="projectRoute.projectId" class="pr-route__project" />
-                <span class="pr-route__label">from the conversation</span>
+                <span class="pr-route__label">{{ $t("from the conversation") }}</span>
             </p>
             <!-- Attach by hand: the same picker as the delivery ones. A
                  change saves at once — there is nothing else to confirm. -->
             <div v-if="canAttachProject" class="pr-route">
-                <span class="pr-route__label">{{ attachedProjectId ? 'In project' : 'Attach to a project' }}</span>
+                <span class="pr-route__label">{{ attachedProjectId ? $t("In project") : $t("Attach to a project") }}</span>
                 <wa-select
                     size="small" class="pr-attach-project"
                     :value="attachedProjectId" :disabled="busy || attachingProject"
@@ -1395,13 +1397,12 @@ function onHide(event) {
                         :icon-url="attachedIconUrl"
                         :color="attachedDotColor"
                     />
-                    <wa-option value="">None</wa-option>
+                    <wa-option value="">{{ $t("None") }}</wa-option>
                     <ProjectSelectOptions :projects="selectableProjects" include-worktrees />
                 </wa-select>
             </div>
             <wa-callout v-if="attachmentsLost" variant="warning" size="small">
-                Its {{ detail.attachments_meta.length }} attachment(s) were purged — a new delivery
-                carries the text only.
+                {{ $t("Its") }} {{ detail.attachments_meta.length }} {{ $t("attachment(s) were purged — a new delivery carries the text only.") }}
             </wa-callout>
 
             <!-- Actions -->
@@ -1416,10 +1417,7 @@ function onHide(event) {
                     <!-- The current status concerns every action; what a
                          delivery does is explained with the delivery pickers. -->
                     <p v-if="isRedeliverable || isResolved" class="pr-explainer">
-                        <template v-if="isRedeliverable">This message was already delivered; delivering it
-                        again is allowed.</template><template v-else>This message was
-                        already {{ detail.status }}; it can still be delivered — the sender keeps the
-                        first answer it was told.</template>
+                        <template v-if="isRedeliverable">{{ $t("This message was already delivered; delivering it again is allowed.") }}</template><template v-else>{{ $t("This message was already") }} {{ detail.status }}{{ $t("; it can still be delivered — the sender keeps the first answer it was told.") }}</template>
                     </p>
                 </template>
 
@@ -1429,12 +1427,12 @@ function onHide(event) {
                      asks for confirmation. Done and Refuse answer a pending
                      message only: the sender never learns a later answer. -->
                 <div class="pr-actions">
-                    <label class="pr-actions__label" for="pr-action-select">What's next?</label>
+                    <label class="pr-actions__label" for="pr-action-select">{{ $t("What's next?") }}</label>
                     <div class="pr-actions__row">
                         <wa-select
                             id="pr-action-select" ref="actionSelectRef" :key="actionSelectKey"
                             size="small" class="pr-actions__select glass-listbox-direct"
-                            placeholder="Pick an action…"
+                            :placeholder="$t(&quot;Pick an action…&quot;)"
                             :value="selectedAction" :disabled="busy"
                             @change="onActionChange"
                         >
@@ -1443,14 +1441,14 @@ function onHide(event) {
                                 value="existing" :disabled="!contentAllowsDelivery"
                             >
                                 <wa-icon slot="start" name="comments"></wa-icon>
-                                Deliver to an existing session
+                                {{ $t("Deliver to an existing session") }}
                             </wa-option>
                             <wa-option
                                 v-if="deliveryActionVisibility.delivery"
                                 value="new" :disabled="!contentAllowsDelivery"
                             >
                                 <wa-icon slot="start" name="plus"></wa-icon>
-                                Deliver to a new session
+                                {{ $t("Deliver to a new session") }}
                             </wa-option>
                             <wa-divider v-if="actionDividers.afterDelivery"></wa-divider>
                             <!-- Not gated on attachment loading: that gate
@@ -1458,13 +1456,13 @@ function onHide(event) {
                                  reaches none. -->
                             <wa-option v-if="deliveryActionVisibility.done" value="done">
                                 <wa-icon slot="start" name="check"></wa-icon>
-                                Mark as done without reply
+                                {{ $t("Mark as done without reply") }}
                             </wa-option>
                             <!-- Opens the direct composer, threaded on this
                                  message; resolves nothing by itself. -->
                             <wa-option v-if="canReply" value="reply">
                                 <wa-icon slot="start" name="reply"></wa-icon>
-                                Reply manually
+                                {{ $t("Reply manually") }}
                             </wa-option>
                             <wa-divider v-if="actionDividers.beforeRefusal"></wa-divider>
                             <wa-option
@@ -1472,7 +1470,7 @@ function onHide(event) {
                                 value="refuse" class="pr-actions__refuse"
                             >
                                 <wa-icon slot="start" name="ban"></wa-icon>
-                                Refuse this message
+                                {{ $t("Refuse this message") }}
                             </wa-option>
                         </wa-select>
                         <span
@@ -1480,7 +1478,7 @@ function onHide(event) {
                             class="pr-actions__status" role="status" aria-live="polite"
                         >
                             <wa-spinner></wa-spinner>
-                            Marking…
+                            {{ $t("Marking…") }}
                         </span>
                     </div>
                 </div>
@@ -1494,25 +1492,21 @@ function onHide(event) {
                          while picking an existing session. -->
                     <template v-if="mode === 'existing'">
                         <wa-callout v-if="showReplyTargetWarning" variant="warning" size="small">
-                            This message is part of a thread, but its session is not available for selection.
-                            Choose another session, or deliver to a new one.
+                            {{ $t("This message is part of a thread, but its session is not available for selection. Choose another session, or deliver to a new one.") }}
                         </wa-callout>
                         <p v-else-if="showDirectParentHint" class="pr-explainer">
-                            In reply to a message you wrote directly — no session to propose.
-                            Choose any session, or deliver to a new one.
+                            {{ $t("In reply to a message you wrote directly — no session to propose. Choose any session, or deliver to a new one.") }}
                         </p>
                     </template>
                     <p class="pr-explainer">
-                        Delivering does not send anything: the message is placed in the chosen
-                        session's input (an existing one, or a new draft) — you review it, adjust it
-                        if needed, and send it yourself.
+                        {{ $t("Delivering does not send anything: the message is placed in the chosen session's input (an existing one, or a new draft) — you review it, adjust it if needed, and send it yourself.") }}
                     </p>
                     <div class="pr-note">
-                        <label class="pr-note__label" for="pr-note-input">Add a message for your agent (optional)</label>
+                        <label class="pr-note__label" for="pr-note-input">{{ $t("Add a message for your agent (optional)") }}</label>
                         <wa-textarea
                             id="pr-note-input"
                             size="small" rows="2"
-                            placeholder="Delivered next to the peer's message, attributed to you"
+                            :placeholder="$t(&quot;Delivered next to the peer's message, attributed to you&quot;)"
                             :value="note"
                             @input="note = $event.target.value"
                         ></wa-textarea>
@@ -1524,19 +1518,18 @@ function onHide(event) {
                     class="pr-preparing" role="status" aria-live="polite"
                 >
                     <wa-spinner></wa-spinner>
-                    <span>Preparing session selection…</span>
+                    <span>{{ $t("Preparing session selection…") }}</span>
                 </div>
 
                 <wa-callout v-if="confirmingRefuse" ref="refusePanelRef" variant="warning" size="small">
                     <div class="pr-confirm-body">
-                        <span>Refuse this message? The sender will see it as refused.</span>
+                        <span>{{ $t("Refuse this message? The sender will see it as refused.") }}</span>
                         <!-- A refusal carries no words. Rather than a reason
                              field nobody can answer, point at the reply that
                              already does it — and resolves the message in the
                              same gesture (its "Refuse it" choice). -->
                         <span v-if="canReply" class="pr-confirm__hint">
-                            To explain why, pick <strong>Reply manually</strong> in the action
-                            list above and choose <strong>Refuse it</strong> there.
+                            {{ $t("To explain why, pick") }} <strong>{{ $t("Reply manually") }}</strong> {{ $t("in the action list above and choose") }} <strong>{{ $t("Refuse it") }}</strong> {{ $t("there.") }}
                         </span>
                         <span class="pr-confirm__actions">
                             <wa-button
@@ -1545,12 +1538,12 @@ function onHide(event) {
                                 @click="refuse"
                             >
                                 <wa-spinner v-if="activeResolutionAction === 'refuse'" slot="start"></wa-spinner>
-                                {{ activeResolutionAction === 'refuse' ? 'Refusing…' : 'Refuse' }}
+                                {{ activeResolutionAction === 'refuse' ? $t("Refusing…") : $t("Refuse") }}
                             </wa-button>
                             <wa-button
                                 size="small" appearance="outlined" :disabled="busy"
                                 @click="confirmingRefuse = false"
-                            >Keep</wa-button>
+                            >{{ $t("Keep") }}</wa-button>
                         </span>
                     </div>
                 </wa-callout>
@@ -1561,7 +1554,7 @@ function onHide(event) {
                     <div ref="newPanelRef" class="pr-new-session">
                         <wa-select
                             v-model="pickedProjectId"
-                            size="small" placeholder="Pick a project…"
+                            size="small" :placeholder="$t(&quot;Pick a project…&quot;)"
                         >
                             <!-- The closed select shows the option's label as
                                  plain text: the picked project's mark rides
@@ -1590,13 +1583,13 @@ function onHide(event) {
                         >
                             <wa-spinner v-if="activeResolutionAction === 'new'" slot="start"></wa-spinner>
                             <wa-icon v-else name="pen-to-square" slot="start"></wa-icon>
-                            {{ activeResolutionAction === 'new' ? 'Delivering…' : 'Create draft session' }}
+                            {{ activeResolutionAction === 'new' ? $t("Delivering…") : $t("Create draft session") }}
                         </wa-button>
                     </div>
                     <wa-callout
                         v-if="newSessionDeliveryState.error"
                         variant="warning" size="small"
-                    >{{ newSessionDeliveryState.error }}</wa-callout>
+                    >{{ $t(newSessionDeliveryState.error) }}</wa-callout>
                 </template>
 
                 <!-- 'Existing session' mode: the sidebar's session list (same
@@ -1618,22 +1611,22 @@ function onHide(event) {
                             >
                                 <wa-spinner v-if="activeResolutionAction === 'existing'" slot="start"></wa-spinner>
                                 <wa-icon v-else name="pen-to-square" slot="start"></wa-icon>
-                                {{ activeResolutionAction === 'existing' ? 'Delivering…' : 'Create draft message' }}
+                                {{ activeResolutionAction === 'existing' ? $t("Delivering…") : $t("Create draft message") }}
                             </wa-button>
                             <!-- Why the button is greyed: a click in the list only
                                  selects, and nothing is selected yet. -->
-                            <span v-if="!selectedSession" class="pr-existing-action__hint">(Pick a session first)</span>
+                            <span v-if="!selectedSession" class="pr-existing-action__hint">{{ $t("(Pick a session first)") }}</span>
                         </div>
                         <wa-callout
                             v-if="existingSessionDeliveryState.error"
                             variant="warning" size="small"
                             class="pr-target-warning"
-                        >{{ existingSessionDeliveryState.error }}</wa-callout>
+                        >{{ $t(existingSessionDeliveryState.error) }}</wa-callout>
                         <wa-callout
                             v-if="actionError"
                             variant="danger" size="small"
                             class="pr-action-error"
-                        >{{ actionError }}</wa-callout>
+                        >{{ $t(actionError) }}</wa-callout>
                     </div>
                     <!-- Two filters, coarse then fine: the project (the same
                          selector as 'new session', plus the current sidebar
@@ -1652,7 +1645,7 @@ function onHide(event) {
                                 v-else-if="isWorkspaceProjectId(scopeId)" slot="start" name="layer-group"
                                 :style="activeWorkspace?.color ? { color: activeWorkspace.color } : null"
                             ></wa-icon>
-                            <wa-option :value="ALL_PROJECTS_ID">All projects</wa-option>
+                            <wa-option :value="ALL_PROJECTS_ID">{{ $t("All projects") }}</wa-option>
                             <wa-option v-if="activeWorkspace" :value="`workspace:${activeWorkspace.id}`" :label="activeWorkspace.name">
                                 <span class="pr-scope-workspace">
                                     <wa-icon name="layer-group" auto-width :style="activeWorkspace.color ? { color: activeWorkspace.color } : null"></wa-icon>
@@ -1672,7 +1665,7 @@ function onHide(event) {
                         <!-- `with-clear`: the same one-click reset as the
                              sidebar's filter, whose matching this reuses. -->
                         <wa-input
-                            size="small" placeholder="Filter sessions…" class="pr-picker-search"
+                            size="small" :placeholder="$t(&quot;Filter sessions…&quot;)" class="pr-picker-search"
                             with-clear
                             :value="sessionFilter"
                             @input="sessionFilter = $event.target.value"
@@ -1699,21 +1692,21 @@ function onHide(event) {
                             class="pr-picker-more" role="status" aria-live="polite"
                         >
                             <wa-spinner></wa-spinner>
-                            Loading sessions…
+                            {{ $t("Loading sessions…") }}
                         </div>
                         <div v-else-if="scopeLoadError" class="pr-picker-more">
-                            Could not load sessions.
+                            {{ $t("Could not load sessions.") }}
                             <wa-button size="small" appearance="plain" @click="loadScopeSessions({ nextPage: true })">
-                                Try again
+                                {{ $t("Try again") }}
                             </wa-button>
                         </div>
                         <template v-else>
-                            <p v-if="!sessionRows.length" class="pr-empty">No matching session.</p>
+                            <p v-if="!sessionRows.length" class="pr-empty">{{ $t("No matching session.") }}</p>
                             <!-- Also reachable when the rows do not fill the
                                  list, where no scroll can reach the end. -->
                             <div v-if="scopeHasMoreSessions" class="pr-picker-more">
                                 <wa-button size="small" appearance="plain" @click="loadScopeSessions({ nextPage: true })">
-                                    Load more sessions
+                                    {{ $t("Load more sessions") }}
                                 </wa-button>
                             </div>
                         </template>
@@ -1724,17 +1717,17 @@ function onHide(event) {
                     v-if="actionError && (mode !== 'existing' || !existingPickerMounted)"
                     variant="danger" size="small"
                     class="pr-action-error"
-                >{{ actionError }}</wa-callout>
+                >{{ $t(actionError) }}</wa-callout>
             </template>
         </template>
 
         <div v-else-if="!loadError" class="pr-dialog-loading" role="status" aria-live="polite">
             <wa-spinner></wa-spinner>
-            Loading message…
+            {{ $t("Loading message…") }}
         </div>
 
         <div slot="footer" class="pr-footer">
-            <wa-button :disabled="busy" @click="emit('close')">Close</wa-button>
+            <wa-button :disabled="busy" @click="emit('close')">{{ $t("Close") }}</wa-button>
         </div>
     </wa-dialog>
 </template>

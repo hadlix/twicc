@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../i18n/index.js'
+
 import { computed, watch, ref, shallowRef, reactive, readonly, provide, inject, onActivated, onDeactivated, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useDataStore } from '../stores/data'
@@ -446,7 +448,7 @@ const sessionArtifactBookmarks = computed(() => computeSessionArtifactBookmarks(
 }))
 const artifactsDir = computed(() => session.value?.artifacts_dir || null)
 const artifactsExternalRoots = computed(() =>
-    artifactsDir.value ? [{ key: 'artifacts', label: 'Artifacts', path: artifactsDir.value }] : []
+    artifactsDir.value ? [{ key: 'artifacts', get label() { return $t("Artifacts") }, path: artifactsDir.value }] : []
 )
 
 // Where an upload started from the Files / Artifacts tab belongs (upload spec §6.7).
@@ -649,15 +651,15 @@ const activeTabId = computed(() => {
 // row (its repo-ness depends on it), the others just the session row. Chat + subagents are
 // center-only, so they're not in here.
 const TOOL_TABS = [
-    { id: 'files', label: 'Files', icon: 'folder', present: () => true },
-    { id: 'git', label: 'Git', icon: 'code-branch', present: () => hasGitRepo.value, redirectReady: () => !!store.getProject(session.value?.project_id) },
-    { id: 'terminal', label: 'Terminal', icon: 'terminal', present: () => true },
-    { id: 'tasks', label: 'Tasks', icon: 'square-check', present: () => hasTasks.value, redirectReady: () => !!session.value },
-    { id: 'plan', label: 'Plan', icon: 'list-check', present: () => hasPlan.value, redirectReady: () => !!session.value },
-    { id: 'artifacts', label: 'Artifacts', icon: 'shapes', present: () => !session.value?.draft },
-    { id: 'orchestration', label: 'Orchestration', icon: 'diagram-project', present: () => hasSpawnRoot.value || hasSubagents.value, redirectReady: () => !!session.value && subagentsResolved.value },
-    { id: 'workflows', label: 'Workflows', icon: 'sitemap', present: () => hasWorkflows.value, redirectReady: () => !!session.value },
-    { id: 'browser', label: 'Browser', icon: 'globe', present: () => true },
+    { id: 'files', get label() { return $t("Files") }, icon: 'folder', present: () => true },
+    { id: 'git', get label() { return $t("Git") }, icon: 'code-branch', present: () => hasGitRepo.value, redirectReady: () => !!store.getProject(session.value?.project_id) },
+    { id: 'terminal', get label() { return $t("Terminal") }, icon: 'terminal', present: () => true },
+    { id: 'tasks', get label() { return $t("Tasks") }, icon: 'square-check', present: () => hasTasks.value, redirectReady: () => !!session.value },
+    { id: 'plan', get label() { return $t("Plan") }, icon: 'list-check', present: () => hasPlan.value, redirectReady: () => !!session.value },
+    { id: 'artifacts', get label() { return $t("Artifacts") }, icon: 'shapes', present: () => !session.value?.draft },
+    { id: 'orchestration', get label() { return $t("Orchestration") }, icon: 'diagram-project', present: () => hasSpawnRoot.value || hasSubagents.value, redirectReady: () => !!session.value && subagentsResolved.value },
+    { id: 'workflows', get label() { return $t("Workflows") }, icon: 'sitemap', present: () => hasWorkflows.value, redirectReady: () => !!session.value },
+    { id: 'browser', get label() { return $t("Browser") }, icon: 'globe', present: () => true },
 ]
 function toolTabById(tabId) { return TOOL_TABS.find((t) => t.id === tabId) || null }
 // Non-tool tabs (main, agent-*) are never gated → treated as present.
@@ -944,7 +946,7 @@ const sessionTabsRef = ref(null)
 // Resolver input: chat is the fixed center anchor; the present tool tabs come from the TOOL_TABS
 // registry above (subagents are center-only and not dockable, so they're excluded here).
 const layoutTabs = computed(() => [
-    { id: 'main', label: 'Chat', icon: TAB_ICONS.main, fixedCenter: true },
+    { id: 'main', get label() { return $t("Chat") }, icon: TAB_ICONS.main, fixedCenter: true },
     ...presentToolTabs.value.map((t) => ({ id: t.id, label: t.label, icon: t.icon })),
 ])
 
@@ -1309,9 +1311,9 @@ const layoutScopeDefaults = computed(() => {
         seen.add(id)
         rows.push({ scope, label, layoutId: id, layoutName: layout.name })
     }
-    add('worktree', 'Worktree default', worktreeId)
-    add('project', 'Project default', projDefaultId)
-    add('global', 'Global default', settingsStore.getDefaultLayoutId)
+    add('worktree', $t("Worktree default"), worktreeId)
+    add('project', $t("Project default"), projDefaultId)
+    add('global', $t("Global default"), settingsStore.getDefaultLayoutId)
     return rows
 })
 
@@ -1344,18 +1346,18 @@ const layoutSaveScopes = computed(() => {
     const self = projectId.value ? store.projects[projectId.value] : null
     if (self) {
         if (self.worktree_of) {
-            scopes.push(projectScope('worktree', 'In Worktree', self))
+            scopes.push(projectScope('worktree', $t("In Worktree"), self))
             const parent = store.projects[self.worktree_of]
             // Drop the project row if the parent repo isn't loaded — nothing to target.
-            if (parent) scopes.push(projectScope('project', `In Project — ${store.getProjectDisplayName(parent.id)}`, parent))
+            if (parent) scopes.push(projectScope('project', $t("In Project — {p0}", { p0: (store.getProjectDisplayName(parent.id)) }), parent))
         } else {
-            scopes.push(projectScope('project', 'In Project', self))
+            scopes.push(projectScope('project', $t("In Project"), self))
         }
     }
     // Global (chain root): always concrete, never inherited.
     scopes.push({
         key: 'global',
-        label: 'Globally',
+        get label() { return $t("Globally") },
         targetProjectId: null,
         preChecked: (globalId || SINGLE_PANE_ID) === SINGLE_PANE_ID,
         inherited: false,
@@ -1429,7 +1431,7 @@ async function syncCenterBarTitle() {
     const nav = group.shadowRoot?.querySelector('[part~="nav"]')
     if (!nav) return
     const title = hasDocks.value
-        ? (isCenterMaximized.value ? 'Double-click to restore' : 'Double-click to maximize')
+        ? (isCenterMaximized.value ? $t("Double-click to restore") : $t("Double-click to maximize"))
         : null
     if (title) nav.setAttribute('title', title)
     else nav.removeAttribute('title')
@@ -1739,7 +1741,7 @@ function openSubagentTab(agentId) {
  */
 function getAgentTabLabel(agentId) {
     const { name, isFallback } = getAgentDisplay(agentId, store)
-    return isFallback ? `Agent "${name}"` : name
+    return isFallback ? $t("Agent \"{p0}\"", { p0: (name) }) : name
 }
 
 // Watch subagentId to open tab when navigating to a subagent URL.
@@ -1799,10 +1801,10 @@ function handleNeedsTitle() {
 // The transcript moves exposed by SessionItemsList's `chatNav`, in the order
 // the ChatNavToolbar shows them (and with its icons).
 const CHAT_NAV_COMMANDS = [
-    { idSuffix: 'top',    label: 'Go to First Message',    icon: 'angles-up',    move: 'goTop' },
-    { idSuffix: 'prev',   label: 'Previous Message Block', icon: 'chevron-up',   move: 'goPrevBlock' },
-    { idSuffix: 'next',   label: 'Next Message Block',     icon: 'chevron-down', move: 'goNextBlock' },
-    { idSuffix: 'bottom', label: 'Go to Last Message',     icon: 'angles-down',  move: 'goBottom' },
+    { idSuffix: 'top',    get label() { return $t("Go to First Message") },    icon: 'angles-up',    move: 'goTop' },
+    { idSuffix: 'prev',   get label() { return $t("Previous Message Block") }, icon: 'chevron-up',   move: 'goPrevBlock' },
+    { idSuffix: 'next',   get label() { return $t("Next Message Block") },     icon: 'chevron-down', move: 'goNextBlock' },
+    { idSuffix: 'bottom', get label() { return $t("Go to Last Message") },     icon: 'angles-down',  move: 'goBottom' },
 ]
 
 const SESSION_COMMAND_IDS = [
@@ -1863,7 +1865,7 @@ function registerSessionCommands() {
     registerCommands([
         {
             id: 'session.rename',
-            label: 'Rename Session',
+            get label() { return $t("Rename Session") },
             icon: 'pencil',
             category: 'session',
             when: () => {
@@ -1874,7 +1876,7 @@ function registerSessionCommands() {
         },
         {
             id: 'session.archive',
-            label: 'Archive Session',
+            get label() { return $t("Archive Session") },
             icon: 'box-archive',
             category: 'session',
             when: () => {
@@ -1885,7 +1887,7 @@ function registerSessionCommands() {
         },
         {
             id: 'session.unarchive',
-            label: 'Unarchive Session',
+            get label() { return $t("Unarchive Session") },
             icon: 'box-open',
             category: 'session',
             when: () => {
@@ -1896,7 +1898,7 @@ function registerSessionCommands() {
         },
         {
             id: 'session.pin-mode',
-            label: 'Change Pin Mode…',
+            get label() { return $t("Change Pin Mode…") },
             icon: 'thumbtack',
             category: 'session',
             when: () => {
@@ -1908,16 +1910,16 @@ function registerSessionCommands() {
                 const current = s?.pinned ?? null
                 const pick = (mode) => store.setSessionPinMode(projectId.value, sessionId.value, mode)
                 return [
-                    { id: 'none',      label: 'Not pinned',   action: () => pick(null),        active: !current },
-                    { id: 'project',   label: 'Project',      action: () => pick('project'),   active: current === 'project' },
-                    { id: 'workspace', label: 'Workspace',    action: () => pick('workspace'), active: current === 'workspace' },
-                    { id: 'all',       label: 'Everywhere', action: () => pick('all'),       active: current === 'all' },
+                    { id: 'none',      get label() { return $t("Not pinned") },   action: () => pick(null),        active: !current },
+                    { id: 'project',   get label() { return $t("Project") },      action: () => pick('project'),   active: current === 'project' },
+                    { id: 'workspace', get label() { return $t("Workspace") },    action: () => pick('workspace'), active: current === 'workspace' },
+                    { id: 'all',       get label() { return $t("Everywhere") }, action: () => pick('all'),       active: current === 'all' },
                 ]
             },
         },
         {
             id: 'session.mute',
-            label: 'Silence Notification and Unread Flag',
+            get label() { return $t("Silence Notification and Unread Flag") },
             icon: 'bell-slash',
             category: 'session',
             // Mirrors the session header's bell. Silences the "finished
@@ -1933,7 +1935,7 @@ function registerSessionCommands() {
         },
         {
             id: 'session.mark-read',
-            label: 'Mark as Read',
+            get label() { return $t("Mark as Read") },
             icon: 'eye-slash',
             category: 'session',
             when: () => currentSessionReadState()?.unread === true,
@@ -1941,7 +1943,7 @@ function registerSessionCommands() {
         },
         {
             id: 'session.mark-unread',
-            label: 'Mark as Unread',
+            get label() { return $t("Mark as Unread") },
             icon: 'eye',
             category: 'session',
             when: () => currentSessionReadState()?.unread === false,
@@ -1961,7 +1963,7 @@ function registerSessionCommands() {
         },
         {
             id: 'session.stop',
-            label: 'Stop Process',
+            get label() { return $t("Stop Process") },
             icon: 'stop',
             category: 'session',
             when: () => {
@@ -1973,7 +1975,7 @@ function registerSessionCommands() {
         },
         {
             id: 'session.force-stop',
-            label: 'Force Kill Process',
+            get label() { return $t("Force Kill Process") },
             icon: 'bolt',
             category: 'session',
             when: () => {
@@ -1984,7 +1986,7 @@ function registerSessionCommands() {
         },
         {
             id: 'session.delete-draft',
-            label: 'Discard',
+            get label() { return $t("Discard") },
             icon: 'trash',
             category: 'session',
             when: () => {
@@ -2007,7 +2009,7 @@ function registerSessionCommands() {
         },
         {
             id: 'session.focus-input',
-            label: 'Focus Message Input',
+            get label() { return $t("Focus Message Input") },
             icon: 'keyboard',
             category: 'session',
             // Direct access to the message input specifically — opens it in the
@@ -2018,7 +2020,7 @@ function registerSessionCommands() {
         },
         {
             id: 'session.focus-pending',
-            label: 'Focus Pending Request',
+            get label() { return $t("Focus Pending Request") },
             icon: 'reply',
             category: 'session',
             // Only when an answerable pending request form is shown (a request
@@ -2033,7 +2035,7 @@ function registerSessionCommands() {
         },
         {
             id: 'session.focus-terminal',
-            label: 'Open Claude CLI Terminal',
+            get label() { return $t("Open Claude CLI Terminal") },
             icon: 'terminal',
             category: 'session',
             // Hybrid sessions only — the embedded CLI terminal block. Hidden
@@ -2045,7 +2047,7 @@ function registerSessionCommands() {
         },
         {
             id: 'session.toggle-hybrid',
-            label: 'Toggle Hybrid Mode',
+            get label() { return $t("Toggle Hybrid Mode") },
             icon: 'right-left',
             category: 'session',
             // Claude sessions where hybrid is actually toggleable — not a
@@ -2080,7 +2082,7 @@ function registerSessionCommands() {
         })),
         {
             id: 'session.collapse-input',
-            label: 'Collapse Message Input',
+            get label() { return $t("Collapse Message Input") },
             icon: 'chevron-down',
             category: 'session',
             // Only when a message input is actually shown (main session, not
@@ -2095,7 +2097,7 @@ function registerSessionCommands() {
         },
         {
             id: 'session.expand-input',
-            label: 'Expand Message Input',
+            get label() { return $t("Expand Message Input") },
             icon: 'chevron-up',
             category: 'session',
             when: () => !!document.querySelector('.message-input.collapsed'),
@@ -2152,7 +2154,7 @@ function buildSessionSettingsCommands() {
         return {
             id: '__default__',
             group: 'default',
-            label: `Default: ${helpers.getDefaultValueLabel(field, helpers.getDefaultValue(field))}`,
+            get label() { return $t("Default: {p0}", { p0: (helpers.getDefaultValueLabel(field, helpers.getDefaultValue(field))) }) },
             action: () => setSessionSettingValue(field, null),
             active: current === null,
         }
@@ -2190,7 +2192,7 @@ function buildSessionSettingsCommands() {
     return [
         ...(helpers.supportsAgentSetting('selected_model') ? [{
             id: 'session.model',
-            label: 'Change Session Model…',
+            get label() { return $t("Change Session Model…") },
             icon: 'robot',
             category: 'session',
             when: isAvailable,
@@ -2216,22 +2218,22 @@ function buildSessionSettingsCommands() {
         }] : []),
         ...buildSimpleCommand('effort', {
             id: 'session.effort',
-            label: 'Change Session Effort…',
+            get label() { return $t("Change Session Effort…") },
             icon: 'gauge',
         }),
         ...buildSimpleCommand('thinking_enabled', {
             id: 'session.thinking',
-            label: 'Change Session Thinking…',
+            get label() { return $t("Change Session Thinking…") },
             iconSrc: AGENT_SETTING_ICONS.thinking_enabled.src,
         }),
         ...buildSimpleCommand('permission_mode', {
             id: 'session.permission',
-            label: 'Change Session Permission Mode…',
+            get label() { return $t("Change Session Permission Mode…") },
             icon: 'shield-halved',
         }),
         ...buildSimpleCommand('context_max', {
             id: 'session.context',
-            label: 'Change Session Context Size…',
+            get label() { return $t("Change Session Context Size…") },
             icon: 'window-maximize',
             when: () => {
                 const gate = sessionSettingsGate()
@@ -2241,12 +2243,12 @@ function buildSessionSettingsCommands() {
         }),
         ...buildSimpleCommand('claude_in_chrome', {
             id: 'session.chrome',
-            label: 'Change Session Claude in Chrome MCP…',
+            get label() { return $t("Change Session Claude in Chrome MCP…") },
             icon: 'globe',
         }),
         ...buildSimpleCommand('fast_mode', {
             id: 'session.fast-mode',
-            label: 'Change Session Fast Mode…',
+            get label() { return $t("Change Session Fast Mode…") },
             icon: 'gauge-high',
         }),
     ]
@@ -2268,7 +2270,7 @@ function buildLayoutCommands() {
     return [
         {
             id: 'layout.maximize-pane',
-            label: 'Maximize Focused Pane',
+            get label() { return $t("Maximize Focused Pane") },
             icon: 'expand',
             category: 'layout',
             when: () => ready() && canMaximizeFocusedPane(),
@@ -2276,7 +2278,7 @@ function buildLayoutCommands() {
         },
         {
             id: 'layout.minimize-pane',
-            label: 'Minimize Focused Pane',
+            get label() { return $t("Minimize Focused Pane") },
             icon: 'window-minimize',
             category: 'layout',
             when: () => ready() && canMinimizeFocusedPane(),
@@ -2284,7 +2286,7 @@ function buildLayoutCommands() {
         },
         {
             id: 'layout.restore-pane',
-            label: 'Restore Maximized Pane',
+            get label() { return $t("Restore Maximized Pane") },
             icon: 'compress',
             category: 'layout',
             when: () => ready() && !!layout.maximizedRegion.value,
@@ -2292,7 +2294,7 @@ function buildLayoutCommands() {
         },
         {
             id: 'layout.move-tab',
-            label: 'Move Current Tab to…',
+            get label() { return $t("Move Current Tab to…") },
             icon: 'up-down-left-right',
             category: 'layout',
             when: () => ready() && movableTab(activeTabId.value),
@@ -2313,7 +2315,7 @@ function buildLayoutCommands() {
         },
         {
             id: 'layout.save',
-            label: 'Save Layout…',
+            get label() { return $t("Save Layout…") },
             icon: 'floppy-disk',
             category: 'layout',
             when: () => ready() && hasDocks.value,
@@ -2321,7 +2323,7 @@ function buildLayoutCommands() {
         },
         {
             id: 'layout.load',
-            label: 'Load Layout…',
+            get label() { return $t("Load Layout…") },
             icon: 'table-columns',
             category: 'layout',
             // Hidden in the mobile tab strip, like the on-screen layout menu — no layout there.
@@ -2331,7 +2333,7 @@ function buildLayoutCommands() {
             items: () => {
                 const items = [{
                     id: SINGLE_PANE_ID,
-                    label: 'Single pane',
+                    get label() { return $t("Single pane") },
                     group: 'base',
                     action: () => onSelectLayout(SINGLE_PANE_ID),
                 }]
@@ -2431,7 +2433,7 @@ onBeforeUnmount(() => {
             >
                 <SessionTabLink :href="sessionTabHref('main')">
                     <wa-icon :name="TAB_ICONS.main"></wa-icon>
-                    Chat
+                    {{ $t("Chat") }}
                     <CodeCommentsIndicator :count="chatCommentsCount" :show-tooltip="false" class="tab-comments-indicator" />
                     <wa-icon
                         v-if="store.getPendingRequests(sessionId).length > 0"
@@ -2440,7 +2442,7 @@ onBeforeUnmount(() => {
                         class="pending-request-indicator"
                     ></wa-icon>
                 </SessionTabLink>
-                <AppTooltip v-if="store.getPendingRequests(sessionId).length > 0" :for="`session-tab-chat-${sessionId}-pending-request`">Waiting for your response</AppTooltip>
+                <AppTooltip v-if="store.getPendingRequests(sessionId).length > 0" :for="`session-tab-chat-${sessionId}-pending-request`">{{ $t("Waiting for your response") }}</AppTooltip>
             </wa-tab>
 
             <!-- Subagent tabs with close button -->
@@ -2458,7 +2460,7 @@ onBeforeUnmount(() => {
                             <CodeCommentsIndicator :count="agentCommentsCount(tab.agentId)" :show-tooltip="false" class="tab-comments-indicator" />
                         </SessionTabLink>
                         <span class="tab-close-icon" @click.stop="closeTab(tab.id)">
-                            <wa-icon name="xmark" label="Close tab"></wa-icon>
+                            <wa-icon name="xmark" :label="$t(&quot;Close tab&quot;)"></wa-icon>
                         </span>
                     </span>
                 </wa-tab>
@@ -2570,8 +2572,8 @@ onBeforeUnmount(() => {
                 :variant="isCenterMaximized ? 'brand' : 'neutral'"
                 :appearance="isCenterMaximized ? 'accent' : 'plain'"
                 size="small"
-                :title="isCenterMaximized ? 'Restore (Alt+Shift+Enter)' : 'Maximize main area (Alt+Shift+Enter)'"
-                :aria-label="isCenterMaximized ? 'Restore' : 'Maximize main area'"
+                :title="isCenterMaximized ? $t(&quot;Restore (Alt+Shift+Enter)&quot;) : $t(&quot;Maximize main area (Alt+Shift+Enter)&quot;)"
+                :aria-label="isCenterMaximized ? $t(&quot;Restore&quot;) : $t(&quot;Maximize main area&quot;)"
                 @click.stop="isCenterMaximized ? onLayoutRestoreMaximized() : onCenterMaximize()"
             >
                 <wa-icon :name="isCenterMaximized ? 'compress' : 'expand'"></wa-icon>
@@ -2583,7 +2585,7 @@ onBeforeUnmount(() => {
         <div v-else-if="sessionLoadError === 'not-found'" class="empty-state panel-card">
             <wa-callout variant="warning" size="small">
                 <wa-icon slot="icon" name="circle-exclamation"></wa-icon>
-                Session not found
+                {{ $t("Session not found") }}
             </wa-callout>
         </div>
 
@@ -2591,14 +2593,14 @@ onBeforeUnmount(() => {
         <div v-else-if="sessionLoadError === 'error'" class="empty-state panel-card">
             <wa-callout variant="danger" size="small">
                 <wa-icon slot="icon" name="triangle-exclamation"></wa-icon>
-                Failed to load session
+                {{ $t("Failed to load session") }}
             </wa-callout>
         </div>
 
         <!-- Loading state -->
         <div v-else class="empty-state panel-card">
             <wa-spinner></wa-spinner>
-            <span>Loading session...</span>
+            <span>{{ $t("Loading session...") }}</span>
         </div>
 
         <!-- Save-layout dialog (opened from the tab nav's Save button) -->

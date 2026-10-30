@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 import { ref, computed, watch, nextTick, provide, onMounted, onUnmounted, onActivated, onDeactivated, useId } from 'vue'
 import { apiFetch } from '../../utils/api'
 import { useSettingsStore } from '../../stores/settings'
@@ -127,7 +129,7 @@ let lastVanishedFilePath = null
 
 function showTransientFileGone(filePath) {
     lastVanishedFilePath = filePath
-    transientFileNotice.value = makeRouteIssue('File ', filePath, ' is no longer available in this view.')
+    transientFileNotice.value = makeRouteIssue($t("File "), filePath, $t(" is no longer available in this view."))
     armTransientFileNoticeTimer()
 }
 
@@ -783,7 +785,7 @@ async function fetchDiff(file) {
         const data = await res.json()
 
         if (!res.ok || data.error) {
-            diffError.value = data.error || 'Failed to load diff'
+            diffError.value = data.error || $t("Failed to load diff")
             diffData.value = null
             return
         }
@@ -794,7 +796,7 @@ async function fetchDiff(file) {
             diffData.value = data
         }
     } catch {
-        diffError.value = 'Network error'
+        diffError.value = $t("Network error")
         diffData.value = null
     } finally {
         diffLoading.value = false
@@ -850,9 +852,9 @@ async function fetchGitLog() {
             if (res.status === 404 && selectedRootKey.value) {
                 missingRoots.value = new Set([...missingRoots.value, selectedRootKey.value])
                 routeRootIssue.value = makeRouteIssue(
-                    'Git root ',
+                    $t("Git root "),
                     props.routeRootKey || selectedRootKey.value,
-                    ' is no longer available.',
+                    $t(" is no longer available."),
                 )
                 entries.value = []
                 currentBranch.value = ''
@@ -867,7 +869,7 @@ async function fetchGitLog() {
                 return
             }
 
-            error.value = data.error || `Request failed (${res.status})`
+            error.value = data.error || $t("Request failed ({p0})", { p0: (res.status) })
             return
         }
 
@@ -892,7 +894,7 @@ async function fetchGitLog() {
             selectedBranch.value = targetBranch
         }
     } catch (e) {
-        error.value = 'Failed to load git history'
+        error.value = $t("Failed to load git history")
     } finally {
         loading.value = false
     }
@@ -975,7 +977,7 @@ watch(
 
         const requestedRoot = roots.find(root => root.key === routeRootKey)
         if (!requestedRoot) {
-            routeRootIssue.value = makeRouteIssue('Git root ', routeRootKey, ' is not available.')
+            routeRootIssue.value = makeRouteIssue($t("Git root "), routeRootKey, $t(" is not available."))
             entries.value = []
             currentBranch.value = ''
             headCommitHash.value = ''
@@ -999,7 +1001,7 @@ watch(
         }
 
         if (missingRoots.value.has(routeRootKey)) {
-            routeRootIssue.value = makeRouteIssue('Git root ', routeRootKey, ' is no longer available.')
+            routeRootIssue.value = makeRouteIssue($t("Git root "), routeRootKey, $t(" is no longer available."))
             entries.value = []
             currentBranch.value = ''
             headCommitHash.value = ''
@@ -1070,7 +1072,7 @@ watch(
 
         const matchingCommit = entries.value.find(entry => entry.hash === targetCommitRef)
         if (!matchingCommit) {
-            routeCommitIssue.value = makeRouteIssue('Commit ', targetCommitRef, ' is no longer available.')
+            routeCommitIssue.value = makeRouteIssue($t("Commit "), targetCommitRef, $t(" is no longer available."))
             syncingFromRoute = true
             selectedCommit.value = null
             clearSelectedFile()
@@ -1107,7 +1109,7 @@ watch(
                 syncingFromRoute = false
             }
             if (routeFilePath === null) {
-                routeFileIssue.value = makeRouteIssue('Requested file path is invalid.')
+                routeFileIssue.value = makeRouteIssue($t("Requested file path is invalid."))
             } else {
                 lastVanishedFilePath = null
                 routeFileIssue.value = null
@@ -1148,7 +1150,7 @@ watch(
             } else {
                 // Case A: a dead deep-link to a file never shown — persistent, it
                 // explains why nothing is selected.
-                routeFileIssue.value = makeRouteIssue('File ', routeFilePath, ' is no longer available in this view.')
+                routeFileIssue.value = makeRouteIssue($t("File "), routeFilePath, $t(" is no longer available in this view."))
             }
             return
         }
@@ -1559,7 +1561,7 @@ onMounted(() => {
         <!-- Loading state -->
         <div v-if="loading" class="panel-state">
             <wa-spinner></wa-spinner>
-            <span>Loading git history...</span>
+            <span>{{ $t("Loading git history...") }}</span>
         </div>
 
         <!-- Error state -->
@@ -1567,7 +1569,7 @@ onMounted(() => {
             <wa-callout variant="danger" class="pane-callout">
                 <wa-icon slot="icon" name="circle-exclamation"></wa-icon>
                 <div class="error-content">
-                    <div>{{ error }}</div>
+                    <div>{{ $t(error) }}</div>
                     <wa-button
                         variant="danger"
                         appearance="outlined"
@@ -1575,7 +1577,7 @@ onMounted(() => {
                         @click="fetchGitLog"
                     >
                         <wa-icon slot="start" name="arrow-rotate-right"></wa-icon>
-                        Retry
+                        {{ $t("Retry") }}
                     </wa-button>
                 </div>
             </wa-callout>
@@ -1593,7 +1595,7 @@ onMounted(() => {
 
         <!-- Empty state (no commits) -->
         <div v-else-if="started && entries.length === 0" class="panel-state">
-            <span class="panel-placeholder">No commits found</span>
+            <span class="panel-placeholder">{{ $t("No commits found") }}</span>
         </div>
 
         <!-- Main content: header + split panel + git log overlay -->
@@ -1662,11 +1664,11 @@ onMounted(() => {
                                 value="show-untracked"
                                 :checked="showUntracked"
                             >
-                                Show untracked files
+                                {{ $t("Show untracked files") }}
                             </wa-dropdown-item>
                             <wa-divider></wa-divider>
                             <wa-dropdown-item disabled class="dropdown-header">
-                                Git directory:
+                                {{ $t("Git directory:") }}
                             </wa-dropdown-item>
                             <wa-dropdown-item
                                 v-for="root in availableGitRoots"
@@ -1679,7 +1681,7 @@ onMounted(() => {
                             >
                                 <div>{{ root.label }}</div>
                                 <div class="root-path">{{ root.path }}</div>
-                                <div v-if="missingRoots.has(root.key)" class="root-missing">Directory no longer exists</div>
+                                <div v-if="missingRoots.has(root.key)" class="root-missing">{{ $t("Directory no longer exists") }}</div>
                             </wa-dropdown-item>
                             <wa-divider></wa-divider>
                         </template>
@@ -1702,7 +1704,7 @@ onMounted(() => {
                             <!-- Diff error -->
                             <div v-if="diffError" class="panel-placeholder">
                                 <wa-callout variant="danger" size="small">
-                                    {{ diffError }}
+                                    {{ $t(diffError) }}
                                 </wa-callout>
                             </div>
 
@@ -1726,7 +1728,7 @@ onMounted(() => {
 
                             <!-- Non-image binary file -->
                             <div v-else-if="diffData?.binary" class="panel-placeholder">
-                                Binary file cannot be diffed
+                                {{ $t("Binary file cannot be diffed") }}
                             </div>
 
                             <!-- Diff viewer (CodeMirror diff editor via FilePane) -->
@@ -1749,7 +1751,7 @@ onMounted(() => {
 
                             <!-- No file selected / no changes -->
                             <div v-else-if="!selectedFile" class="panel-placeholder">
-                                {{ !displayTree ? 'No changes' : 'Select a file' }}
+                                {{ !displayTree ? $t("No changes") : $t("Select a file") }}
                             </div>
 
                             <!-- Loading overlay (shown on top of existing content) -->
@@ -1808,7 +1810,7 @@ onMounted(() => {
                                 <wa-icon name="folder"></wa-icon>
                             </wa-button>
                             <wa-dropdown-item disabled class="dropdown-header">
-                                <small>Git directory:</small>
+                                <small>{{ $t("Git directory:") }}</small>
                             </wa-dropdown-item>
                             <wa-dropdown-item
                                 v-for="root in availableGitRoots"
@@ -1819,10 +1821,10 @@ onMounted(() => {
                                 <wa-icon slot="icon" name="check" :style="{ visibility: root.key === selectedRootKey ? 'visible' : 'hidden' }"></wa-icon>
                                 {{ root.label }}
                                 <div class="root-path">{{ root.path }}</div>
-                                <div v-if="missingRoots.has(root.key)" class="root-missing">Directory no longer exists</div>
+                                <div v-if="missingRoots.has(root.key)" class="root-missing">{{ $t("Directory no longer exists") }}</div>
                             </wa-dropdown-item>
                         </wa-dropdown>
-                        <AppTooltip :for="gitDirButtonId">Switch git directory</AppTooltip>
+                        <AppTooltip :for="gitDirButtonId">{{ $t("Switch git directory") }}</AppTooltip>
 
                         <wa-select
                             v-if="branches.length"
@@ -1832,7 +1834,7 @@ onMounted(() => {
                             @change="onBranchChange"
                         >
                             <wa-icon slot="start" name="code-branch"></wa-icon>
-                            <wa-option value="">All branches</wa-option>
+                            <wa-option value="">{{ $t("All branches") }}</wa-option>
                             <wa-divider></wa-divider>
                             <wa-option
                                 v-if="currentBranch"
@@ -1851,7 +1853,7 @@ onMounted(() => {
                             v-model="filterText"
                             class="filter-input"
                             size="small"
-                            placeholder="Filter commits..."
+                            :placeholder="$t(&quot;Filter commits...&quot;)"
                             clearable
                         >
                             <wa-icon slot="start" name="magnifying-glass"></wa-icon>
@@ -1868,7 +1870,7 @@ onMounted(() => {
                         >
                             <wa-icon name="arrow-rotate-right"></wa-icon>
                         </wa-button>
-                        <AppTooltip :for="refreshButtonId">Refresh git log</AppTooltip>
+                        <AppTooltip :for="refreshButtonId">{{ $t("Refresh git log") }}</AppTooltip>
                     </div>
 
                     <GitLog

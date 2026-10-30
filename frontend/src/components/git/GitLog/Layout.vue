@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { t as $t } from '../../../i18n/index.js'
+
 import { computed, watchEffect } from 'vue'
 import { CURVE_SIZE, NODE_BORDER_WIDTH } from './constants'
 import { useGitContext } from './composables/useGitContext'
@@ -127,7 +129,7 @@ const cssVars = computed(() => ({
             v-if="showHeaders"
             class="title"
           >
-            Branch / Tag
+            {{ $t("Branch / Tag") }}
           </div>
 
           <slot name="tags" />
@@ -138,7 +140,7 @@ const cssVars = computed(() => ({
             v-if="showHeaders"
             class="title"
           >
-            Graph
+            {{ $t("Graph") }}
           </div>
 
           <slot name="graph" />

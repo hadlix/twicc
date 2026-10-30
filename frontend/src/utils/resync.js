@@ -1,3 +1,5 @@
+
+import { t as $t } from '../i18n/index.js'
 // frontend/src/utils/resync.js
 //
 // Handles the backend's `resync_required` frame.
@@ -105,13 +107,13 @@ function showResyncToast() {
     import('../composables/useToast').then(({ toast }) => {
         toast.custom({
             type: 'warning',
-            title: 'Updates were lost',
+            get title() { return $t("Updates were lost") },
             duration: Infinity,
             html: `
                 <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.25rem;">
-                    <span>This tab is out of sync with the server and stopped receiving updates.</span>
+                    <span>${$t("This tab is out of sync with the server and stopped receiving updates.")}</span>
                     <a href="#" onclick="window.location.reload(); return false;"
-                       style="color: var(--wa-color-text-link); text-decoration: underline;">Reload now</a>
+                       style="color: var(--wa-color-text-link); text-decoration: underline;">${$t("Reload now")}</a>
                 </div>
             `,
         })

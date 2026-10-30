@@ -1,3 +1,5 @@
+
+import { t as $t } from '../i18n/index.js'
 // Artifact network-broker HOST (design §9). The trusted side of the penpal RPC
 // whose other end is the injected shim (shim.js). It owns the broker decision:
 // serve the artifact's own assets locally, gate cross-origin requests behind the
@@ -51,7 +53,7 @@ async function callProxy(proxyUrl, body) {
         body: JSON.stringify(body),
         credentials: 'same-origin',
     })
-    if (res.status === 401) throw new Error('not authenticated')
+    if (res.status === 401) throw new Error($t("not authenticated"))
     return await res.json()
 }
 

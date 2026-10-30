@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 import { computed } from 'vue'
 
 const props = defineProps({
@@ -56,10 +58,10 @@ const entries = computed(() => {
 
 const collapsedPreview = computed(() => {
     if (Array.isArray(props.data)) {
-        return `[${props.data.length} items]`
+        return $t("[{p0} items]", { p0: (props.data.length) })
     }
     const keys = Object.keys(props.data)
-    return `{${keys.length} keys}`
+    return $t("{{p0} keys}", { p0: (keys.length) })
 })
 
 function handleToggle() {

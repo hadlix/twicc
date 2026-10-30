@@ -1,3 +1,5 @@
+
+import { t as $t } from '../i18n/index.js'
 // frontend/src/composables/useReconciliation.js
 
 import { useDataStore } from '../stores/data'
@@ -85,7 +87,7 @@ export function useReconciliation() {
         let lastResult = null
 
         for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
-            const groupName = attempt === 1 ? 'Reconciliation' : `Reconciliation, try ${attempt}`
+            const groupName = attempt === 1 ? $t("Reconciliation") : `Reconciliation, try ${attempt}`
             console.group(groupName)
 
             try {

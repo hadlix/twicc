@@ -1,3 +1,5 @@
+import '../i18n/index.js'
+import '@awesome.me/webawesome/dist/translations/fr.js'
 // Entry for the dedicated artifact page's trusted shell (design §5/§9). It
 // mounts a deliberately MINIMAL Vue app — only Vue + the shared broker
 // composable/prompt + the few Web Awesome components the prompt renders — so the
@@ -5,7 +7,8 @@
 // at /_twicc/artifact-shell/shell.js and injects the per-bookmark data the app
 // reads below.
 
-import { createApp } from 'vue'
+import { createApp, watchEffect } from 'vue'
+import { t } from '../i18n/index.js'
 
 // Web Awesome: design tokens + ONLY the components the consent prompt uses.
 import '@awesome.me/webawesome/dist/styles/webawesome.css'
@@ -43,6 +46,11 @@ const dataEl = document.getElementById('twicc-shell-data')
 const shellData = dataEl ? JSON.parse(dataEl.textContent) : {}
 
 if (shellData.mode === 'share') {
+    watchEffect(() => {
+        const title = (shellData.title || '').trim()
+        const label = t('Shared artifact')
+        document.title = title ? `TwiCC - ${label} - ${title}` : `TwiCC - ${label}`
+    })
     // Record this artifact share in the browser's recent list (share host homepage).
     recordShareView({ tokenPath: shellData.tokenPath, kind: 'artifact', title: shellData.title || '' })
 }

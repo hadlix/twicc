@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 import { ref, computed, watch, nextTick } from 'vue'
 import { useDataStore } from '../../stores/data.js'
 import { useSettingsStore } from '../../stores/settings.js'
@@ -80,20 +82,20 @@ const badgeLabel = computed(() => {
 })
 
 const dialogLabel = computed(() => {
-    if (isSponsorScreen.value) return 'Enjoying TwiCC?'
+    if (isSponsorScreen.value) return $t("Enjoying TwiCC?")
     const v = selectedVersion.value
-    if (!v) return "What's New"
+    if (!v) return $t("What's New")
     if (v === COMBINED_VERSION_KEY) {
         const entry = currentEntry.value
         const prevV = selectedVersionData.value?._previousVersion
         const sourceV = entry?._sourceVersion
         if (prevV && sourceV) {
-            return `What's new since v${prevV}: v${sourceV}`
+            return $t("What's new since v{p0}: v{p1}", { p0: (prevV), p1: (sourceV) })
         }
-        return "What's New"
+        return $t("What's New")
     }
-    if (/^\d/.test(v)) return `What's New in v${v}`
-    return `What's New (${v})`
+    if (/^\d/.test(v)) return $t("What's New in v{p0}", { p0: (v) })
+    return $t("What's New ({p0})", { p0: (v) })
 })
 
 // Find the initial version to display
@@ -157,7 +159,7 @@ function onImageClick(event) {
     const items = imgs.map(el => ({
         type: 'image',
         src: el.src,
-        name: el.getAttribute('alt') || 'Image',
+        name: el.getAttribute('alt') || "Image",
     }))
     openMediaPreview(items, Math.max(0, imgs.indexOf(clicked)))
 }
@@ -196,7 +198,7 @@ async function open({ availableUpdates = false } = {}) {
         await nextTick()
         await renderCurrentEntry()
     } catch (e) {
-        error.value = `Could not load changelog: ${e.message}`
+        error.value = $t("Could not load changelog: {p0}", { p0: (e.message) })
     } finally {
         loading.value = false
     }
@@ -238,19 +240,17 @@ defineExpose({ open, close })
         <!-- Loading -->
         <div v-if="loading" class="changelog-loading">
             <wa-spinner style="font-size: 2rem;"></wa-spinner>
-            <p>Loading changelog…</p>
+            <p>{{ $t("Loading changelog…") }}</p>
         </div>
 
         <!-- Error -->
-        <wa-callout v-else-if="error" variant="danger">{{ error }}</wa-callout>
+        <wa-callout v-else-if="error" variant="danger">{{ $t(error) }}</wa-callout>
 
         <!-- Sponsor screen: always the last screen after the real entries -->
         <div v-else-if="isSponsorScreen" class="changelog-sponsor">
             <wa-icon name="heart" class="changelog-sponsor-heart"></wa-icon>
             <p class="changelog-sponsor-text">
-                TwiCC is free and built by a solo developer. If it makes your work
-                with Claude Code and Codex smoother, please consider supporting its
-                development.
+                {{ $t("TwiCC is free and built by a solo developer. If it makes your work with Claude Code and Codex smoother, please consider supporting its development.") }}
             </p>
             <wa-button
                 class="changelog-sponsor-button"
@@ -259,14 +259,14 @@ defineExpose({ open, close })
                 rel="noopener"
             >
                 <wa-icon slot="start" name="heart"></wa-icon>
-                Sponsor on GitHub
+                {{ $t("Sponsor on GitHub") }}
             </wa-button>
-            <p class="changelog-sponsor-footnote">Every bit helps — thank you!</p>
+            <p class="changelog-sponsor-footnote">{{ $t("Every bit helps — thank you!") }}</p>
         </div>
 
         <!-- Empty -->
         <div v-else-if="!currentEntry" class="changelog-empty">
-            <p>No changelog entries found.</p>
+            <p>{{ $t("No changelog entries found.") }}</p>
         </div>
 
         <!-- Entry content -->
@@ -319,7 +319,7 @@ defineExpose({ open, close })
                     @click="prev"
                 >
                     <wa-icon name="chevron-left" slot="start"></wa-icon>
-                    Prev
+                    {{ $t("Prev") }}
                 </wa-button>
                 <span class="changelog-counter">
                     {{ totalScreens > 0 ? currentEntryIdx + 1 : 0 }} / {{ totalScreens }}
@@ -330,7 +330,7 @@ defineExpose({ open, close })
                     :disabled="currentEntryIdx >= totalScreens - 1"
                     @click="next"
                 >
-                    Next
+                    {{ $t("Next") }}
                     <wa-icon name="chevron-right" slot="end"></wa-icon>
                 </wa-button>
             </div>

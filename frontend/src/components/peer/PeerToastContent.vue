@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 /**
  * PeerToastContent - Actionable toast body for peer events.
  *
@@ -76,11 +78,11 @@ function later() {
         <template v-if="mode === 'request' && peer">
             <span class="peer-toast-line">
                 <wa-icon name="user-plus" class="peer-toast-icon"></wa-icon>
-                <strong>{{ peer.name || peer.remote_display_name || 'An instance' }}</strong>
-                &nbsp;wants to pair with your instance
+                <strong>{{ peer.name || peer.remote_display_name || $t("An instance") }}</strong>
+                {{ $t("wants to pair with your instance") }}
             </span>
             <span class="peer-toast-url">{{ peer.base_url }}</span>
-            <span class="peer-toast-hint">Review the request to see its verification code.</span>
+            <span class="peer-toast-hint">{{ $t("Review the request to see its verification code.") }}</span>
         </template>
         <template v-else-if="mode === 'message' && message">
             <span v-if="message.title" class="peer-toast-title">{{ message.title }}</span>
@@ -92,11 +94,11 @@ function later() {
              alone. Same reading as the inbox row, in one line. -->
         <span v-if="routing" class="peer-toast-route">
             <template v-if="routing.sessionId">
-                <span class="peer-toast-route__label">session</span>
+                <span class="peer-toast-route__label">{{ $t("session") }}</span>
                 <span class="peer-toast-route__title" :title="routing.sessionTitle">“{{ routingTitle }}”</span>
             </template>
             <template v-if="routing.projectId">
-                <span class="peer-toast-route__label">in</span>
+                <span class="peer-toast-route__label">{{ $t("in") }}</span>
                 <ProjectBadge :project-id="routing.projectId" class="peer-toast-route__project" />
             </template>
         </span>
@@ -105,15 +107,15 @@ function later() {
                 <wa-button
                     size="small" variant="brand" appearance="outlined"
                     @click="review"
-                >Review</wa-button>
-                <wa-button size="small" variant="neutral" appearance="outlined" @click="later">Later</wa-button>
+                >{{ $t("Review") }}</wa-button>
+                <wa-button size="small" variant="neutral" appearance="outlined" @click="later">{{ $t("Later") }}</wa-button>
             </template>
             <template v-else>
                 <wa-button
                     size="small" variant="brand" appearance="outlined"
                     @click="read"
-                >Open in inbox</wa-button>
-                <wa-button size="small" variant="neutral" appearance="outlined" @click="later">Keep unread</wa-button>
+                >{{ $t("Open in inbox") }}</wa-button>
+                <wa-button size="small" variant="neutral" appearance="outlined" @click="later">{{ $t("Keep unread") }}</wa-button>
             </template>
         </div>
     </div>

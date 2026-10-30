@@ -1,3 +1,5 @@
+
+import { t as $t } from '../i18n/index.js'
 // frontend/src/utils/attachmentStrip.js
 // Attachments of a user message (spec 2026-10-03 §9.5, §10.2): the total
 // attachment count and the match key that identifies a send across the
@@ -17,7 +19,7 @@ export const ATTACHMENT_SHARE_MODE = 'twiccAttachmentShareMode'
 
 // The bundled Claude CLI replaces, in place, an image it cannot process by a
 // text block starting with this (same rule as the backend extraction).
-const IMAGE_PLACEHOLDER_PREFIX = '[Image could not be processed:'
+const IMAGE_PLACEHOLDER_PREFIX = $t("[Image could not be processed:")
 
 // Native media entry types across providers: Claude SDK content, Codex
 // canonical `UserMessage` content, Codex `response_item` content.

@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // WorkspaceManageDialog.vue - Dialog for managing workspaces (list + create/edit form)
 import ReorderHandle from '../ui/ReorderHandle.vue'
 import { moveVisibleItems } from '../../utils/listReorder'
@@ -53,9 +55,9 @@ let scanFeedbackTimer = null
 
 // -- Computed -----------------------------------------------------------------
 const dialogLabel = computed(() => {
-    if (view.value === 'list') return 'Workspaces'
-    if (formData.value.id) return 'Edit Workspace'
-    return 'New Workspace'
+    if (view.value === 'list') return $t("Workspaces")
+    if (formData.value.id) return $t("Edit Workspace")
+    return $t("New Workspace")
 })
 
 /** Workspaces to display in the list, respecting the dialog-local "show archived" toggle. */
@@ -209,7 +211,7 @@ function scanNow() {
     const projects = dataStore.getListableProjects
     const patterns = formData.value.autoProjectPatterns
     if (patterns.length === 0) {
-        scanFeedback.value = 'No patterns defined'
+        scanFeedback.value = $t("No patterns defined")
         clearScanFeedbackLater()
         return
     }
@@ -222,8 +224,8 @@ function scanNow() {
         }
     }
     scanFeedback.value = added > 0
-        ? `${added} project${added > 1 ? 's' : ''} added`
-        : 'No new projects found'
+        ? $t("{p0} project{p1} added", { p0: (added), p1: (added > 1 ? 's' : '') })
+        : $t("No new projects found")
     clearScanFeedbackLater()
 }
 
@@ -239,12 +241,12 @@ function handleSave() {
     const trimmedName = formData.value.name.trim()
 
     if (!trimmedName) {
-        errorMessage.value = 'Name is required.'
+        errorMessage.value = $t("Name is required.")
         return
     }
 
     if (trimmedName.length > 20) {
-        errorMessage.value = 'Name must be 20 characters or less.'
+        errorMessage.value = $t("Name must be 20 characters or less.")
         return
     }
 
@@ -254,7 +256,7 @@ function handleSave() {
         return w.name.trim().toLowerCase() === trimmedName.toLowerCase()
     })
     if (isDuplicate) {
-        errorMessage.value = 'A workspace with this name already exists.'
+        errorMessage.value = $t("A workspace with this name already exists.")
         return
     }
 
@@ -390,7 +392,7 @@ defineExpose({ open, close, openForWorkspace, openNew })
             <span class="dialog-title-text">{{ dialogLabel }}</span>
             <span v-if="view === 'form' && formData.id" class="dialog-title-badge">
                 <wa-icon name="layer-group" auto-width :style="formData.color ? { color: formData.color } : null"></wa-icon>
-                <span class="dialog-title-badge-name">{{ formData.name.trim() || 'Workspace' }}</span>
+                <span class="dialog-title-badge-name">{{ formData.name.trim() || $t("Workspace") }}</span>
             </span>
         </div>
 
@@ -403,7 +405,7 @@ defineExpose({ open, close, openForWorkspace, openNew })
                     @change="localShowArchived = $event.target.checked"
                     size="small"
                 >
-                    Show archived workspaces
+                    {{ $t("Show archived workspaces") }}
                 </wa-switch>
             </div>
 
@@ -425,7 +427,7 @@ defineExpose({ open, close, openForWorkspace, openNew })
                     <div class="workspace-display">
                         <span class="workspace-name"><wa-icon name="layer-group" auto-width :style="workspace.color ? { color: workspace.color } : null"></wa-icon> {{ workspace.name }}</span>
                         <span class="workspace-project-count">
-                            {{ listableProjectCount(workspace) }} project{{ listableProjectCount(workspace) !== 1 ? 's' : '' }}
+                            {{ listableProjectCount(workspace) }} {{ $t("project") }}{{ listableProjectCount(workspace) !== 1 ? $t("s") : '' }}
                         </span>
                     </div>
 
@@ -433,26 +435,26 @@ defineExpose({ open, close, openForWorkspace, openNew })
                     <div class="workspace-actions">
                         <!-- Delete confirmation -->
                         <template v-if="deleteConfirmId === workspace.id">
-                            <span class="delete-confirm-label">Delete?</span>
-                            <button class="action-btn action-btn-confirm-danger" @click="confirmDelete(workspace.id)" title="Confirm delete">
+                            <span class="delete-confirm-label">{{ $t("Delete?") }}</span>
+                            <button class="action-btn action-btn-confirm-danger" @click="confirmDelete(workspace.id)" :title="$t(&quot;Confirm delete&quot;)">
                                 <wa-icon name="check" />
                             </button>
-                            <button class="action-btn" @click="cancelDelete" title="Cancel delete">
+                            <button class="action-btn" @click="cancelDelete" :title="$t(&quot;Cancel delete&quot;)">
                                 <wa-icon name="xmark" />
                             </button>
                         </template>
                         <template v-else>
-                            <button class="action-btn" @click="openEditForm(workspace)" title="Edit">
+                            <button class="action-btn" @click="openEditForm(workspace)" :title="$t(&quot;Edit&quot;)">
                                 <wa-icon name="pen-to-square" />
                             </button>
                             <button
                                 class="action-btn"
                                 @click="workspacesStore.updateWorkspace(workspace.id, { archived: !workspace.archived })"
-                                :title="workspace.archived ? 'Unarchive' : 'Archive'"
+                                :title="workspace.archived ? $t(&quot;Unarchive&quot;) : $t(&quot;Archive&quot;)"
                             >
                                 <wa-icon :name="workspace.archived ? 'box-open' : 'box-archive'" :style="workspace.archived ? { color: 'var(--wa-color-warning-60)' } : null" />
                             </button>
-                            <button class="action-btn action-btn-danger" @click="requestDelete(workspace.id)" title="Delete">
+                            <button class="action-btn action-btn-danger" @click="requestDelete(workspace.id)" :title="$t(&quot;Delete&quot;)">
                                 <wa-icon name="trash-can" />
                             </button>
                         </template>
@@ -462,7 +464,7 @@ defineExpose({ open, close, openForWorkspace, openNew })
 
             <!-- Empty state -->
             <div v-if="visibleWorkspaces.length === 0" class="empty-message">
-                No workspaces yet. Create one to get started.
+                {{ $t("No workspaces yet. Create one to get started.") }}
             </div>
         </div>
 
@@ -471,19 +473,19 @@ defineExpose({ open, close, openForWorkspace, openNew })
             <!-- Name + color share one row -->
             <div class="name-color-row">
                 <div class="form-group name-group">
-                    <label class="form-label">Name</label>
+                    <label class="form-label">{{ $t("Name") }}</label>
                     <wa-input
                         ref="nameInputRef"
                         :value="formData.name"
                         @input="formData.name = $event.target.value"
-                        placeholder="e.g. &quot;Frontend work&quot;"
+                        :placeholder="$t(&quot;e.g. \&quot;Frontend work\&quot;&quot;)"
                         size="small"
                         maxlength="20"
                     />
                 </div>
 
                 <div class="form-group color-group">
-                    <label class="form-label">Color</label>
+                    <label class="form-label">{{ $t("Color") }}</label>
                     <wa-color-picker
                         :value.prop="formData.color"
                         @change="formData.color = $event.target.value"
@@ -497,13 +499,13 @@ defineExpose({ open, close, openForWorkspace, openNew })
             <!-- Project list -->
             <div class="form-group">
                 <div class="form-label-row">
-                    <label class="form-label">Projects</label>
+                    <label class="form-label">{{ $t("Projects") }}</label>
                     <wa-switch
                         :checked="localShowArchivedProjects"
                         @change="localShowArchivedProjects = $event.target.checked"
                         size="small"
                     >
-                        Show archived
+                        {{ $t("Show archived") }}
                     </wa-switch>
                 </div>
 
@@ -530,7 +532,7 @@ defineExpose({ open, close, openForWorkspace, openNew })
                             type="button"
                             class="action-btn action-btn-danger"
                             @click="removeProject(visibleIndex)"
-                            title="Remove project"
+                            :title="$t(&quot;Remove project&quot;)"
                         >
                             <wa-icon name="xmark" />
                         </button>
@@ -538,11 +540,11 @@ defineExpose({ open, close, openForWorkspace, openNew })
                 </div>
 
                 <div v-else-if="formData.projectIds.length > 0" class="empty-projects-message">
-                    All projects in this workspace are archived (hidden).
+                    {{ $t("All projects in this workspace are archived (hidden).") }}
                 </div>
 
                 <div v-else class="empty-projects-message">
-                    No projects added yet.
+                    {{ $t("No projects added yet.") }}
                 </div>
 
                 <!-- Add project select -->
@@ -550,7 +552,7 @@ defineExpose({ open, close, openForWorkspace, openNew })
                     v-if="availableProjects.length > 0"
                     value=""
                     @change="addProject"
-                    placeholder="Add a project..."
+                    :placeholder="$t(&quot;Add a project...&quot;)"
                     size="small"
                     class="add-project-select"
                 >
@@ -562,11 +564,11 @@ defineExpose({ open, close, openForWorkspace, openNew })
 
             <!-- Auto-add project patterns -->
             <div class="form-group">
-                <label class="form-label">Auto-add project patterns</label>
+                <label class="form-label">{{ $t("Auto-add project patterns") }}</label>
                 <p class="form-help-text">
-                    New projects whose directory matches a pattern will be added automatically when detected.
-                    <br>Use <code>*</code> as wildcard. A plain directory matches all projects inside it.
-                    <br>To add existing matching projects, click <strong>Add matching projects now</strong>.
+                    {{ $t("New projects whose directory matches a pattern will be added automatically when detected.") }}
+                    <br>{{ $t("Use") }} <code>*</code> {{ $t("as wildcard. A plain directory matches all projects inside it.") }}
+                    <br>{{ $t("To add existing matching projects, click") }} <strong>{{ $t("Add matching projects now") }}</strong>.
                 </p>
 
                 <!-- Existing patterns -->
@@ -581,7 +583,7 @@ defineExpose({ open, close, openForWorkspace, openNew })
                             type="button"
                             class="action-btn action-btn-danger"
                             @click="removePattern(index)"
-                            title="Remove pattern"
+                            :title="$t(&quot;Remove pattern&quot;)"
                         >
                             <wa-icon name="xmark" />
                         </button>
@@ -594,7 +596,7 @@ defineExpose({ open, close, openForWorkspace, openNew })
                         :value="patternInput"
                         @input="patternInput = $event.target.value"
                         @keydown.enter.prevent="addPattern"
-                        placeholder="e.g. /home/user/projects/*"
+                        :placeholder="$t(&quot;e.g. /home/user/projects/*&quot;)"
                         size="small"
                         class="pattern-input"
                     />
@@ -607,7 +609,7 @@ defineExpose({ open, close, openForWorkspace, openNew })
                         @click="addPattern"
                         :disabled="!patternInput.trim()"
                     >
-                        Add
+                        {{ $t("Add") }}
                     </wa-button>
                 </div>
 
@@ -620,7 +622,7 @@ defineExpose({ open, close, openForWorkspace, openNew })
                         @click="scanNow"
                     >
                         <wa-icon name="magnifying-glass-plus" slot="start"></wa-icon>
-                        Add matching projects now
+                        {{ $t("Add matching projects now") }}
                     </wa-button>
                     <span v-if="scanFeedback" class="scan-feedback">{{ scanFeedback }}</span>
                 </div>
@@ -630,11 +632,9 @@ defineExpose({ open, close, openForWorkspace, openNew })
 
             <!-- Browser pane saved URLs -->
             <div class="form-group">
-                <label class="form-label">Browser URLs</label>
+                <label class="form-label">{{ $t("Browser URLs") }}</label>
                 <p class="form-help-text">
-                    URLs saved for the session Browser tab of this workspace's
-                    projects; the selected one is the Home default. A project's
-                    own saved URLs take precedence.
+                    {{ $t("URLs saved for the session Browser tab of this workspace's projects; the selected one is the Home default. A project's own saved URLs take precedence.") }}
                 </p>
                 <BrowserUrlListEditor
                     ref="browserUrlsEditorRef"
@@ -644,7 +644,7 @@ defineExpose({ open, close, openForWorkspace, openNew })
 
             <!-- Error -->
             <wa-callout v-if="errorMessage" variant="danger" size="small">
-                {{ errorMessage }}
+                {{ $t(errorMessage) }}
             </wa-callout>
         </form>
 
@@ -652,11 +652,11 @@ defineExpose({ open, close, openForWorkspace, openNew })
         <div slot="footer" class="dialog-footer">
             <template v-if="view === 'list'">
                 <wa-button variant="neutral" appearance="outlined" @click="close">
-                    Close
+                    {{ $t("Close") }}
                 </wa-button>
                 <wa-button variant="brand" @click="openAddForm">
                     <wa-icon name="plus" slot="start"></wa-icon>
-                    New workspace
+                    {{ $t("New workspace") }}
                 </wa-button>
             </template>
             <template v-else>
@@ -666,13 +666,13 @@ defineExpose({ open, close, openForWorkspace, openNew })
                     size="small"
                     class="footer-archived-switch"
                 >
-                    Archived
+                    {{ $t("Archived") }}
                 </wa-switch>
                 <wa-button variant="neutral" appearance="outlined" @click="cancelForm">
-                    Cancel
+                    {{ $t("Cancel") }}
                 </wa-button>
                 <wa-button ref="saveButtonRef" type="submit" variant="brand">
-                    Save
+                    {{ $t("Save") }}
                 </wa-button>
             </template>
         </div>

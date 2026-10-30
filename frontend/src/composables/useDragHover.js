@@ -1,3 +1,5 @@
+
+import { t as $t } from '../i18n/index.js'
 import { ref } from 'vue'
 
 /**
@@ -8,7 +10,7 @@ import { ref } from 'vue'
 function isDragEligible(event) {
     const types = event.dataTransfer?.types
     if (!types || types.length === 0) return false
-    return types.includes('Files') || types.includes('text/plain')
+    return types.includes("Files") || types.includes('text/plain')
 }
 
 // ─── Floating cursor indicator ───────────────────────────────────────────────
@@ -24,7 +26,7 @@ function createIndicator(x, y, delay) {
     removeIndicator()
     const el = document.createElement('wa-progress-ring')
     el.value = 0
-    el.label = 'Switching...'
+    el.label = $t("Switching...")
     el.className = 'drag-hover-indicator'
     el.style.setProperty('--x', x)
     el.style.setProperty('--y', y)
@@ -148,7 +150,7 @@ export function useDragHover({ onActivate, delay = 1000, shouldActivate = null, 
         cancelTimer()
         if (wasActivated && onDropData) {
             const dt = event.dataTransfer
-            const files = dt?.types?.includes('Files') ? [...dt.files] : []
+            const files = dt?.types?.includes($t("Files")) ? [...dt.files] : []
             const text = !files.length ? (dt?.getData('text/plain') || null) : null
             if (files.length || text) {
                 onDropData({ files, text })

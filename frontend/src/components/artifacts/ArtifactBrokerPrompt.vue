@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // The broker consent prompt (design §9). Dumb + controlled: it shows whenever
 // `prompt` is set and emits the user's choice. The parent owns the pending
 // fetch's promise and settles it (idempotently) on `decision`.
@@ -58,9 +60,9 @@ async function onDialogAfterHide() {
 const isDataWrite = computed(() => props.prompt?.type === 'data-write')
 
 const KIND_LABEL = {
-    public: 'a public site',
-    loopback: "this server's own machine (localhost)",
-    lan: "this server's local network",
+    get public() { return $t("a public site") },
+    get loopback() { return $t("this server's own machine (localhost)") },
+    get lan() { return $t("this server's local network") },
 }
 
 // The bare hostname (no scheme/port) from the normalized key — to tell a *name*
@@ -98,12 +100,12 @@ const calloutIcon = computed(() => (isMasquerade.value ? 'triangle-exclamation' 
 const calloutText = computed(() => {
     const p = props.prompt
     if (!p || p.kind === 'public') return ''
-    const subject = isDomainName(hostname.value) ? `${hostname.value} resolves to` : 'This is'
+    const subject = isDomainName(hostname.value) ? $t("{p0} resolves to", { p0: (hostname.value) }) : $t("This is")
     const target =
         p.kind === 'loopback'
-            ? 'the machine TwiCC runs on (localhost)'
-            : 'an address on the local network of the machine TwiCC runs on'
-    return `${subject} ${target} — TwiCC's server makes the request from there, not your browser.`
+            ? $t("the machine TwiCC runs on (localhost)")
+            : $t("an address on the local network of the machine TwiCC runs on")
+    return $t("{p0} {p1} — TwiCC's server makes the request from there, not your browser.", { p0: (subject), p1: (target) })
 })
 </script>
 
@@ -114,20 +116,20 @@ const calloutText = computed(() => {
     <wa-dialog
         ref="dialogRef"
         :open="dialogOpen"
-        :label="isDataWrite ? 'Store data' : 'Network request'"
+        :label="isDataWrite ? $t(&quot;Store data&quot;) : $t(&quot;Network request&quot;)"
         @wa-hide.self="onDialogHide"
         @wa-after-hide.self="onDialogAfterHide"
     >
         <div v-if="prompt && isDataWrite" class="broker-prompt">
-            <p>This page wants to store data in:</p>
+            <p>{{ $t("This page wants to store data in:") }}</p>
             <p class="broker-prompt-host"><strong>{{ prompt.path }}</strong></p>
-            <p class="broker-prompt-target">Files are written on the machine TwiCC runs on, next to the page.</p>
+            <p class="broker-prompt-target">{{ $t("Files are written on the machine TwiCC runs on, next to the page.") }}</p>
         </div>
         <div v-else-if="prompt" class="broker-prompt">
-            <p>This artifact wants to connect to:</p>
+            <p>{{ $t("This artifact wants to connect to:") }}</p>
             <p class="broker-prompt-host"><strong>{{ prompt.host }}</strong></p>
             <p class="broker-prompt-target">
-                → resolves to <code>{{ prompt.ip }}</code> ({{ KIND_LABEL[prompt.kind] || prompt.kind }})
+                {{ $t("→ resolves to") }} <code>{{ prompt.ip }}</code> ({{ KIND_LABEL[prompt.kind] || prompt.kind }})
             </p>
             <wa-callout v-if="prompt.kind !== 'public'" :variant="calloutVariant">
                 <wa-icon slot="icon" :name="calloutIcon"></wa-icon>
@@ -138,26 +140,26 @@ const calloutText = computed(() => {
         <!-- Data writes are remembered for the tab only: there is nothing to
              persist a "Forever" onto (design 2026-08-05 §6). -->
         <div v-if="isDataWrite" slot="footer" class="broker-prompt-footer">
-            <p class="broker-prompt-question">Do you want to allow this page to store data?</p>
+            <p class="broker-prompt-question">{{ $t("Do you want to allow this page to store data?") }}</p>
             <div class="broker-prompt-actions">
-                <wa-button @click="emit('decision', 'deny')">No, deny</wa-button>
-                <wa-button variant="brand" @click="emit('decision', 'session')">Yes, allow for this tab</wa-button>
+                <wa-button @click="emit('decision', 'deny')">{{ $t("No, deny") }}</wa-button>
+                <wa-button variant="brand" @click="emit('decision', 'session')">{{ $t("Yes, allow for this tab") }}</wa-button>
             </div>
-            <p class="broker-prompt-hint">This stays allowed until you reload or close the tab.</p>
+            <p class="broker-prompt-hint">{{ $t("This stays allowed until you reload or close the tab.") }}</p>
         </div>
         <div v-else slot="footer" class="broker-prompt-footer">
-            <p class="broker-prompt-question">Do you want to allow this connection?</p>
+            <p class="broker-prompt-question">{{ $t("Do you want to allow this connection?") }}</p>
             <div class="broker-prompt-actions">
-                <wa-button @click="emit('decision', 'deny')">No, deny</wa-button>
-                <wa-button v-if="prompt?.canRemember" @click="emit('decision', 'forever')">Yes, forever</wa-button>
-                <wa-button variant="brand" @click="emit('decision', 'session')">Yes, this session</wa-button>
+                <wa-button @click="emit('decision', 'deny')">{{ $t("No, deny") }}</wa-button>
+                <wa-button v-if="prompt?.canRemember" @click="emit('decision', 'forever')">{{ $t("Yes, forever") }}</wa-button>
+                <wa-button variant="brand" @click="emit('decision', 'session')">{{ $t("Yes, this session") }}</wa-button>
             </div>
-            <p class="broker-prompt-hint">“This session” keeps this host allowed until you reload or close the tab.</p>
+            <p class="broker-prompt-hint">{{ $t("“This session” keeps this host allowed until you reload or close the tab.") }}</p>
             <p v-if="prompt?.canRemember" class="broker-prompt-hint">
-                “Yes, forever” keeps this host allowed on all your devices (saved on the server).
+                {{ $t("“Yes, forever” keeps this host allowed on all your devices (saved on the server).") }}
             </p>
             <p v-else class="broker-prompt-hint">
-                Bookmark this artifact to also get a “Yes, forever” option.
+                {{ $t("Bookmark this artifact to also get a “Yes, forever” option.") }}
             </p>
         </div>
     </wa-dialog>

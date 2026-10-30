@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // AttachmentStrip.vue - Every display of attachments: one row of uniform square
 // tiles (image thumbnail, else the icon of the kind), the name under each tile,
 // the full name in a tooltip.
@@ -161,7 +163,7 @@ watch(() => props.items, (items) => {
                     <button
                         type="button"
                         class="strip-tile strip-tile-button"
-                        :aria-label="`Preview ${entry.item.name}`"
+                        :aria-label="$t(&quot;Preview {p0}&quot;, { p0: (entry.item.name) })"
                         @click="openPreview(entry.item.id)"
                     >
                         <img :src="entry.thumbnail" :alt="entry.item.name" @error="onThumbnailError(entry.item.src)" />
@@ -172,7 +174,7 @@ watch(() => props.items, (items) => {
                     v-else-if="entry.request"
                     type="button"
                     class="strip-file strip-file-button is-link"
-                    :aria-label="`Open ${entry.item.name} in the Artifacts tab`"
+                    :aria-label="$t(&quot;Open {p0} in the Artifacts tab&quot;, { p0: (entry.item.name) })"
                     @click="openArtifact(entry.request)"
                 >
                     <span class="strip-tile strip-tile-icon">
@@ -198,34 +200,34 @@ watch(() => props.items, (items) => {
                     v-if="entry.tile.uploading"
                     class="strip-tile-progress"
                     :value="entry.tile.progress"
-                    :label="`Upload of ${entry.item.name}`"
+                    :label="$t(&quot;Upload of {p0}&quot;, { p0: (entry.item.name) })"
                 ></wa-progress-bar>
                 <span v-if="entry.tile.error" class="strip-tile-badge">
-                    <wa-icon name="exclamation" :label="entry.tile.statusText || 'Upload failed'"></wa-icon>
+                    <wa-icon name="exclamation" :label="entry.tile.statusText || $t(&quot;Upload failed&quot;)"></wa-icon>
                 </span>
                 <template v-if="entry.tile.retryable">
                     <button
                         :id="entry.retryId"
                         type="button"
                         class="strip-tile-action strip-tile-retry"
-                        :aria-label="`Retry the upload of ${entry.item.name}`"
+                        :aria-label="$t(&quot;Retry the upload of {p0}&quot;, { p0: (entry.item.name) })"
                         @click="retry(entry.item.id)"
                     >
                         <wa-icon name="rotate-right"></wa-icon>
                     </button>
-                    <AppTooltip :for="entry.retryId">Retry</AppTooltip>
+                    <AppTooltip :for="entry.retryId">{{ $t("Retry") }}</AppTooltip>
                 </template>
                 <button
                     :id="entry.removeId"
                     :ref="el => setRemoveButton(entry.item.id, el)"
                     type="button"
                     class="strip-tile-action strip-tile-remove"
-                    :aria-label="`Remove ${entry.item.name}`"
+                    :aria-label="$t(&quot;Remove {p0}&quot;, { p0: (entry.item.name) })"
                     @click="remove(entry.item.id)"
                 >
                     <wa-icon name="xmark"></wa-icon>
                 </button>
-                <AppTooltip :for="entry.removeId">Remove</AppTooltip>
+                <AppTooltip :for="entry.removeId">{{ $t("Remove") }}</AppTooltip>
             </template>
         </li>
     </ol>

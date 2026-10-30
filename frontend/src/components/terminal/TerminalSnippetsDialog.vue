@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // TerminalSnippetsDialog.vue - Dialog for managing text snippets with scope grouping
 import GroupedListEditor from '../ui/GroupedListEditor.vue'
 import { isSnippetGroup, getGroupItems, flattenGroupedEntries } from '../../utils/snippetGroups'
@@ -48,10 +50,10 @@ const warningMessage = ref('')
 
 // ── Computed ─────────────────────────────────────────────────────────
 const dialogLabel = computed(() => {
-    if (groupMode.value && view.value === 'form') return 'Add Group'
-    if (view.value === 'list') return 'Manage Snippets'
-    if (editIndex.value !== null) return 'Edit Snippet'
-    return 'Add Snippet'
+    if (groupMode.value && view.value === 'form') return $t("Add Group")
+    if (view.value === 'list') return $t("Manage Snippets")
+    if (editIndex.value !== null) return $t("Edit Snippet")
+    return $t("Add Snippet")
 })
 
 /** Active projects (non-stale, non-archived, worktrees excluded) — same filter as sidebar. */
@@ -82,7 +84,7 @@ const activeWs = computed(() => {
     return wsId ? workspacesStore.getWorkspaceById(wsId) : null
 })
 
-const activeWsLabel = computed(() => activeWs.value ? `${activeWs.value.name} projects` : null)
+const activeWsLabel = computed(() => activeWs.value ? $t("{p0} projects", { p0: (activeWs.value.name) }) : null)
 const activeWsColor = computed(() => activeWs.value?.color || null)
 
 /** When a workspace is active, split named projects into prioritized and others. */
@@ -294,11 +296,11 @@ function handleSave() {
     const trimmedLabel = formData.value.label.trim()
     if (groupMode.value) {
         if (!trimmedLabel) {
-            errorMessage.value = 'Group name is required.'
+            errorMessage.value = $t("Group name is required.")
             return
         }
         if (!terminalConfigStore.addSnippetGroup(formData.value.scope, trimmedLabel)) {
-            errorMessage.value = 'This item or group changed. Reopen the item and try again.'
+            errorMessage.value = $t("This item or group changed. Reopen the item and try again.")
             return
         }
         cancelForm()
@@ -307,23 +309,23 @@ function handleSave() {
     if (editIndex.value !== null) {
         const source = getGroupItems(terminalConfigStore.snippets[editScope.value] || [], editSourceGroupId.value)?.[editIndex.value]
         if (!source || JSON.stringify(source) !== editSourceSnapshot.value) {
-            errorMessage.value = 'This item or group changed. Reopen the item and try again.'
+            errorMessage.value = $t("This item or group changed. Reopen the item and try again.")
             return
         }
     }
     if (formData.value.groupId && !selectableGroups.value.some(group => group.id === formData.value.groupId)) {
-        errorMessage.value = 'The selected group no longer exists. Select another group.'
+        errorMessage.value = $t("The selected group no longer exists. Select another group.")
         return
     }
     const trimmedSnippet = formData.value.snippet.trim()
 
     if (!trimmedLabel) {
-        errorMessage.value = 'Label is required.'
+        errorMessage.value = $t("Label is required.")
         return
     }
 
     if (!trimmedSnippet) {
-        errorMessage.value = 'Snippet text is required.'
+        errorMessage.value = $t("Snippet text is required.")
         return
     }
 
@@ -345,7 +347,7 @@ function handleSave() {
         return s.label.trim().toLowerCase() === trimmedLabel.toLowerCase()
     })
     if (hasDuplicateLabel && !warningMessage.value) {
-        warningMessage.value = 'A snippet with the same label already exists in this scope. Submit again to save anyway.'
+        warningMessage.value = $t("A snippet with the same label already exists in this scope. Submit again to save anyway.")
         return
     }
     warningMessage.value = ''
@@ -358,7 +360,7 @@ function handleSave() {
         )
         : terminalConfigStore.addSnippet(selectedScope, snippetData, formData.value.groupId)
     if (!saved) {
-        errorMessage.value = 'This item or group changed. Reopen the item and try again.'
+        errorMessage.value = $t("This item or group changed. Reopen the item and try again.")
         return
     }
 
@@ -439,10 +441,10 @@ defineExpose({ open, close })
 
                 <!-- Group header -->
                 <div class="group-header">
-                    <span v-if="group.scope === 'global'" class="group-header-global">All projects</span>
+                    <span v-if="group.scope === 'global'" class="group-header-global">{{ $t("All projects") }}</span>
                     <span v-else-if="group.scope.startsWith('workspace:')" class="group-header-workspace">
                         <wa-icon name="layer-group" auto-width :style="workspaceColorFromScope(group.scope) ? { color: workspaceColorFromScope(group.scope) } : null"></wa-icon>
-                        Workspace {{ workspaceNameFromScope(group.scope) }}
+                        {{ $t("Workspace") }} {{ workspaceNameFromScope(group.scope) }}
                     </span>
                     <ProjectBadge v-else :project-id="projectIdFromScope(group.scope)" use-directory-for-unnamed />
                 </div>
@@ -473,7 +475,7 @@ defineExpose({ open, close })
 
             <!-- Show message when there are no scopes at all (edge case) -->
             <div v-if="snippetScopes.length === 0" class="empty-message">
-                No snippets yet. Add one to get started.
+                {{ $t("No snippets yet. Add one to get started.") }}
             </div>
         </div>
 
@@ -481,12 +483,12 @@ defineExpose({ open, close })
         <form v-else :id="formId" class="dialog-content" @submit.prevent="handleSave">
             <!-- Label field -->
             <div class="form-group">
-                <label class="form-label">{{ groupMode ? 'Group name' : 'Label' }}</label>
+                <label class="form-label">{{ groupMode ? $t("Group name") : $t("Label") }}</label>
                 <wa-input
                     ref="labelInputRef"
                     :value="formData.label"
                     @input="formData.label = $event.target.value"
-                    :placeholder="groupMode ? 'e.g. Git' : 'e.g. &quot;git status&quot;'"
+                    :placeholder="groupMode ? $t(&quot;e.g. Git&quot;) : $t(&quot;e.g. \&quot;git status\&quot;&quot;)"
                     size="small"
                 />
             </div>
@@ -499,7 +501,7 @@ defineExpose({ open, close })
                 v-model:open-in-new-tab="formData.openInNewTab"
             />
             <div class="form-group">
-                <label class="form-label">Scope</label>
+                <label class="form-label">{{ $t("Scope") }}</label>
                 <!-- Scope select -->
                 <wa-select
                     :value="formData.scope"
@@ -519,12 +521,12 @@ defineExpose({ open, close })
                         :icon-url="selectedScopeProjectIconUrl"
                         :color="selectedScopeProjectColor"
                     />
-                    <wa-option value="global">All projects</wa-option>
+                    <wa-option value="global">{{ $t("All projects") }}</wa-option>
 
                     <!-- Workspaces -->
                     <template v-if="selectableWorkspaces.length">
                         <wa-divider></wa-divider>
-                        <wa-option disabled class="section-header-option">Workspaces</wa-option>
+                        <wa-option disabled class="section-header-option">{{ $t("Workspaces") }}</wa-option>
                         <wa-option
                             v-for="ws in selectableWorkspaces"
                             :key="ws.id"
@@ -539,7 +541,7 @@ defineExpose({ open, close })
                     <!-- Divider before projects when not in a workspace -->
                     <template v-if="!activeWsLabel">
                         <wa-divider></wa-divider>
-                        <wa-option v-if="selectableWorkspaces.length" disabled class="section-header-option">Projects</wa-option>
+                        <wa-option v-if="selectableWorkspaces.length" disabled class="section-header-option">{{ $t("Projects") }}</wa-option>
                     </template>
 
                     <!-- Workspace-prioritized projects (only when workspace is active) -->
@@ -582,7 +584,7 @@ defineExpose({ open, close })
                     <!-- Remaining named projects (sorted by mtime desc) -->
                     <template v-if="activeWsLabel && (namedSplit.others.length || othersUnnamedFlatTree.length)">
                         <wa-divider></wa-divider>
-                        <wa-option disabled class="section-header-option">Other projects</wa-option>
+                        <wa-option disabled class="section-header-option">{{ $t("Other projects") }}</wa-option>
                     </template>
                     <wa-option
                         v-for="p in namedSplit.others"
@@ -619,9 +621,9 @@ defineExpose({ open, close })
             </div>
 
             <div v-if="!groupMode" class="form-group">
-                <label class="form-label">Group</label>
+                <label class="form-label">{{ $t("Group") }}</label>
                 <wa-select :value="formData.groupId || ''" @change="formData.groupId = $event.target.value || null" size="small">
-                    <wa-option value="">None</wa-option>
+                    <wa-option value="">{{ $t("None") }}</wa-option>
                     <wa-option v-for="group in selectableGroups" :key="group.id" :value="group.id">{{ group.label }}</wa-option>
                 </wa-select>
             </div>
@@ -633,7 +635,7 @@ defineExpose({ open, close })
 
             <!-- Error -->
             <wa-callout v-if="errorMessage" variant="danger" size="small">
-                {{ errorMessage }}
+                {{ $t(errorMessage) }}
             </wa-callout>
         </form>
 
@@ -641,23 +643,23 @@ defineExpose({ open, close })
         <div slot="footer" class="dialog-footer">
             <template v-if="view === 'list'">
                 <wa-button variant="neutral" appearance="outlined" @click="close">
-                    Close
+                    {{ $t("Close") }}
                 </wa-button>
                 <wa-button variant="neutral" appearance="outlined" @click="openGroupForm">
                     <wa-icon slot="start" name="folder-plus"></wa-icon>
-                    Add group
+                    {{ $t("Add group") }}
                 </wa-button>
                 <wa-button variant="brand" @click="openAddForm()">
                     <wa-icon slot="start" name="plus"></wa-icon>
-                    Add snippet
+                    {{ $t("Add snippet") }}
                 </wa-button>
             </template>
             <template v-else>
                 <wa-button variant="neutral" appearance="outlined" @click="cancelForm">
-                    Cancel
+                    {{ $t("Cancel") }}
                 </wa-button>
                 <wa-button ref="saveButtonRef" type="submit" variant="brand">
-                    Save
+                    {{ $t("Save") }}
                 </wa-button>
             </template>
         </div>

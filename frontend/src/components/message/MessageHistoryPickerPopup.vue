@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 /**
  * MessageHistoryPickerPopup - A popup for selecting previous user messages triggered by !.
  *
@@ -108,7 +110,7 @@ async function fetchMessages() {
         const res = await apiFetch(`/api/projects/${props.projectId}/sessions/${props.sessionId}/user-messages/`)
         if (!res.ok) {
             const data = await res.json()
-            error.value = data.error || `HTTP ${res.status}`
+            error.value = data.error || $t("HTTP {p0}", { p0: (res.status) })
             allMessages.value = []
             return
         }
@@ -394,7 +396,7 @@ defineExpose({ open, close, isOpen })
                 <wa-input
                     ref="searchInputRef"
                     :value="searchQuery"
-                    placeholder="Filter messages..."
+                    :placeholder="$t(&quot;Filter messages...&quot;)"
                     size="small"
                     with-clear
                     class="picker-search-input"
@@ -414,14 +416,14 @@ defineExpose({ open, close, isOpen })
             >
                 <span ref="listInkRef" class="glide-ink" aria-hidden="true"></span>
                 <template v-if="loading">
-                    <div class="picker-status">Loading...</div>
+                    <div class="picker-status">{{ $t('Loading...') }}</div>
                 </template>
                 <template v-else-if="error">
-                    <div class="picker-status picker-error">{{ error }}</div>
+                    <div class="picker-status picker-error">{{ $t(error) }}</div>
                 </template>
                 <template v-else-if="filteredMessages.length === 0">
                     <div class="picker-status">
-                        {{ searchQuery ? 'No matching messages' : 'No messages in this session' }}
+                        {{ searchQuery ? $t("No matching messages") : $t("No messages in this session") }}
                     </div>
                 </template>
                 <template v-else>

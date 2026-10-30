@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../../../../i18n/index.js'
+
 // PlanImplementationBody.vue (codex) — body sub-component for a
 // ``planImplementation`` pending request (request_type ``ask_user_question``).
 //
@@ -90,7 +92,7 @@ function implementInNewSession() {
     if (!plan || !current?.project_id) {
         // The plan message should be right above this form; not finding it
         // means the store has not ingested it (yet). Keep the request open.
-        toast.error('Could not find the proposed plan in this session — please retry')
+        toast.error($t("Could not find the proposed plan in this session — please retry"))
         return
     }
 
@@ -130,7 +132,7 @@ function implementInNewSession() {
         // Default deletion: a draft created here, never abandoned by the
         // user — its attachments (none) are only forgotten, never released.
         dataStore.deleteDraftSession(draftId)
-        toast.error('Not connected — please retry in a moment')
+        toast.error($t("Not connected — please retry in a moment"))
         return
     }
 
@@ -176,9 +178,9 @@ usePendingRequestSubmitShortcut((event) => {
 <template>
     <div v-scroll-shadow class="plan-implementation-body">
         <div class="plan-section">
-            <span class="summary-label">Implement this plan?</span>
+            <span class="summary-label">{{ $t("Implement this plan?") }}</span>
             <span class="plan-hint">
-                Codex proposed the plan above. Implement it now, or keep refining it in Plan mode.
+                {{ $t("Codex proposed the plan above. Implement it now, or keep refining it in Plan mode.") }}
             </span>
         </div>
 
@@ -192,9 +194,9 @@ usePendingRequestSubmitShortcut((event) => {
                 @click="stay"
             >
                 <wa-icon slot="start" name="comments" variant="classic"></wa-icon>
-                No, stay in Plan mode
+                {{ $t("No, stay in Plan mode") }}
             </wa-button>
-            <AppTooltip :for="stayButtonId">Continue planning with the model.</AppTooltip>
+            <AppTooltip :for="stayButtonId">{{ $t("Continue planning with the model.") }}</AppTooltip>
 
             <wa-button
                 :id="newSessionButtonId"
@@ -205,9 +207,9 @@ usePendingRequestSubmitShortcut((event) => {
                 @click="implementInNewSession"
             >
                 <wa-icon slot="start" name="plus" variant="classic"></wa-icon>
-                Yes, implement in a new session
+                {{ $t("Yes, implement in a new session") }}
             </wa-button>
-            <AppTooltip :for="newSessionButtonId">Start a fresh session seeded with the plan; this one stays in Plan mode.</AppTooltip>
+            <AppTooltip :for="newSessionButtonId">{{ $t("Start a fresh session seeded with the plan; this one stays in Plan mode.") }}</AppTooltip>
 
             <wa-button
                 :id="implementButtonId"
@@ -219,9 +221,9 @@ usePendingRequestSubmitShortcut((event) => {
                 @click="implement"
             >
                 <wa-icon slot="start" name="check" variant="classic"></wa-icon>
-                Yes, implement this plan
+                {{ $t("Yes, implement this plan") }}
             </wa-button>
-            <AppTooltip :for="implementButtonId">Switch to Default and start coding.</AppTooltip>
+            <AppTooltip :for="implementButtonId">{{ $t("Switch to Default and start coding.") }}</AppTooltip>
         </div>
     </div>
 </template>

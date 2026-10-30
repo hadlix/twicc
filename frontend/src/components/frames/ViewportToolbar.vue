@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // Sub-toolbar of the responsive-viewport mode, shared by the Browser pane and
 // the artifact HTML preview. Preset list, manual dimension fields and the
 // swap button all drive the same width/height pair the stage's drag handles
@@ -51,11 +53,11 @@ function swap() {
 
 <template>
     <div class="viewport-toolbar">
-        <span class="subbar-label">Viewport</span>
+        <span class="subbar-label">{{ $t("Viewport") }}</span>
         <wa-select
             class="viewport-preset reduced-height"
             size="small"
-            placeholder="Custom size"
+            :placeholder="$t(&quot;Custom size&quot;)"
             :value="presetValue"
             @change="onPresetChange"
         >
@@ -63,7 +65,7 @@ function swap() {
                 v-for="preset in VIEWPORT_PRESETS"
                 :key="preset.label"
                 :value="`${preset.width}x${preset.height}`"
-            >{{ preset.label }} — {{ preset.width }}×{{ preset.height }}</wa-option>
+            >{{ preset.label }} {{ $t("—") }} {{ preset.width }}×{{ preset.height }}</wa-option>
         </wa-select>
         <div class="viewport-dimensions">
             <wa-input
@@ -85,16 +87,16 @@ function swap() {
                 :value="String(height)"
                 @change="onSizeChange('h', $event)"
             ></wa-input>
-            <span class="viewport-glue">px</span>
+            <span class="viewport-glue">{{ $t("px") }}</span>
             <wa-button :id="`viewport-swap-${instanceId}`" appearance="plain" size="small" class="subbar-btn reduced-height" @click="swap">
                 <wa-icon name="right-left"></wa-icon>
             </wa-button>
-            <AppTooltip :for="`viewport-swap-${instanceId}`">Swap width and height</AppTooltip>
+            <AppTooltip :for="`viewport-swap-${instanceId}`">{{ $t("Swap width and height") }}</AppTooltip>
         </div>
         <wa-button :id="`viewport-close-${instanceId}`" appearance="plain" size="small" class="subbar-btn reduced-height subbar-close" @click="$emit('close')">
             <wa-icon name="xmark"></wa-icon>
         </wa-button>
-        <AppTooltip :for="`viewport-close-${instanceId}`">Exit responsive mode</AppTooltip>
+        <AppTooltip :for="`viewport-close-${instanceId}`">{{ $t("Exit responsive mode") }}</AppTooltip>
     </div>
 </template>
 

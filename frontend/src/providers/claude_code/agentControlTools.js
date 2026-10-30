@@ -1,3 +1,5 @@
+
+import { t as $t } from '../../i18n/index.js'
 /**
  * Pure rules for Claude Code's agent control tools (`SendMessage` /
  * `TaskStop` / `TaskOutput`): the header label and expected result count of
@@ -16,9 +18,9 @@
 // calls target shells and must keep today's label, so this map is never
 // consulted without an interaction.
 const HEADER_LABEL_BY_TOOL = {
-    SendMessage: 'Send message',
-    TaskStop: 'Stop agent',
-    TaskOutput: 'Agent output',
+    get SendMessage() { return $t("Send message") },
+    get TaskStop() { return $t("Stop agent") },
+    get TaskOutput() { return $t("Agent output") },
 }
 
 /**

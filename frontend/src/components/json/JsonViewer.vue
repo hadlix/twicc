@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 import { ref, useId } from 'vue'
 import AppTooltip from '../ui/AppTooltip.vue'
 import JsonNode from './JsonNode.vue'
@@ -33,7 +35,7 @@ function forwardToggle(path) {
         >
             <wa-icon :name="wrap ? 'align-justify' : 'align-left'"></wa-icon>
         </wa-button>
-        <AppTooltip :for="wrapToggleId">{{ wrap ? 'Disable wrap' : 'Enable wrap' }}</AppTooltip>
+        <AppTooltip :for="wrapToggleId">{{ wrap ? $t("Disable wrap") : $t("Enable wrap") }}</AppTooltip>
         <JsonNode
             :data="data"
             :path="path"

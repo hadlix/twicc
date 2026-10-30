@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // WorktreeDialog.vue - Dialog to start a session in a git worktree of a
 // project: either CREATE a new worktree (the "New" tab) or OPEN an EXISTING
 // worktree of the repo that has no session yet (the "Existing" tab).
@@ -82,7 +84,7 @@ const branchSuggestions = computed(() => {
 
 const pathPlaceholder = computed(() => {
     const root = parentProject.value?.git_root || '/path/to/repo'
-    return `e.g. ${root}/.worktrees/<branch>`
+    return $t("e.g. {p0}/.worktrees/<branch>", { p0: (root) })
 })
 
 // Branch name turned into a single safe folder name (the project convention:
@@ -201,7 +203,7 @@ async function fetchWorktrees() {
         response = await apiFetch(`/api/projects/${projectId}/worktrees/`)
     } catch (error) {
         if (parentProject.value?.id === projectId) {
-            existingError.value = 'Failed to load worktrees.'
+            existingError.value = $t("Failed to load worktrees.")
             loadingWorktrees.value = false
         }
         return
@@ -210,7 +212,7 @@ async function fetchWorktrees() {
     if (parentProject.value?.id !== projectId) return
     if (!response.ok) {
         const data = await response.json().catch(() => ({}))
-        existingError.value = data.error || 'Failed to load worktrees.'
+        existingError.value = data.error || $t("Failed to load worktrees.")
         loadingWorktrees.value = false
         return
     }
@@ -338,11 +340,11 @@ async function handleCreate() {
     const branch = trimmedBranch.value
     const path = localPath.value.trim()
     if (!branch) {
-        errorMessage.value = 'Branch is required'
+        errorMessage.value = $t("Branch is required")
         return
     }
     if (!path || !path.startsWith('/')) {
-        errorMessage.value = 'Path must be an absolute path'
+        errorMessage.value = $t("Path must be an absolute path")
         return
     }
 
@@ -365,14 +367,14 @@ async function handleCreate() {
             body: JSON.stringify(body),
         })
     } catch (error) {
-        errorMessage.value = 'Network error. Please try again.'
+        errorMessage.value = $t("Network error. Please try again.")
         isCreating.value = false
         return
     }
 
     if (!response.ok) {
         const data = await response.json()
-        errorMessage.value = data.error || 'Failed to create worktree'
+        errorMessage.value = data.error || $t("Failed to create worktree")
         isCreating.value = false
         return
     }
@@ -406,14 +408,14 @@ async function handleOpenExisting() {
             body: JSON.stringify({ path: wt.path }),
         })
     } catch (error) {
-        existingError.value = 'Network error. Please try again.'
+        existingError.value = $t("Network error. Please try again.")
         isOpening.value = false
         return
     }
 
     if (!response.ok) {
         const data = await response.json().catch(() => ({}))
-        existingError.value = data.error || 'Failed to open worktree'
+        existingError.value = data.error || $t("Failed to open worktree")
         isOpening.value = false
         return
     }
@@ -432,31 +434,31 @@ defineExpose({
 </script>
 
 <template>
-    <wa-dialog ref="dialogRef" label="Worktree" class="worktree-dialog" @wa-show="handleDialogShow" @wa-after-show="handleDialogAfterShow">
+    <wa-dialog ref="dialogRef" :label="$t(&quot;Worktree&quot;)" class="worktree-dialog" @wa-show="handleDialogShow" @wa-after-show="handleDialogAfterShow">
         <!-- Header: title with the parent project's badge pinned to the right,
              then the action description as a larger subtitle underneath. The
              badge gives the project context at a glance (same treatment as
              ProjectEditDialog's header). -->
         <div slot="label" class="dialog-title">
             <div class="dialog-title-main">
-                <span class="dialog-title-text">Worktree</span>
+                <span class="dialog-title-text">{{ $t("Worktree") }}</span>
                 <ProjectBadge
                     v-if="parentProject"
                     :project-id="parentProject.id"
                     class="dialog-title-badge"
                 />
             </div>
-            <span class="dialog-title-subtitle">Create a new worktree, or open an existing one</span>
+            <span class="dialog-title-subtitle">{{ $t("Create a new worktree, or open an existing one") }}</span>
         </div>
 
         <TabBar :active="activeTab" @wa-tab-show="onTabShow" class="worktree-tabs">
-            <wa-tab panel="new">New worktree</wa-tab>
-            <wa-tab panel="existing">Existing worktree</wa-tab>
+            <wa-tab panel="new">{{ $t("New worktree") }}</wa-tab>
+            <wa-tab panel="existing">{{ $t("Existing worktree") }}</wa-tab>
 
             <wa-tab-panel name="new">
                 <form :id="formId" class="dialog-content" @submit.prevent="handleCreate">
                     <div class="form-group">
-                        <label class="form-label">New or existing branch</label>
+                        <label class="form-label">{{ $t("New or existing branch") }}</label>
                         <wa-input
                             ref="branchInputRef"
                             :value.prop="localBranch"
@@ -475,16 +477,16 @@ defineExpose({
                             >
                                 <wa-icon name="code-branch" auto-width></wa-icon>
                                 <span class="branch-suggestion-name">{{ suggestion.name }}</span>
-                                <span v-if="suggestion.checked_out" class="branch-suggestion-hint">in use</span>
+                                <span v-if="suggestion.checked_out" class="branch-suggestion-hint">{{ $t("in use") }}</span>
                             </button>
                         </div>
                         <div class="form-hint">
-                            An existing branch is checked out into the worktree; an unknown name creates a new branch.
+                            {{ $t("An existing branch is checked out into the worktree; an unknown name creates a new branch.") }}
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Path</label>
+                        <label class="form-label">{{ $t("Path") }}</label>
                         <div class="directory-input-row">
                             <wa-input
                                 :value.prop="localPath"
@@ -499,15 +501,12 @@ defineExpose({
                             />
                         </div>
                         <div class="form-hint">
-                            Absolute path where the worktree will be created
+                            {{ $t("Absolute path where the worktree will be created") }}
                         </div>
                         <div v-if="showNoDefaultHint" class="form-hint path-no-default-hint">
                             <wa-icon name="circle-info" auto-width></wa-icon>
                             <span>
-                                No default worktree directory set — set one per project
-                                (Edit project → Worktree directory) or globally
-                                (Settings → Default worktree directory) to pre-fill this path
-                                and append the branch name automatically.
+                                {{ $t("No default worktree directory set — set one per project (Edit project → Worktree directory) or globally (Settings → Default worktree directory) to pre-fill this path and append the branch name automatically.") }}
                             </span>
                         </div>
                         <wa-button
@@ -519,25 +518,25 @@ defineExpose({
                             @click="appendBranchToPath"
                         >
                             <wa-icon slot="start" name="plus"></wa-icon>
-                            Append branch name ("{{ branchDirName }}")
+                            {{ $t("Append branch name (\"") }}{{ branchDirName }}")
                         </wa-button>
                     </div>
 
                     <div v-if="branchIsNew && branches.length > 0" class="form-group">
-                        <label class="form-label">Start from</label>
+                        <label class="form-label">{{ $t("Start from") }}</label>
                         <wa-select
                             :value.prop="localStartFrom"
                             @change="localStartFrom = $event.target.value"
                             size="small"
                         >
-                            <wa-option value="">Current HEAD</wa-option>
+                            <wa-option value="">{{ $t("Current HEAD") }}</wa-option>
                             <wa-option v-for="b in branches" :key="b.name" :value="b.name">{{ b.name }}</wa-option>
                         </wa-select>
-                        <div class="form-hint">The new branch starts from this ref</div>
+                        <div class="form-hint">{{ $t("The new branch starts from this ref") }}</div>
                     </div>
 
                     <wa-callout v-if="errorMessage" variant="danger" size="small" class="error-callout">
-                        {{ errorMessage }}
+                        {{ $t(errorMessage) }}
                     </wa-callout>
                 </form>
             </wa-tab-panel>
@@ -546,14 +545,14 @@ defineExpose({
                 <div class="existing-panel">
                     <div v-if="loadingWorktrees" class="existing-status">
                         <wa-spinner></wa-spinner>
-                        <span>Loading worktrees…</span>
+                        <span>{{ $t("Loading worktrees…") }}</span>
                     </div>
 
                     <template v-else>
                         <div v-if="worktrees.length" class="form-group">
-                            <div class="form-hint">Open a session in a worktree of this repo that already exists on disk.</div>
+                            <div class="form-hint">{{ $t("Open a session in a worktree of this repo that already exists on disk.") }}</div>
                             <wa-select
-                                placeholder="Select a worktree…"
+                                :placeholder="$t(&quot;Select a worktree…&quot;)"
                                 :value.prop="selectedPath"
                                 @change="onSelectWorktree"
                             >
@@ -571,12 +570,12 @@ defineExpose({
                             <div v-if="selectedWorktree" class="form-hint worktree-path-hint">{{ selectedWorktree.path }}</div>
                         </div>
                         <div v-else-if="!existingError" class="existing-empty">
-                            No other worktrees yet. Use the “New worktree” tab to create one.
+                            {{ $t("No other worktrees yet. Use the “New worktree” tab to create one.") }}
                         </div>
                     </template>
 
                     <wa-callout v-if="existingError" variant="danger" size="small" class="error-callout">
-                        {{ existingError }}
+                        {{ $t(existingError) }}
                     </wa-callout>
                 </div>
             </wa-tab-panel>
@@ -584,7 +583,7 @@ defineExpose({
 
         <div slot="footer" class="dialog-footer">
             <wa-button variant="neutral" appearance="outlined" @click="close" :disabled="isCreating || isOpening">
-                Cancel
+                {{ $t("Cancel") }}
             </wa-button>
             <wa-button
                 v-if="activeTab === 'new'"
@@ -594,7 +593,7 @@ defineExpose({
                 :loading="isCreating"
                 :disabled="isCreating"
             >
-                Create worktree
+                {{ $t("Create worktree") }}
             </wa-button>
             <wa-button
                 v-else
@@ -603,7 +602,7 @@ defineExpose({
                 :disabled="!selectedWorktree || isOpening"
                 @click="handleOpenExisting"
             >
-                Open session
+                {{ $t("Open session") }}
             </wa-button>
         </div>
     </wa-dialog>

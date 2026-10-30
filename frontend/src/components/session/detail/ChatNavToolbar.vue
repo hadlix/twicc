@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../../i18n/index.js'
+
 /**
  * Transcript navigation toolbar: jump to the extremes, or block by block.
  *
@@ -39,12 +41,12 @@ function onWheel(event) {
 
 <template>
     <div class="chat-nav-toolbar" @wheel="onWheel">
-        <wa-button-group orientation="vertical" label="Navigate the conversation">
+        <wa-button-group orientation="vertical" :label="$t(&quot;Navigate the conversation&quot;)">
             <wa-button
                 size="small"
                 variant="neutral"
                 appearance="filled"
-                title="Go to the first message"
+                :title="$t(&quot;Go to the first message&quot;)"
                 :disabled="!canGoTop"
                 @click="emit('top')"
             >
@@ -54,7 +56,7 @@ function onWheel(event) {
                 size="small"
                 variant="neutral"
                 appearance="filled"
-                title="Previous message block"
+                :title="$t(&quot;Previous message block&quot;)"
                 :disabled="!canGoPrev"
                 @click="emit('prev')"
             >
@@ -64,7 +66,7 @@ function onWheel(event) {
                 size="small"
                 variant="neutral"
                 appearance="filled"
-                title="Next message block"
+                :title="$t(&quot;Next message block&quot;)"
                 :disabled="!canGoNext"
                 @click="emit('next')"
             >
@@ -74,7 +76,7 @@ function onWheel(event) {
                 size="small"
                 variant="neutral"
                 appearance="filled"
-                title="Go to the last message"
+                :title="$t(&quot;Go to the last message&quot;)"
                 :disabled="!canGoBottom"
                 @click="emit('bottom')"
             >

@@ -1,3 +1,5 @@
+
+import { t as $t } from '../i18n/index.js'
 /** Token-only adapter for one regular root. HTTP and WS share one revision gate. */
 export function makeShareInlineAdapter({ api, tokenPath, store, canAcceptManifest = () => true, onNeedsReconcile }) {
     const base = tokenPath.replace(/\/+$/, '')
@@ -44,7 +46,7 @@ export function makeShareInlineAdapter({ api, tokenPath, store, canAcceptManifes
         if (disposed || !current || current.publicationKey !== descriptor.publicationKey
             || current.codeRevision !== descriptor.codeRevision || current.publication.src !== descriptor.publication.src
             || current.status === 'not_included' || runnable && current.status !== 'ready') {
-            throw new Error('Inline artifact unavailable')
+            throw new Error($t("Inline artifact unavailable"))
         }
         return current
     }

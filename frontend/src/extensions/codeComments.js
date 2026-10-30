@@ -1,3 +1,5 @@
+
+import { t as $t } from '../i18n/index.js'
 // frontend/src/extensions/codeComments.js
 // CodeMirror 6 extension for inline code comments.
 // Renders a textarea widget below annotated lines. Communicates with the
@@ -48,7 +50,7 @@ class CodeCommentWidget extends WidgetType {
         textarea.className = 'cm-code-comment-textarea'
         textarea.value = content
         textarea.rows = 3
-        textarea.placeholder = 'Add a comment...'
+        textarea.placeholder = $t("Add a comment...")
 
         // Track buttons that depend on textarea content
         const contentDependentBtns = []
@@ -93,7 +95,7 @@ class CodeCommentWidget extends WidgetType {
 
         const cancelBtn = document.createElement('button')
         cancelBtn.className = 'cm-code-comment-cancel'
-        cancelBtn.textContent = 'Cancel'
+        cancelBtn.textContent = $t("Cancel")
         cancelBtn.type = 'button'
         cancelBtn.addEventListener('click', (e) => {
             e.stopPropagation()
@@ -107,7 +109,7 @@ class CodeCommentWidget extends WidgetType {
         if (this.callbacks.onAddToMessage) {
             const addBtn = document.createElement('button')
             addBtn.className = 'cm-code-comment-add-to-msg'
-            addBtn.textContent = 'Add to message'
+            addBtn.textContent = $t("Add to message")
             addBtn.type = 'button'
             addBtn.addEventListener('click', (e) => {
                 e.stopPropagation()
@@ -136,7 +138,7 @@ class CodeCommentWidget extends WidgetType {
             const updateAddAll = (count) => {
                 if (count >= 2) {
                     addAllBtn.style.display = ''
-                    addAllBtn.textContent = `Add all (${count})`
+                    addAllBtn.textContent = $t("Add all ({p0})", { p0: (count) })
                 } else {
                     addAllBtn.style.display = 'none'
                 }
@@ -164,13 +166,13 @@ class CodeCommentWidget extends WidgetType {
             helpWrap.className = 'cm-code-comment-help'
 
             const helpSpan = document.createElement('span')
-            helpSpan.textContent = 'Annotate code lines for your next message. '
-                + 'Use "Add to message" to insert the formatted comment into the message input. '
-                + 'You can annotate multiple lines across files and send them all at once.'
+            helpSpan.textContent = $t("Annotate code lines for your next message. ")
+                + $t("Use \"Add to message\" to insert the formatted comment into the message input. ")
+                + $t("You can annotate multiple lines across files and send them all at once.")
 
             const dismissLink = document.createElement('a')
             dismissLink.className = 'cm-code-comment-help-dismiss'
-            dismissLink.textContent = 'Don\u2019t show again'
+            dismissLink.textContent = $t("Don’t show again")
             dismissLink.href = '#'
             dismissLink.addEventListener('click', (e) => {
                 e.preventDefault()

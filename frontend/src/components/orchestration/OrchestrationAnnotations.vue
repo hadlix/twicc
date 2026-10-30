@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // A session's annotations (free-form key/value): tags that wrap onto up to MAX_LINES lines (tags that do not
 // fit in those lines are hidden), followed in the same flow by a chevron button that is always there. The
 // button opens a popover listing ALL annotations as a tree (dotted keys become levels). When entry tags are
@@ -90,14 +92,14 @@ watch([entries, prefix], measure)
                 <span class="oann-key">{{ entry.key }}</span>
                 <span class="oann-value">{{ annotationValueText(entry.value) }}</span>
             </span>
-            <button :id="buttonId" type="button" class="oann-button" aria-label="Show all annotations">
+            <button :id="buttonId" type="button" class="oann-button" :aria-label="$t(&quot;Show all annotations&quot;)">
                 <span v-if="hiddenCount > 0" class="oann-count">+{{ hiddenCount }}</span>
                 <wa-icon auto-width name="chevron-down"></wa-icon>
             </button>
         </div>
         <wa-popover v-popover-focus-fix :for="buttonId" placement="bottom-start" class="oann-popover">
             <div class="oann-popover-body">
-                <div class="oann-popover-title">Annotations</div>
+                <div class="oann-popover-title">{{ $t("Annotations") }}</div>
                 <AnnotationTreeLevel :nodes="tree" />
             </div>
         </wa-popover>

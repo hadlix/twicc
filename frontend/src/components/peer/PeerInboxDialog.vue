@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 /**
  * PeerInboxDialog — the peer inbox: pending requests, pending inbound
  * messages, recent history. A missed toast must never lose a message — this
@@ -121,14 +123,14 @@ async function searchMessages(generation) {
             buildPeerInboxSearchUrl(selectedPeerId.value, textFilter.value, selectedProjectId.value),
             { signal: controller.signal },
         )
-        if (!response.ok) throw new Error(`Search failed with status ${response.status}`)
+        if (!response.ok) throw new Error($t("Search failed with status {p0}", { p0: (response.status) }))
         const payload = await response.json()
         if (generation !== searchGeneration || controller.signal.aborted) return
         filteredMessages.value = payload.messages || []
         historyHasMore.value = !!payload.history_has_more
     } catch (error) {
         if (controller.signal.aborted || generation !== searchGeneration) return
-        searchError.value = 'Could not search peer messages.'
+        searchError.value = $t("Could not search peer messages.")
     } finally {
         if (generation === searchGeneration) {
             searching.value = false
@@ -214,18 +216,18 @@ function onHide(event) {
 
 <template>
     <wa-dialog
-        ref="dialogRef" :open="open" label="Peer inbox"
+        ref="dialogRef" :open="open" :label="$t(&quot;Peer inbox&quot;)"
         style="--width: min(680px, calc(100vw - 2rem))"
         @wa-hide="onHide"
     >
         <div slot="label" class="peer-dialog-title">
-            <span>Peer inbox</span>
+            <span>{{ $t("Peer inbox") }}</span>
             <PeerHelpLink />
         </div>
 
         <div class="pi-filters">
             <wa-select v-model="selectedPeerId" size="small" class="pi-filter-peer">
-                <wa-option value="">All peers</wa-option>
+                <wa-option value="">{{ $t("All peers") }}</wa-option>
                 <wa-option
                     v-for="peer in selectablePeers" :key="peer.id"
                     :value="peer.id" :label="peersStore.peerLabel(peer.id)"
@@ -239,14 +241,14 @@ function onHide(event) {
                     :icon-url="projectIconUrl"
                     :color="projectDotColor"
                 />
-                <wa-option value="">All projects</wa-option>
+                <wa-option value="">{{ $t("All projects") }}</wa-option>
                 <ProjectSelectOptions
                     :projects="selectableProjects" include-worktrees
                     :only-worktree-ids="projectIdsWithMessages"
                 />
             </wa-select>
             <wa-input
-                size="small" class="pi-filter-text" placeholder="Filter messages…"
+                size="small" class="pi-filter-text" :placeholder="$t(&quot;Filter messages…&quot;)"
                 with-clear
                 :value="textFilter"
                 @input="textFilter = $event.target.value"
@@ -255,29 +257,29 @@ function onHide(event) {
 
         <div v-if="searching" class="pi-searching" role="status" aria-live="polite">
             <wa-spinner></wa-spinner>
-            <span>Searching…</span>
+            <span>{{ $t("Searching…") }}</span>
         </div>
         <wa-callout v-else-if="searchError" variant="danger" size="small">
-            {{ searchError }}
+            {{ $t(searchError) }}
         </wa-callout>
 
         <template v-if="pendingRequests.length">
-            <h4 class="pi-section-title">Pending requests</h4>
+            <h4 class="pi-section-title">{{ $t("Pending requests") }}</h4>
             <button
                 v-for="peer in pendingRequests" :key="peer.id"
                 type="button" class="pi-row pi-row--clickable"
                 @click="openManager"
             >
                 <wa-icon name="user-plus" class="pi-row__icon"></wa-icon>
-                <span class="pi-row__title">{{ peer.remote_display_name || 'unnamed instance' }}</span>
+                <span class="pi-row__title">{{ peer.remote_display_name || $t("unnamed instance") }}</span>
                 <span class="pi-row__meta">{{ peer.base_url }}</span>
-                <span class="pi-row__hint">Review in manager</span>
+                <span class="pi-row__hint">{{ $t("Review in manager") }}</span>
             </button>
         </template>
 
         <template v-if="!searching && !searchError">
             <template v-if="receivedMessages.length">
-                <h4 class="pi-section-title">Received messages awaiting review</h4>
+                <h4 class="pi-section-title">{{ $t("Received messages awaiting review") }}</h4>
                 <PeerInboxRow
                     v-for="message in receivedMessages" :key="message.id"
                     :message="message" :show-status="false"
@@ -286,7 +288,7 @@ function onHide(event) {
             </template>
 
             <template v-if="history.length">
-                <h4 class="pi-section-title">History</h4>
+                <h4 class="pi-section-title">{{ $t("History") }}</h4>
                 <!-- Re-openable: a resolved message stays readable, and a delivered
                      one can be routed again (wrong session picked, draft cleared). -->
                 <PeerInboxRow
@@ -295,7 +297,7 @@ function onHide(event) {
                     @click="review(message)"
                 />
                 <wa-callout v-if="historyHasMore" variant="neutral" size="small">
-                    Showing the first 200 results. Refine your filters to narrow the search.
+                    {{ $t("Showing the first 200 results. Refine your filters to narrow the search.") }}
                 </wa-callout>
             </template>
 
@@ -305,13 +307,13 @@ function onHide(event) {
         <div slot="footer" class="pi-footer">
             <wa-button v-if="hasActivePeer" appearance="outlined" @click="composeNew">
                 <wa-icon name="paper-plane" slot="start"></wa-icon>
-                New message
+                {{ $t("New message") }}
             </wa-button>
             <wa-button appearance="outlined" @click="openManager">
                 <wa-icon name="user-group" slot="start"></wa-icon>
-                Manage peers
+                {{ $t("Manage peers") }}
             </wa-button>
-            <wa-button @click="emit('close')">Close</wa-button>
+            <wa-button @click="emit('close')">{{ $t("Close") }}</wa-button>
         </div>
     </wa-dialog>
 </template>

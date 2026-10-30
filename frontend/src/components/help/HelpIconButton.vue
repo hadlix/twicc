@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // A small inline "?" affordance that opens a help page on click — without the
 // "Don't show this again" switch (manual open). Drop it next to a label or
 // field whose feature has a help page: <HelpIconButton help-key="worktrees" />.
@@ -7,7 +9,7 @@ import { showHelp } from './showHelp'
 
 const props = defineProps({
     helpKey: { type: String, required: true },
-    label: { type: String, default: 'Learn more' },
+    label: { type: String, get default() { return $t("Learn more") } },
 })
 
 function onActivate() {

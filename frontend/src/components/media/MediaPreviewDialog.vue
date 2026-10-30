@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // MediaPreviewDialog.vue - Full-size preview dialog for images, with pan/zoom.
 // Supports prev/next navigation via arrow keys and buttons.
 // Items: `{ type: 'image', src, name?, link? }` (see composables/useMediaPreview.js).
@@ -40,9 +42,9 @@ const hasNavigation = computed(() => props.items.length > 1)
 // Dialog title (filename + position indicator)
 const dialogTitle = computed(() => {
     const item = currentItem.value
-    if (!item) return 'Preview'
+    if (!item) return $t("Preview")
 
-    const name = item.name || (item.type === 'image' ? 'Image' : 'Preview')
+    const name = item.name || (item.type === 'image' ? $t("Image") : $t("Preview"))
 
     if (hasNavigation.value) {
         return `${name} (${currentIndex.value + 1}/${props.items.length})`
@@ -159,7 +161,7 @@ defineExpose({ open, close })
             >
                 <wa-icon name="chevron-left"></wa-icon>
             </button>
-            <AppTooltip :for="prevButtonId">Previous (Left arrow)</AppTooltip>
+            <AppTooltip :for="prevButtonId">{{ $t("Previous (Left arrow)") }}</AppTooltip>
 
             <!-- Image preview -->
             <!--
@@ -178,7 +180,7 @@ defineExpose({ open, close })
             >
                 <img
                     :src="currentItem.src"
-                    :alt="currentItem.name || 'Image'"
+                    :alt="currentItem.name || $t(&quot;Image&quot;)"
                     class="preview-image"
                 />
             </div>
@@ -194,7 +196,7 @@ defineExpose({ open, close })
             >
                 <wa-icon name="chevron-right"></wa-icon>
             </button>
-            <AppTooltip :for="nextButtonId">Next (Right arrow)</AppTooltip>
+            <AppTooltip :for="nextButtonId">{{ $t("Next (Right arrow)") }}</AppTooltip>
         </div>
 
         <!-- Open-link button in footer (when the current item carries a link) -->
@@ -207,7 +209,7 @@ defineExpose({ open, close })
             @click="openLink"
         >
             <wa-icon name="arrow-up-right-from-square" slot="start"></wa-icon>
-            Open link
+            {{ $t("Open link") }}
         </wa-button>
     </wa-dialog>
 </template>

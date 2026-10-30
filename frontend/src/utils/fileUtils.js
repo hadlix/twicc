@@ -1,3 +1,5 @@
+
+import { t as $t } from '../i18n/index.js'
 // frontend/src/utils/fileUtils.js
 // Legacy draft medias (`DraftMedia`, base64 in IndexedDB): SDK format
 // conversion and send-time resize. New composer attachments are staged uploads
@@ -84,7 +86,7 @@ export function resizeImageIfNeeded(base64Data, mimeType, maxDim = MAX_IMAGE_DIM
 
             resolve({ data: resizedBase64, mimeType: outputMimeType })
         }
-        img.onerror = () => reject(new Error('Failed to load image for resizing'))
+        img.onerror = () => reject(new Error($t("Failed to load image for resizing")))
         img.src = `data:${mimeType};base64,${base64Data}`
     })
 }
@@ -147,7 +149,7 @@ export function mediaToImageBlock(media) {
  */
 export function mediaToDocumentBlock(media) {
     if (media.type === FILE_TYPES.IMAGE) {
-        throw new Error('Cannot convert image to document block')
+        throw new Error($t("Cannot convert image to document block"))
     }
 
     if (media.type === FILE_TYPES.TXT) {

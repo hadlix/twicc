@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // ArtifactBookmarkList.vue — the sidebar list in Artifacts mode. The
 // artifacts-mode counterpart of SessionList: a flat, recency-sorted list of
 // bookmarked artifacts visible in the current sidebar scope (project /
@@ -572,9 +574,9 @@ defineExpose({ handleKeyNavigation })
 <template>
     <div class="bookmark-list-container">
         <div v-if="displayItems.length === 0" class="empty-state">
-            <template v-if="searchQuery.trim()">No artifacts in this scope match your filter.</template>
+            <template v-if="searchQuery.trim()">{{ $t("No artifacts in this scope match your filter.") }}</template>
             <template v-else>
-                <div>No bookmarked artifacts in this scope yet — bookmark an artifact from a session's Artifacts tab.</div>
+                <div>{{ $t("No bookmarked artifacts in this scope yet — bookmark an artifact from a session's Artifacts tab.") }}</div>
                 <ArtifactsHelpButton />
             </template>
         </div>
@@ -672,27 +674,27 @@ defineExpose({ handleKeyNavigation })
                     size="small"
                     class="bookmark-menu-trigger sidebar-row-menu-trigger"
                 >
-                    <wa-icon name="ellipsis-v" label="Artifact actions"></wa-icon>
+                    <wa-icon name="ellipsis-v" :label="$t(&quot;Artifact actions&quot;)"></wa-icon>
                 </wa-button>
                 <wa-dropdown-item value="edit">
                     <wa-icon slot="icon" name="pencil"></wa-icon>
-                    Edit…
+                    {{ $t("Edit…") }}
                 </wa-dropdown-item>
                 <wa-dropdown-item v-if="sharingEnabled" value="share">
                     <wa-icon slot="icon" name="share-nodes"></wa-icon>
-                    Share…
+                    {{ $t("Share…") }}
                 </wa-dropdown-item>
                 <wa-dropdown-item value="open-session">
                     <wa-icon slot="icon" name="house"></wa-icon>
-                    Open in session
+                    {{ $t("Open in session") }}
                 </wa-dropdown-item>
                 <wa-divider></wa-divider>
                 <wa-dropdown-item value="remove" variant="danger">
                     <wa-icon slot="icon" name="trash"></wa-icon>
-                    Remove bookmark
+                    {{ $t("Remove bookmark") }}
                 </wa-dropdown-item>
             </wa-dropdown>
-            <AppTooltip :for="`bookmark-menu-trigger-${b.id}`">Artifact actions</AppTooltip>
+            <AppTooltip :for="`bookmark-menu-trigger-${b.id}`">{{ $t("Artifact actions") }}</AppTooltip>
             </div>
             </div>
         </div>

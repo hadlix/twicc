@@ -20,6 +20,7 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 
 from twicc.auth.access import request_allowed
+from twicc.auth.labels import auth_labels
 from twicc.auth.hashers import verify_password
 from twicc.auth.local_access import remote_access_blocked
 from twicc.auth.session_auth import (
@@ -249,7 +250,7 @@ async def artifact_auth(request):
         # No password configured → nothing to gate; go straight through.
         if not settings.TWICC_PASSWORD_HASH:
             return HttpResponseRedirect(target)
-        return render(request, "artifact_auth.html", {"redirect": target, "error": False})
+        return render(request, "artifact_auth.html", {"redirect": target, "error": False, **auth_labels(request)})
 
     # POST — validate and (on success) authenticate.
     body = parse_qs(request.body.decode("utf-8", "replace"))
@@ -261,7 +262,7 @@ async def artifact_auth(request):
     wait = _check_rate_limit(ip)
     if wait is not None:
         logger.warning("Artifact-auth rate-limited for %s (%ds remaining)", ip, wait)
-        return render(request, "artifact_auth.html", {"redirect": target, "error": True}, status=429)
+        return render(request, "artifact_auth.html", {"redirect": target, "error": True, **auth_labels(request)}, status=429)
 
     password = (body.get("password") or [""])[0]
     if await asyncio.to_thread(verify_password, password, settings.TWICC_PASSWORD_HASH):
@@ -272,4 +273,4 @@ async def artifact_auth(request):
         return HttpResponseRedirect(target)
 
     _record_failed_attempt(ip)
-    return render(request, "artifact_auth.html", {"redirect": target, "error": True}, status=401)
+    return render(request, "artifact_auth.html", {"redirect": target, "error": True, **auth_labels(request)}, status=401)

@@ -1,3 +1,5 @@
+
+import { t as $t } from '../i18n/index.js'
 /**
  * Auto-generate display notation for combo steps.
  *
@@ -9,19 +11,19 @@
 
 /** Map key identifiers to short display labels (matching built-in tab labels) */
 const KEY_DISPLAY_MAP = {
-    Escape: 'ESC',
-    Tab: 'TAB',
-    Enter: 'ENTER',
+    get Escape() { return $t("ESC") },
+    get Tab() { return $t("TAB") },
+    get Enter() { return $t("ENTER") },
     ArrowLeft: '←',
     ArrowUp: '↑',
     ArrowDown: '↓',
     ArrowRight: '→',
-    Home: 'HOME',
-    End: 'END',
-    PageUp: 'PGUP',
-    PageDown: 'PGDN',
-    Delete: 'DEL',
-    Insert: 'INS',
+    get Home() { return $t("HOME") },
+    get End() { return $t("END") },
+    get PageUp() { return $t("PGUP") },
+    get PageDown() { return $t("PGDN") },
+    get Delete() { return $t("DEL") },
+    get Insert() { return $t("INS") },
 }
 
 /**

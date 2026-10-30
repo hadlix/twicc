@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // One subagent card of the Orchestration tree, rendered recursively. Same card as OrchestrationNode
 // (treeNode.css): title + working robot, the model the subagent last used, time bar, dates/duration/turns/
 // context with the cost at the right. What an agent has no equivalent of — settings, project, annotations —
@@ -48,7 +50,7 @@ const descendantCount = visibleComputed(() => flattenTree(props.node).length - 1
 // named it — this tab says "subagent" throughout, to tell these apart from the sessions in the other tree.
 const label = visibleComputed(() => {
     const { name, isFallback } = getAgentDisplay(props.node.id, store)
-    return isFallback ? `Subagent "${name}"` : name
+    return isFallback ? $t("Subagent \"{p0}\"", { p0: (name) }) : name
 })
 
 // A running agent carries a process state — real, or the synthetic one the agent-link cache maintains.
@@ -93,7 +95,7 @@ const contextUsageTooltip = visibleComputed(() => {
     if (max == null) return null
     const helpers = provider.value ? getProviderHelpers(provider.value) : null
     const label = helpers?.getChoiceLabel('context_max', max) || `${Math.round(max / 1000)}K`
-    return `Context window usage (${label} max)`
+    return $t("Context window usage ({p0} max)", { p0: (label) })
 })
 const contextUsageColor = visibleComputed(() => {
     const pct = contextUsagePercentage.value
@@ -140,8 +142,8 @@ const expanded = ref(true)
                     <wa-icon
                         v-if="isRunning"
                         name="robot"
-                        title="Working"
-                        label="Working"
+                        :title="$t(&quot;Working&quot;)"
+                        :label="$t(&quot;Working&quot;)"
                         class="orch-status-icon robot-working"
                         style="color: var(--wa-color-blue-60)"
                     ></wa-icon>
@@ -151,7 +153,7 @@ const expanded = ref(true)
                     type="button"
                     class="ocard-toggle"
                     :aria-expanded="expanded"
-                    :aria-label="expanded ? 'Collapse' : 'Expand'"
+                    :aria-label="expanded ? $t(&quot;Collapse&quot;) : $t(&quot;Expand&quot;)"
                     @click="expanded = !expanded"
                 >
                     <span>{{ descendantCount }}</span>
@@ -159,7 +161,7 @@ const expanded = ref(true)
                 </button>
             </div>
 
-            <div v-if="modelLabel" class="ocard-settings" title="Last used model">
+            <div v-if="modelLabel" class="ocard-settings" :title="$t(&quot;Last used model&quot;)">
                 <span class="ocard-model">
                     <ProviderIcon :provider="provider" />
                     {{ modelLabel }}
@@ -196,7 +198,7 @@ const expanded = ref(true)
                 </span>
                 <span v-if="showCosts" class="orch-cost">
                     <CostDisplay :cost="ownCost" />
-                    <span v-if="hasChildren" class="orch-cost-sub" title="Cumulative cost including spawned agents">
+                    <span v-if="hasChildren" class="orch-cost-sub" :title="$t(&quot;Cumulative cost including spawned agents&quot;)">
                         Σ <CostDisplay :cost="cumulativeCost" />
                     </span>
                 </span>

@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 import { computed, nextTick, onUnmounted, ref, watch } from 'vue'
 import { useDataStore } from '../../stores/data'
 import { useWorkspacesStore } from '../../stores/workspaces'
@@ -67,7 +69,7 @@ async function refreshCount() {
     if (!iso) {
         // Defensive: shouldn't happen since wa-select only emits known presets,
         // but bail gracefully rather than send a malformed request.
-        error.value = `Unknown duration preset: ${currentPreset.value}`
+        error.value = $t("Unknown duration preset: {p0}", { p0: (currentPreset.value) })
         return
     }
 
@@ -90,7 +92,7 @@ async function refreshCount() {
         hasArchivedInScope.value = res.has_archived_in_scope ?? false
     } catch (err) {
         if (err.name === 'AbortError') return
-        error.value = err.message || 'Failed to fetch count.'
+        error.value = err.message || $t("Failed to fetch count.")
     }
 }
 
@@ -130,7 +132,7 @@ async function handleConfirm() {
     if (count.value === 0 || count.value === null || submitting.value) return
     const iso = presetToDate(currentPreset.value)
     if (!iso) {
-        error.value = `Unknown duration preset: ${currentPreset.value}`
+        error.value = $t("Unknown duration preset: {p0}", { p0: (currentPreset.value) })
         return
     }
     submitting.value = true
@@ -145,7 +147,7 @@ async function handleConfirm() {
         emit('archived', { count: res.count })
         emit('update:open', false)
     } catch (err) {
-        error.value = err.message || 'Failed to archive sessions.'
+        error.value = err.message || $t("Failed to archive sessions.")
     } finally {
         submitting.value = false
     }
@@ -181,13 +183,13 @@ function handleDialogHide(event) {
 <template>
     <wa-dialog
         :open="open"
-        label="Archive sessions"
+        :label="$t(&quot;Archive sessions&quot;)"
         @wa-hide="handleDialogHide"
         style="--width: min(520px, calc(100vw - 2rem));"
     >
         <form :id="FORM_ID" @submit.prevent="handleConfirm">
             <div class="bulk-archive-row">
-                <span>Archive sessions older than</span>
+                <span>{{ $t("Archive sessions older than") }}</span>
                 <wa-select v-model="currentPreset" size="small" class="duration-select">
                     <wa-option
                         v-for="p in DURATION_PRESETS"
@@ -199,7 +201,7 @@ function handleDialogHide(event) {
 
             <div class="bulk-archive-scope">
                 <div class="bulk-archive-scope-main">
-                    <span class="bulk-archive-scope-label">Scope:</span>
+                    <span class="bulk-archive-scope-label">{{ $t("Scope:") }}</span>
                     <ProjectBadge v-if="scope.type === 'project'" :project-id="scope.id" />
                     <template v-else-if="scope.type === 'workspace' && workspace">
                         <wa-icon
@@ -209,10 +211,10 @@ function handleDialogHide(event) {
                         ></wa-icon>
                         <span>{{ workspace.name }}</span>
                     </template>
-                    <span v-else>All projects</span>
+                    <span v-else>{{ $t("All projects") }}</span>
                 </div>
                 <div v-if="scope.type === 'workspace' && workspace" class="workspace-projects">
-                    <span class="bulk-archive-scope-label">Workspace projects:</span>
+                    <span class="bulk-archive-scope-label">{{ $t("Workspace projects:") }}</span>
                     <ProjectBadge
                         v-for="pid in workspaceProjectIds"
                         :key="pid"
@@ -220,7 +222,7 @@ function handleDialogHide(event) {
                     />
                 </div>
                 <div v-if="currentTitleQuery" class="bulk-archive-filter">
-                    <span class="bulk-archive-scope-label">Matching:</span>
+                    <span class="bulk-archive-scope-label">{{ $t("Matching:") }}</span>
                     <wa-tag pill with-remove @wa-remove="currentTitleQuery = ''">
                         {{ currentTitleQuery }}
                     </wa-tag>
@@ -231,7 +233,7 @@ function handleDialogHide(event) {
                         :checked="currentIncludeArchivedProjects"
                         @change="currentIncludeArchivedProjects = $event.target.checked"
                     >
-                        Include sessions from archived projects
+                        {{ $t("Include sessions from archived projects") }}
                     </wa-switch>
                 </div>
             </div>
@@ -239,25 +241,25 @@ function handleDialogHide(event) {
             <div class="bulk-archive-count">
                 <template v-if="count === null && !error">
                     <wa-spinner></wa-spinner>
-                    <span>Counting…</span>
+                    <span>{{ $t("Counting…") }}</span>
                 </template>
                 <template v-else-if="count === 0">
-                    No sessions to archive in this scope older than {{ currentLabel }}.
+                    {{ $t("No sessions to archive in this scope older than") }} {{ currentLabel }}.
                 </template>
                 <template v-else-if="count !== null">
-                    This will archive <strong>{{ count }}</strong> session{{ count > 1 ? 's' : '' }}.
+                    {{ $t("This will archive") }} <strong>{{ count }}</strong> {{ $t("session") }}{{ count > 1 ? $t("s") : '' }}.
                 </template>
             </div>
 
             <div class="bulk-archive-hint">
-                Sessions that are pinned or have an active process are excluded.
+                {{ $t("Sessions that are pinned or have an active process are excluded.") }}
             </div>
 
-            <wa-callout v-if="error" variant="danger">{{ error }}</wa-callout>
+            <wa-callout v-if="error" variant="danger">{{ $t(error) }}</wa-callout>
         </form>
 
         <wa-button slot="footer" appearance="plain" :disabled="submitting" @click="handleCancel">
-            Cancel
+            {{ $t("Cancel") }}
         </wa-button>
         <wa-button
             slot="footer"
@@ -267,8 +269,8 @@ function handleDialogHide(event) {
             :disabled="count === null || count === 0 || submitting"
             :loading="submitting"
         >
-            <template v-if="count && count > 0">Archive {{ count }}</template>
-            <template v-else>Archive</template>
+            <template v-if="count && count > 0">{{ $t("Archive") }} {{ count }}</template>
+            <template v-else>{{ $t("Archive") }}</template>
         </wa-button>
     </wa-dialog>
 </template>

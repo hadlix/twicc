@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // TerminalSnippetSendDialog.vue - One-shot dialog to edit a snippet's text before sending it to a terminal.
 // Nothing is persisted — the edited text is used for this single send only.
 import { ref, computed, nextTick } from 'vue'
@@ -109,7 +111,7 @@ defineExpose({ open, close })
 <template>
     <wa-dialog
         ref="dialogRef"
-        label="Edit & Send Snippet"
+        :label="$t(&quot;Edit &amp; Send Snippet&quot;)"
         class="snippet-send-dialog"
         @wa-after-show="handleDialogAfterShow"
         @wa-hide="handleDialogHide"
@@ -124,37 +126,37 @@ defineExpose({ open, close })
 
             <!-- Unavailable placeholders warning -->
             <wa-callout v-if="sendDisabled" variant="danger" size="small">
-                Cannot send: unavailable placeholders — {{ unavailable.map(p => p.label).join(', ') }}
+                {{ $t("Cannot send: unavailable placeholders —") }} {{ unavailable.map(p => p.label).join(', ') }}
             </wa-callout>
         </div>
 
         <!-- ═══ FOOTER ═══ -->
         <div slot="footer" class="dialog-footer">
             <wa-button variant="neutral" appearance="outlined" @click="close">
-                Cancel
+                {{ $t("Cancel") }}
             </wa-button>
 
             <!-- Split button: Send + dropdown for target selection -->
-            <wa-button-group label="Send options">
+            <wa-button-group :label="$t(&quot;Send options&quot;)">
                 <wa-button variant="brand"  class="send-main-btn" :disabled="sendDisabled" @click="handleSend">
-                    Send
+                    {{ $t("Send") }}
                 </wa-button>
                 <wa-dropdown placement="top-end" :disabled="sendDisabled" @wa-select="handleSendTo">
                     <wa-button slot="trigger" variant="brand" class="send-arrow-btn" :disabled="sendDisabled">
                         <wa-icon name="chevron-up"></wa-icon>
                     </wa-button>
-                    <wa-dropdown-item disabled class="dropdown-label">Send to tab</wa-dropdown-item>
+                    <wa-dropdown-item disabled class="dropdown-label">{{ $t("Send to tab") }}</wa-dropdown-item>
                     <wa-dropdown-item
                         v-for="term in terminals"
                         :key="term.index"
                         :value="String(term.index)"
                     >
-                        {{ term.label }}<template v-if="term.index === activeTerminalIndex"> (current)</template>
+                        {{ term.label }}<template v-if="term.index === activeTerminalIndex"> {{ $t("(current)") }}</template>
                     </wa-dropdown-item>
                     <wa-divider></wa-divider>
                     <wa-dropdown-item value="new">
                         <wa-icon slot="icon" name="plus"></wa-icon>
-                        New tab
+                        {{ $t("New tab") }}
                     </wa-dropdown-item>
                 </wa-dropdown>
             </wa-button-group>

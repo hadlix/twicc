@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 import { inject, nextTick, onUnmounted, ref, watch } from 'vue'
 import { useTerminal } from '../../composables/useTerminal'
 import { useTerminalPoolStore } from '../../stores/terminalPool'
@@ -197,7 +199,7 @@ function handleReconnectClick() {
             <wa-callout variant="warning">
                 <wa-icon slot="icon" name="plug-circle-xmark"></wa-icon>
                 <div class="terminal-overlay-content">
-                    <div>Terminal disconnected</div>
+                    <div>{{ $t("Terminal disconnected") }}</div>
                     <wa-button
                         ref="reconnectBtnRef"
                         variant="warning"
@@ -206,7 +208,7 @@ function handleReconnectClick() {
                         @click="handleReconnectClick"
                     >
                         <wa-icon slot="start" name="arrow-rotate-right"></wa-icon>
-                        Reconnect
+                        {{ $t("Reconnect") }}
                     </wa-button>
                 </div>
             </wa-callout>
@@ -218,7 +220,7 @@ function handleReconnectClick() {
             <wa-callout variant="neutral">
                 <wa-icon slot="icon" name="terminal"></wa-icon>
                 <div class="terminal-overlay-content">
-                    <div>Terminal not started</div>
+                    <div>{{ $t("Terminal not started") }}</div>
                     <wa-button
                         ref="startBtnRef"
                         variant="brand"
@@ -227,7 +229,7 @@ function handleReconnectClick() {
                         @click="handleStartClick"
                     >
                         <wa-icon slot="start" name="play"></wa-icon>
-                        Start terminal
+                        {{ $t("Start terminal") }}
                     </wa-button>
                 </div>
             </wa-callout>

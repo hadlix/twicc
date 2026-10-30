@@ -1,3 +1,4 @@
+import { t as $t, getFormatLocale } from '../../i18n/index.js'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
@@ -124,7 +125,7 @@ test('project card renders effective last activity in absolute date, relative da
     }
     const renderCard = async () => {
         const app = Vue.createSSRApp({ render() {
-            const node = render.call(this, Vue.proxyRefs({ ...state, $slots: {}, project: props.project, formatDate: n => `date:${n}` }), [])
+            const node = render.call(this, Vue.proxyRefs({ ...state, $t, $slots: {}, project: props.project, formatDate: n => `date:${n}` }), [])
             visit(node)
             return node
         } })
@@ -132,7 +133,8 @@ test('project card renders effective last activity in absolute date, relative da
             'CodeCommentsIndicator', 'ActivitySparkline', 'CostDisplay', 'AppTooltip']) {
             app.component(name, { render() { return Vue.h('span', this.$slots.default?.()) } })
         }
-        return renderToString(app)
+        app.config.globalProperties.$t = $t
+    return renderToString(app)
     }
     assert.match(await renderCard(), /date:40/)
     f.settings.getSessionTimeFormat = 'short'

@@ -1,3 +1,5 @@
+
+import { t as $t } from '../i18n/index.js'
 // Canonical derivation of a project's root directories.
 //
 // Every Files / Git / file-path-resolution site derives its roots from these
@@ -23,14 +25,14 @@ export function getWorktreeParent(project, store) {
  */
 function buildFileRootLabel(roles) {
     const has = (r) => roles.has(r)
-    if (has('parent_dir') && has('parent_git')) return 'Main repo directory (git root)'
-    if (has('parent_dir')) return 'Main repo directory'
-    if (has('parent_git')) return 'Main repo git root'
-    if (has('project_dir') && has('git_root')) return 'Project directory (git root)'
-    if (has('project_dir')) return 'Project directory'
-    if (has('git_root')) return 'Git root'
-    if (has('cwd')) return 'Working directory'
-    return 'Directory'
+    if (has('parent_dir') && has('parent_git')) return $t("Main repo directory (git root)")
+    if (has('parent_dir')) return $t("Main repo directory")
+    if (has('parent_git')) return $t("Main repo git root")
+    if (has('project_dir') && has('git_root')) return $t("Project directory (git root)")
+    if (has('project_dir')) return $t("Project directory")
+    if (has('git_root')) return $t("Git root")
+    if (has('cwd')) return $t("Working directory")
+    return $t("Directory")
 }
 
 /**
@@ -117,12 +119,12 @@ export function deriveGitRoots({ gitDirectory = null, projectGitRoot = null, par
 
     if (sessionGit && projectGit && sessionGit === projectGit) {
         // Worktree session git and project git resolve to the same path.
-        push('session', 'Git root', sessionGit)
+        push('session', $t("Git root"), sessionGit)
     } else {
-        push('session', 'Session git root', sessionGit)
-        push('project', 'Project git root', projectGit)
+        push('session', $t("Session git root"), sessionGit)
+        push('project', $t("Project git root"), projectGit)
     }
-    push('parent', 'Main repo git root', parentGit)
+    push('parent', $t("Main repo git root"), parentGit)
     return roots
 }
 

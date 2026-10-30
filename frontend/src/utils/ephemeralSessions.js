@@ -1,3 +1,5 @@
+
+import { t as $t } from '../i18n/index.js'
 /** Browser-owned one-shot entries. This module never reads server session rows. */
 import { retainsAsyncQuestionSend } from './asyncQuestions.js'
 
@@ -30,7 +32,7 @@ export function serializeDraftSession(session) {
  */
 export function summarizeEphemeralAttachments(items = []) {
     return items.map(item => ({
-        name: item.name || item.filename || 'Attachment',
+        name: item.name || item.filename || "Attachment",
         media_type: item.mimeType || item.media_type || '',
         kind: typeof item.bucket === 'string' ? item.kind : (item.type === 'image' ? 'image' : 'document'),
     }))
@@ -260,7 +262,7 @@ export function createEphemeralActions({ saveControl, deleteControl, deleteSessi
             this.clearEphemeralControl(frame.draft_session_id)
             const session = this.sessions[id]
             if (!isLaunchedEphemeral(session) || session.ephemeralPhase !== 'running') return
-            this.receiveEphemeralResult({ session_id: id, status: 'error', error: frame.error || 'The ephemeral run could not start.' })
+            this.receiveEphemeralResult({ session_id: id, status: 'error', error: frame.error || $t("The ephemeral run could not start.") })
         },
         clearEphemeralControl(id) {
             for (const [key, control] of Object.entries(this.localState.ephemeralControls)) {

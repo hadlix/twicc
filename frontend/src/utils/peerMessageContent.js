@@ -1,3 +1,5 @@
+
+import { t as $t } from '../i18n/index.js'
 import { defaultAttachmentName } from './attachmentStrip.js'
 import { getDisplayKind } from './composerAttachments.js'
 
@@ -22,8 +24,8 @@ export function shouldConfirmPeerAttachments(metadata) {
 
 export function formatPeerContentBytes(bytes) {
     const safeBytes = Number.isFinite(bytes) && bytes > 0 ? bytes : 0
-    if (safeBytes >= 1024 * 1024) return `${(safeBytes / (1024 * 1024)).toFixed(1)} MiB`
-    if (safeBytes >= 1024) return `${(safeBytes / 1024).toFixed(1)} KiB`
+    if (safeBytes >= 1024 * 1024) return $t("{p0} MiB", { p0: ((safeBytes / (1024 * 1024)).toFixed(1)) })
+    if (safeBytes >= 1024) return $t("{p0} KiB", { p0: ((safeBytes / 1024).toFixed(1)) })
     return `${safeBytes} B`
 }
 
@@ -101,11 +103,11 @@ export async function addPeerAttachmentsToDraft(payload, entryToFile, addAttachm
     for (const entry of attachmentEntries(payload)) {
         try {
             const file = entryToFile(entry)
-            if (!file) throw new Error('Invalid Peer attachment')
+            if (!file) throw new Error($t("Invalid Peer attachment"))
             await addAttachment(file)
         } catch {
-            return 'TwiCC could not add all attachments to the draft. '
-                + 'The Peer message is still available for delivery to another session.'
+            return $t("TwiCC could not add all attachments to the draft. ")
+                + $t("The Peer message is still available for delivery to another session.")
         }
     }
     return ''

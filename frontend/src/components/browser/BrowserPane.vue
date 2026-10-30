@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // Browser pane: embeds a user-chosen URL (typically the project's dev server)
 // in a plain iframe. Unlike the Artifacts preview there is NO sandbox, NO CSP
 // lockdown and NO network broker — deliberate: the page runs exactly as in a
@@ -49,7 +51,7 @@ import TextSelectionComment from '../session/detail/TextSelectionComment.vue'
 import AppTooltip from '../ui/AppTooltip.vue'
 
 // Stable identity — an inline literal would churn the frame descriptor watch.
-const BROWSER_FRAME_ATTRS = { allow: 'clipboard-read; clipboard-write; fullscreen', title: 'Browser' }
+const BROWSER_FRAME_ATTRS = { allow: 'clipboard-read; clipboard-write; fullscreen', get title() { return $t("Browser") } }
 
 const props = defineProps({
     sessionId: { type: String, default: null },
@@ -165,7 +167,7 @@ function onWindowMessage(event) {
         // Fresh document → the previous page's errors are gone.
         pageErrors.value = []
         pageErrorTotal.value = 0
-        rejectPendingCapture('page reloaded')
+        rejectPendingCapture($t("page reloaded"))
         clearHelloGraceTimer()
         // A connected companion is definitive proof the page is reachable and
         // embeddable — drop any banner a slower/raced probe put up.
@@ -214,9 +216,9 @@ function onWindowMessage(event) {
         // + ancestor chain) — open the comment widget on it.
         if (selectAreaActive.value && typeof data.chain === 'string') {
             const lines = []
-            if (typeof data.openingTag === 'string' && data.openingTag) lines.push(`Element: ${data.openingTag}`)
-            if (typeof data.text === 'string' && data.text) lines.push(`Text: "${data.text}"`)
-            lines.push(`Path: ${data.chain}`)
+            if (typeof data.openingTag === 'string' && data.openingTag) lines.push($t("Element: {p0}", { p0: (data.openingTag) }))
+            if (typeof data.text === 'string' && data.text) lines.push($t("Text: \"{p0}\"", { p0: (data.text) }))
+            lines.push($t("Path: {p0}", { p0: (data.chain) }))
             openSelectComment(lines.join('\n'))
         }
     } else if (data.type === 'select-capture') {
@@ -229,7 +231,7 @@ function onWindowMessage(event) {
             clearTimeout(timer)
             if (typeof data.error === 'string') reject(new Error(data.error))
             else if (typeof data.dataUrl === 'string' && data.dataUrl.startsWith('data:image/')) resolve(data.dataUrl)
-            else reject(new Error('no image returned'))
+            else reject(new Error($t("no image returned")))
         }
     } else if (data.type === 'errors') {
         // The companion pushed the current page-error buffer (console.error,
@@ -254,7 +256,7 @@ function onWindowMessage(event) {
         selectState.value = null
         pageErrors.value = []
         pageErrorTotal.value = 0
-        rejectPendingCapture('page navigating away')
+        rejectPendingCapture($t("page navigating away"))
         // The frozen pre-companion stack becomes reachable the moment we
         // leave 'present' — and this waiting window is exactly when users
         // click Back ("page is taking too long"). Reset it NOW; clearing
@@ -311,7 +313,7 @@ onBeforeUnmount(() => {
     unregisterCommand(saveUrlCommandId)
     if (isFullscreen.value) expandPreviewHost?.(false)
     clearHelloGraceTimer()
-    rejectPendingCapture('pane closed')
+    rejectPendingCapture($t("pane closed"))
     persistUrlDebounced.cancel()
 })
 
@@ -590,14 +592,14 @@ const insertTextAtCursor = inject('insertTextAtCursor', null)
 const agentInstructionsCopied = ref(false)
 const agentInstructions = computed(() => {
     const lines = [
-        "Set up my dev server so its pages work in TwiCC's Browser tab (an iframe).",
-        `Follow this guide: ${BROWSER_TAB_HELP_PUBLIC_URL}`,
+        $t("Set up my dev server so its pages work in TwiCC's Browser tab (an iframe)."),
+        $t("Follow this guide: {p0}", { p0: (BROWSER_TAB_HELP_PUBLIC_URL) }),
         '',
-        `- TwiCC runs at ${window.location.origin}: allow framing from this origin (dev only).`,
-        "- Add the companion script as the first tag of the dev page's <head>:",
+        $t("- TwiCC runs at {p0}: allow framing from this origin (dev only).", { p0: (window.location.origin) }),
+        $t("- Add the companion script as the first tag of the dev page's <head>:"),
         `  ${companionSnippet.value}`,
     ]
-    if (currentUrl.value) lines.push(`- Page currently loaded in the Browser tab: ${currentUrl.value}`)
+    if (currentUrl.value) lines.push($t("- Page currently loaded in the Browser tab: {p0}", { p0: (currentUrl.value) }))
     return lines.join('\n')
 })
 
@@ -605,7 +607,7 @@ const agentInstructions = computed(() => {
 // The text lands in the draft either way; the toast confirms it.
 function addAgentInstructionsToMessage() {
     insertTextAtCursor(agentInstructions.value + '\n', { focus: false })
-    toast.success('Added to message', { duration: 2000 })
+    toast.success($t("Added to message"), { duration: 2000 })
 }
 
 async function copyAgentInstructions() {
@@ -616,16 +618,16 @@ async function copyAgentInstructions() {
             agentInstructionsCopied.value = false
         }, 1500)
     } catch {
-        toast.error("Couldn't copy to clipboard")
+        toast.error($t("Couldn't copy to clipboard"))
     }
 }
 
 const companionTooltip = computed(() => {
     if (companionStatus.value === 'present') {
-        return 'Companion connected — real navigation history, element selection and page-error capture are available. Click for help on this tab.'
+        return $t("Companion connected — real navigation history, element selection and page-error capture are available. Click for help on this tab.")
     }
-    if (companionStatus.value === 'waiting') return 'Checking for the TwiCC companion script…'
-    return 'No companion script on this page — real history, element selection and error capture are off. Click to see how to add it.'
+    if (companionStatus.value === 'waiting') return $t("Checking for the TwiCC companion script…")
+    return $t("No companion script on this page — real history, element selection and error capture are off. Click to see how to add it.")
 })
 
 // Open the Browser tab's help page (reference open — no dismiss switch).
@@ -668,7 +670,7 @@ function setSelectArea(enabled) {
     if (selectAreaActive.value === enabled) return
     selectAreaActive.value = enabled
     selectState.value = null
-    rejectPendingCapture('select mode changed')
+    rejectPendingCapture($t("select mode changed"))
     // Drop any open comment widget so a stale one can't flash back on re-entry.
     commentPosition.value = null
     sendToCompanion(hostMessage('command', { action: 'select-mode', enabled }))
@@ -693,11 +695,11 @@ function selectComment() {
 const CAPTURE_TIMEOUT_MS = 15000
 function captureScreenshot() {
     if (companionStatus.value !== 'present') {
-        return Promise.reject(new Error('companion not connected'))
+        return Promise.reject(new Error($t("companion not connected")))
     }
-    if (pendingCapture) return Promise.reject(new Error('a capture is already in progress'))
+    if (pendingCapture) return Promise.reject(new Error($t("a capture is already in progress")))
     return new Promise((resolve, reject) => {
-        const timer = setTimeout(() => rejectPendingCapture('capture timed out'), CAPTURE_TIMEOUT_MS)
+        const timer = setTimeout(() => rejectPendingCapture($t("capture timed out")), CAPTURE_TIMEOUT_MS)
         pendingCapture = { resolve, reject, timer }
         sendToCompanion(hostMessage('command', { action: 'select-capture' }))
     })
@@ -720,17 +722,17 @@ async function attachScreenshot(dataUrl, options = {}) {
 const selectToolbarRef = ref(null)
 const commentText = ref('')
 const commentPosition = ref(null)          // viewport anchor, or null = closed
-const commentSubject = ref('selected area')
+const commentSubject = ref($t("selected area"))
 const commentAllowScreenshot = ref(false)
 // Rendered into the formatted message header so the agent knows which page the
 // element / errors live on.
-const commentSourceLabel = computed(() => `from the browser page at ${currentUrl.value}`)
+const commentSourceLabel = computed(() => $t("from the browser page at {p0}", { p0: (currentUrl.value) }))
 
 function openSelectComment(description) {
     const rect = selectToolbarRef.value?.$el?.getBoundingClientRect()
     if (!rect) return
     commentText.value = description
-    commentSubject.value = 'selected area'
+    commentSubject.value = $t("selected area")
     commentAllowScreenshot.value = true
     commentPosition.value = { top: rect.bottom, left: rect.left + rect.width / 2, above: false }
 }
@@ -744,7 +746,7 @@ const pageErrorTotal = ref(0)    // true count (may exceed the capped list)
 function formatErrorList() {
     const body = pageErrors.value.map((e) => `[${e.kind}] ${e.text}`).join('\n\n')
     if (pageErrorTotal.value > pageErrors.value.length) {
-        return `(showing the last ${pageErrors.value.length} of ${pageErrorTotal.value} errors)\n\n${body}`
+        return $t("(showing the last {p0} of {p1} errors)\n\n{p2}", { p0: (pageErrors.value.length), p1: (pageErrorTotal.value), p2: (body) })
     }
     return body
 }
@@ -754,7 +756,7 @@ function openErrorComment(event) {
     const rect = event.currentTarget?.getBoundingClientRect()
     if (!rect) return
     commentText.value = formatErrorList()
-    commentSubject.value = 'page errors'
+    commentSubject.value = $t("page errors")
     commentAllowScreenshot.value = false
     commentPosition.value = { top: rect.bottom, left: rect.left + rect.width / 2, above: false }
 }
@@ -809,7 +811,7 @@ async function putProjectBrowserUrls(projectId, entries) {
     })
     if (!response.ok) {
         const data = await response.json().catch(() => ({}))
-        throw new Error(data.error || `Failed to save (${response.status})`)
+        throw new Error(data.error || $t("Failed to save ({p0})", { p0: (response.status) }))
     }
     store.updateProject(await response.json())
 }
@@ -880,7 +882,7 @@ async function submitSave() {
         )
         if (saveDialogRef.value) saveDialogRef.value.open = false
     } catch (e) {
-        saveError.value = e.message || 'Failed to save URL'
+        saveError.value = e.message || $t("Failed to save URL")
     }
 }
 
@@ -925,7 +927,7 @@ watch(
         if (active) {
             registerCommand({
                 id: openSavedUrlCommandId,
-                label: 'Open a Saved URL…',
+                get label() { return $t("Open a Saved URL…") },
                 icon: 'house',
                 category: 'navigation',
                 when: () => homeOptions.value.length > 0,
@@ -938,7 +940,7 @@ watch(
             })
             registerCommand({
                 id: saveUrlCommandId,
-                label: 'Save Current URL…',
+                get label() { return $t("Save Current URL…") },
                 icon: 'bookmark',
                 category: 'ui',
                 // Nothing loaded yet → nothing to save (same gate as the button).
@@ -974,7 +976,7 @@ async function removeSavedUrl(opt) {
     try {
         await applyLevelEntries(level.key, removeBrowserUrlEntry(level.entries, opt.url))
     } catch (e) {
-        saveError.value = e.message || 'Failed to remove URL'
+        saveError.value = e.message || $t("Failed to remove URL")
     }
 }
 
@@ -986,7 +988,7 @@ async function makeDefaultSavedUrl(opt) {
     try {
         await applyLevelEntries(level.key, setDefaultBrowserUrlEntry(level.entries, opt.url))
     } catch (e) {
-        saveError.value = e.message || 'Failed to set the default URL'
+        saveError.value = e.message || $t("Failed to set the default URL")
     }
 }
 </script>
@@ -998,15 +1000,15 @@ async function makeDefaultSavedUrl(opt) {
                 <wa-button :id="`browser-back-${instanceId}`" appearance="plain" size="small" class="browser-btn reduced-height" :disabled="!canGoBack" @click="goBack">
                     <wa-icon name="arrow-left"></wa-icon>
                 </wa-button>
-                <AppTooltip :for="`browser-back-${instanceId}`">Back</AppTooltip>
+                <AppTooltip :for="`browser-back-${instanceId}`">{{ $t("Back") }}</AppTooltip>
                 <wa-button :id="`browser-forward-${instanceId}`" appearance="plain" size="small" class="browser-btn reduced-height" :disabled="!canGoForward" @click="goForward">
                     <wa-icon name="arrow-right"></wa-icon>
                 </wa-button>
-                <AppTooltip :for="`browser-forward-${instanceId}`">Forward</AppTooltip>
+                <AppTooltip :for="`browser-forward-${instanceId}`">{{ $t("Forward") }}</AppTooltip>
                 <wa-button :id="`browser-refresh-${instanceId}`" appearance="plain" size="small" class="browser-btn reduced-height" :disabled="!currentUrl" @click="refresh">
                     <wa-icon name="rotate-right"></wa-icon>
                 </wa-button>
-                <AppTooltip :for="`browser-refresh-${instanceId}`">Refresh</AppTooltip>
+                <AppTooltip :for="`browser-refresh-${instanceId}`">{{ $t("Refresh") }}</AppTooltip>
                 <!-- Home: a plain button for a single saved URL, or a dropdown
                      (like Save) when several levels — worktree, main repo,
                      workspace — each define one. WA custom events are stopped
@@ -1024,7 +1026,7 @@ async function makeDefaultSavedUrl(opt) {
                     <wa-button :id="`browser-home-${instanceId}`" slot="trigger" appearance="plain" size="small" class="browser-btn reduced-height">
                         <wa-icon name="house"></wa-icon>
                     </wa-button>
-                    <wa-dropdown-item disabled class="save-menu-header">Open a saved URL…</wa-dropdown-item>
+                    <wa-dropdown-item disabled class="save-menu-header">{{ $t("Open a saved URL…") }}</wa-dropdown-item>
                     <wa-dropdown-item v-for="opt in homeOptions" :key="opt.key" :value="opt.url">
                         <div class="home-menu-item">
                             <ProjectBadge v-if="opt.levelKey === 'project'" :project-id="props.projectId" />
@@ -1042,13 +1044,13 @@ async function makeDefaultSavedUrl(opt) {
                                     v-if="opt.isLevelDefault"
                                     name="star"
                                     class="home-menu-default-star"
-                                    title="Home default for this level"
+                                    :title="$t(&quot;Home default for this level&quot;)"
                                 ></wa-icon>
                                 <button
                                     v-else
                                     type="button"
                                     class="home-menu-action"
-                                    title="Make it the Home default"
+                                    :title="$t(&quot;Make it the Home default&quot;)"
                                     @click.stop="makeDefaultSavedUrl(opt)"
                                 >
                                     <wa-icon name="star"></wa-icon>
@@ -1056,7 +1058,7 @@ async function makeDefaultSavedUrl(opt) {
                                 <button
                                     type="button"
                                     class="home-menu-action home-menu-action--danger"
-                                    title="Remove this saved URL"
+                                    :title="$t(&quot;Remove this saved URL&quot;)"
                                     @click.stop="removeSavedUrl(opt)"
                                 >
                                     <wa-icon name="trash"></wa-icon>
@@ -1069,9 +1071,9 @@ async function makeDefaultSavedUrl(opt) {
                     <wa-button :id="`browser-home-${instanceId}`" appearance="plain" size="small" class="browser-btn reduced-height" :disabled="!primaryHomeUrl" @click="goHome">
                         <wa-icon name="house"></wa-icon>
                     </wa-button>
-                    <AppTooltip :for="`browser-home-${instanceId}`">{{ primaryHomeUrl ? `Home — ${primaryHomeUrl}` : 'Home (no saved URL for this project)' }}</AppTooltip>
+                    <AppTooltip :for="`browser-home-${instanceId}`">{{ primaryHomeUrl ? $t("Home — {p0}", { p0: (primaryHomeUrl) }) : $t("Home (no saved URL for this project)") }}</AppTooltip>
                 </template>
-                <AppTooltip v-if="homeOptions.length > 1" :for="`browser-home-${instanceId}`">Home — choose a saved URL</AppTooltip>
+                <AppTooltip v-if="homeOptions.length > 1" :for="`browser-home-${instanceId}`">{{ $t("Home — choose a saved URL") }}</AppTooltip>
             </div>
 
             <wa-input
@@ -1079,7 +1081,7 @@ async function makeDefaultSavedUrl(opt) {
                 class="browser-address reduced-height"
                 size="small"
                 autocomplete="off"
-                placeholder="Enter a URL — e.g. localhost:5173"
+                :placeholder="$t(&quot;Enter a URL — e.g. localhost:5173&quot;)"
                 :value="inputUrl"
                 @input="inputUrl = $event.target.value"
                 @focus="addressFocused = true"
@@ -1109,13 +1111,13 @@ async function makeDefaultSavedUrl(opt) {
                     <wa-icon name="bookmark"></wa-icon>
                 </wa-button>
                 <AppTooltip :for="`browser-save-${instanceId}`">
-                    {{ isCurrentUrlSaved ? 'URL saved — edit…' : 'Save this URL…' }}
+                    {{ isCurrentUrlSaved ? $t("URL saved — edit…") : $t("Save this URL…") }}
                 </AppTooltip>
 
                 <wa-button :id="`browser-external-${instanceId}`" appearance="plain" size="small" class="browser-btn reduced-height" :disabled="!currentUrl" @click="openExternal">
                     <wa-icon name="arrow-up-right-from-square"></wa-icon>
                 </wa-button>
-                <AppTooltip :for="`browser-external-${instanceId}`">Open in a new browser tab</AppTooltip>
+                <AppTooltip :for="`browser-external-${instanceId}`">{{ $t("Open in a new browser tab") }}</AppTooltip>
 
                 <wa-button
                     :id="fullscreenButtonId"
@@ -1127,7 +1129,7 @@ async function makeDefaultSavedUrl(opt) {
                     <wa-icon :name="isFullscreen ? 'compress' : 'expand'"></wa-icon>
                 </wa-button>
                 <AppTooltip :for="fullscreenButtonId">
-                    {{ isFullscreen ? 'Exit full screen' : 'Full screen' }}
+                    {{ isFullscreen ? $t("Exit full screen") : $t("Full screen") }}
                 </AppTooltip>
 
                 <!-- Companion status button (plain, always). The plug's colour
@@ -1166,7 +1168,7 @@ async function makeDefaultSavedUrl(opt) {
                     <wa-icon name="mobile-screen-button"></wa-icon>
                 </wa-button>
                 <AppTooltip :for="`browser-responsive-${instanceId}`">
-                    {{ responsiveActive ? 'Exit responsive mode' : 'Responsive mode — preview at a device size' }}
+                    {{ responsiveActive ? $t("Exit responsive mode") : $t("Responsive mode — preview at a device size") }}
                 </AppTooltip>
 
                 <!-- Select-area toggle (needs the companion, so only shown once
@@ -1185,7 +1187,7 @@ async function makeDefaultSavedUrl(opt) {
                 <AppTooltip
                     v-if="companionStatus === 'present'"
                     :for="`browser-select-toggle-${instanceId}`"
-                >{{ selectAreaActive ? 'Stop selecting an element' : 'Select an element' }}</AppTooltip>
+                >{{ selectAreaActive ? $t("Stop selecting an element") : $t("Select an element") }}</AppTooltip>
 
                 <!-- Page-errors indicator: shown only when the companion has
                      reported errors. The count sits next to a warning glyph;
@@ -1204,7 +1206,7 @@ async function makeDefaultSavedUrl(opt) {
                 <AppTooltip
                     v-if="companionStatus === 'present' && pageErrors.length"
                     :for="`browser-errors-${instanceId}`"
-                >{{ pageErrorTotal }} error{{ pageErrorTotal > 1 ? 's' : '' }} on this page — click to add them to your message</AppTooltip>
+                >{{ pageErrorTotal }} {{ $t("error") }}{{ pageErrorTotal > 1 ? $t("s") : '' }} {{ $t("on this page — click to add them to your message") }}</AppTooltip>
             </div>
         </div>
 
@@ -1253,26 +1255,24 @@ async function makeDefaultSavedUrl(opt) {
 
         <wa-callout v-if="saveError" variant="danger" size="small" class="browser-banner">
             <wa-icon slot="icon" name="triangle-exclamation"></wa-icon>
-            {{ saveError }}
+            {{ $t(saveError) }}
         </wa-callout>
 
         <wa-callout v-if="probeResult" variant="warning" size="small" class="browser-banner">
             <wa-icon slot="icon" name="triangle-exclamation"></wa-icon>
             <template v-if="probeResult.reachable === false">
-                The server did not respond ({{ probeResult.reason }}) — is it running?
+                {{ $t("The server did not respond (") }}{{ probeResult.reason }}{{ $t(") — is it running?") }}
             </template>
             <template v-else>
-                This site refuses to be embedded ({{ probeResult.reason }}) — the frame
-                below will likely stay blank. Use "Open in a new browser tab" instead, or
-                see the <a href="#" class="browser-empty-help-link" @click.prevent="openBrowserHelp">Browser tab guide</a>
-                to allow framing in dev, or let your agent set it up:
+                {{ $t("This site refuses to be embedded (") }}{{ probeResult.reason }}{{ $t(") — the frame below will likely stay blank. Use \"Open in a new browser tab\" instead, or see the") }} <a href="#" class="browser-empty-help-link" @click.prevent="openBrowserHelp">{{ $t("Browser tab guide") }}</a>
+                {{ $t("to allow framing in dev, or let your agent set it up:") }}
                 <div class="agent-instructions-actions">
                     <wa-button v-if="insertTextAtCursor" size="small" appearance="outlined" @click="addAgentInstructionsToMessage">
                         <wa-icon slot="start" name="robot"></wa-icon>
-                        Add instructions to message
+                        {{ $t("Add instructions to message") }}
                     </wa-button>
                     <wa-button size="small" appearance="outlined" @click="copyAgentInstructions">
-                        {{ agentInstructionsCopied ? 'Copied!' : 'Copy instructions for an agent' }}
+                        {{ agentInstructionsCopied ? $t("Copied!") : $t("Copy instructions for an agent") }}
                     </wa-button>
                 </div>
             </template>
@@ -1280,34 +1280,29 @@ async function makeDefaultSavedUrl(opt) {
 
         <wa-callout v-if="mixedContentBlocked" variant="warning" size="small" class="browser-banner">
             <wa-icon slot="icon" name="triangle-exclamation"></wa-icon>
-            TwiCC is served over https, so the browser blocks embedding this http://
-            URL (mixed content). Open it in a new tab instead, or serve it over https —
-            see the <a href="#" class="browser-empty-help-link" @click.prevent="openBrowserHelp">Browser tab guide</a>.
+            {{ $t("TwiCC is served over https, so the browser blocks embedding this http:// URL (mixed content). Open it in a new tab instead, or serve it over https — see the") }} <a href="#" class="browser-empty-help-link" @click.prevent="openBrowserHelp">{{ $t("Browser tab guide") }}</a>.
         </wa-callout>
 
         <wa-callout v-if="showCompanionHint" variant="neutral" size="small" class="browser-banner">
             <wa-icon slot="icon" name="plug"></wa-icon>
             <div class="companion-hint">
                 <span>
-                    This page doesn't include the TwiCC companion script. Add it
-                    to your dev page to unlock real navigation history, element
-                    selection (click a part of the page to describe it to the
-                    agent), and page-error capture (see the
-                    <a href="#" class="browser-empty-help-link" @click.prevent="openBrowserHelp">Browser tab guide</a>):
+                    {{ $t("This page doesn't include the TwiCC companion script. Add it to your dev page to unlock real navigation history, element selection (click a part of the page to describe it to the agent), and page-error capture (see the") }}
+                    <a href="#" class="browser-empty-help-link" @click.prevent="openBrowserHelp">{{ $t("Browser tab guide") }}</a>):
                 </span>
                 <code class="companion-snippet">{{ companionSnippet }}</code>
                 <div class="companion-hint-actions">
                     <wa-button size="small" appearance="outlined" @click="copySnippet">
-                        {{ snippetCopied ? 'Copied!' : 'Copy snippet' }}
+                        {{ snippetCopied ? $t("Copied!") : $t("Copy snippet") }}
                     </wa-button>
                     <wa-button v-if="insertTextAtCursor" size="small" appearance="outlined" @click="addAgentInstructionsToMessage">
                         <wa-icon slot="start" name="robot"></wa-icon>
-                        Add instructions to message
+                        {{ $t("Add instructions to message") }}
                     </wa-button>
                     <wa-button size="small" appearance="outlined" @click="copyAgentInstructions">
-                        {{ agentInstructionsCopied ? 'Copied!' : 'Copy instructions for an agent' }}
+                        {{ agentInstructionsCopied ? $t("Copied!") : $t("Copy instructions for an agent") }}
                     </wa-button>
-                    <wa-button size="small" appearance="plain" @click="snippetDismissed = true">Dismiss</wa-button>
+                    <wa-button size="small" appearance="plain" @click="snippetDismissed = true">{{ $t("Dismiss") }}</wa-button>
                 </div>
             </div>
         </wa-callout>
@@ -1337,25 +1332,22 @@ async function makeDefaultSavedUrl(opt) {
             <template #empty>
                 <div v-if="!currentUrl" class="browser-empty">
                     <wa-icon name="globe" class="browser-empty-icon"></wa-icon>
-                    <p>Enter a URL above to preview your project — e.g. your dev server.</p>
+                    <p>{{ $t("Enter a URL above to preview your project — e.g. your dev server.") }}</p>
                     <p class="browser-empty-hint">
-                        Once a page is loaded, the toolbar lets you save its URL
-                        for this project or one of its workspaces.
+                        {{ $t("Once a page is loaded, the toolbar lets you save its URL for this project or one of its workspaces.") }}
                     </p>
                     <wa-callout variant="neutral" size="small" class="browser-empty-callout">
                         <wa-icon slot="icon" name="circle-info"></wa-icon>
-                        Getting your dev server to display here often needs a few
-                        dev-only settings (allow framing, cookies, the companion
-                        script). It's worth reading the
-                        <a href="#" class="browser-empty-help-link" @click.prevent="openBrowserHelp">Browser tab guide</a>
-                        first, or let your agent set it up:
+                        {{ $t("Getting your dev server to display here often needs a few dev-only settings (allow framing, cookies, the companion script). It's worth reading the") }}
+                        <a href="#" class="browser-empty-help-link" @click.prevent="openBrowserHelp">{{ $t("Browser tab guide") }}</a>
+                        {{ $t("first, or let your agent set it up:") }}
                         <div class="agent-instructions-actions">
                             <wa-button v-if="insertTextAtCursor" size="small" appearance="outlined" @click="addAgentInstructionsToMessage">
                                 <wa-icon slot="start" name="robot"></wa-icon>
-                                Add instructions to message
+                                {{ $t("Add instructions to message") }}
                             </wa-button>
                             <wa-button size="small" appearance="outlined" @click="copyAgentInstructions">
-                                {{ agentInstructionsCopied ? 'Copied!' : 'Copy instructions for an agent' }}
+                                {{ agentInstructionsCopied ? $t("Copied!") : $t("Copy instructions for an agent") }}
                             </wa-button>
                         </div>
                     </wa-callout>
@@ -1369,7 +1361,7 @@ async function makeDefaultSavedUrl(opt) {
              custom event names). -->
         <wa-dialog
             ref="saveDialogRef"
-            label="Save this URL"
+            :label="$t(&quot;Save this URL&quot;)"
             class="browser-save-dialog"
             @wa-show="onSaveDialogShow"
             @wa-after-show="onSaveDialogAfterShow"
@@ -1378,16 +1370,16 @@ async function makeDefaultSavedUrl(opt) {
                 <div class="save-dialog-url">{{ currentUrl }}</div>
                 <wa-input
                     ref="saveLabelInputRef"
-                    label="Label (optional)"
+                    :label="$t(&quot;Label (optional)&quot;)"
                     size="small"
                     autocomplete="off"
                     maxlength="100"
-                    placeholder="e.g. Storybook, Front dev…"
+                    :placeholder="$t(&quot;e.g. Storybook, Front dev…&quot;)"
                     :value="saveLabel"
                     @input="saveLabel = $event.target.value"
                 ></wa-input>
                 <div class="save-dialog-levels">
-                    <span class="save-dialog-levels-title">Save for…</span>
+                    <span class="save-dialog-levels-title">{{ $t("Save for…") }}</span>
                     <label v-for="level in saveLevels" :key="level.key" class="save-dialog-level">
                         <input
                             type="radio"
@@ -1402,19 +1394,19 @@ async function makeDefaultSavedUrl(opt) {
                             <wa-icon name="layer-group" :style="level.ws.color ? { color: level.ws.color } : null"></wa-icon>
                             {{ level.ws.name }}
                         </span>
-                        <span v-if="level.entries.some((e) => e.url === currentUrl)" class="save-menu-saved">saved</span>
+                        <span v-if="level.entries.some((e) => e.url === currentUrl)" class="save-menu-saved">{{ $t("saved") }}</span>
                     </label>
                 </div>
                 <wa-checkbox
                     size="small"
                     :checked="saveMakeDefault"
                     @change="saveMakeDefault = $event.target.checked"
-                >Make it the Home default</wa-checkbox>
-                <wa-callout v-if="saveError" variant="danger" size="small">{{ saveError }}</wa-callout>
+                >{{ $t("Make it the Home default") }}</wa-checkbox>
+                <wa-callout v-if="saveError" variant="danger" size="small">{{ $t(saveError) }}</wa-callout>
             </form>
             <div slot="footer" class="save-dialog-footer">
-                <wa-button variant="neutral" appearance="outlined" size="small" @click="closeSaveDialog">Cancel</wa-button>
-                <wa-button ref="saveButtonRef" variant="brand" size="small" type="submit">Save</wa-button>
+                <wa-button variant="neutral" appearance="outlined" size="small" @click="closeSaveDialog">{{ $t("Cancel") }}</wa-button>
+                <wa-button ref="saveButtonRef" variant="brand" size="small" type="submit">{{ $t("Save") }}</wa-button>
             </div>
         </wa-dialog>
     </div>

@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 /**
  * CommandPalette — Modal command palette with search, keyboard navigation,
  * and nested sub-selection mode.
@@ -521,7 +523,7 @@ defineExpose({ open, close })
                     type="button"
                     class="breadcrumb breadcrumb-back"
                     @click="goBack"
-                    aria-label="Back to previous level"
+                    :aria-label="$t(&quot;Back to previous level&quot;)"
                 >
                     <wa-icon name="chevron-left" class="breadcrumb-back-icon" />
                     <wa-icon
@@ -537,7 +539,7 @@ defineExpose({ open, close })
                     ref="searchInputRef"
                     type="text"
                     v-model="query"
-                    :placeholder="parentCommand ? 'Filter...' : 'Type a command...'"
+                    :placeholder="parentCommand ? $t('Filter...') : $t(&quot;Type a command...&quot;)"
                     @keydown="handleKeydown"
                     autocomplete="off"
                     spellcheck="false"
@@ -584,8 +586,8 @@ defineExpose({ open, close })
                                             <wa-icon
                                                 v-if="t.project?.untrusted"
                                                 name="lock"
-                                                label="Untrusted project"
-                                                title="This project is not trusted"
+                                                :label="$t(&quot;Untrusted project&quot;)"
+                                                :title="$t(&quot;This project is not trusted&quot;)"
                                                 class="palette-trust-icon"
                                             ></wa-icon>
                                         </span>
@@ -738,8 +740,8 @@ defineExpose({ open, close })
                                         <wa-icon
                                             v-if="item.project?.untrusted"
                                             name="lock"
-                                            label="Untrusted project"
-                                            title="This project is not trusted"
+                                            :label="$t(&quot;Untrusted project&quot;)"
+                                            :title="$t(&quot;This project is not trusted&quot;)"
                                             class="palette-trust-icon"
                                         ></wa-icon>
                                     </span>
@@ -748,8 +750,8 @@ defineExpose({ open, close })
                                         <wa-icon
                                             v-if="item.project?.untrusted"
                                             name="lock"
-                                            label="Untrusted project"
-                                            title="This project is not trusted"
+                                            :label="$t(&quot;Untrusted project&quot;)"
+                                            :title="$t(&quot;This project is not trusted&quot;)"
                                             class="palette-trust-icon"
                                         ></wa-icon>
                                     </span>
@@ -787,13 +789,13 @@ defineExpose({ open, close })
                             @pointerenter="activeKey = section.moreKey"
                         >
                             <wa-icon name="ellipsis" class="command-icon" />
-                            <span class="command-label">{{ section.moreCount }} more</span>
+                            <span class="command-label">{{ section.moreCount }} {{ $t("more") }}</span>
                             <span class="command-chevron"><wa-icon name="chevron-right" /></span>
                         </div>
                     </template>
                 </template>
                 <!-- Empty state -->
-                <div v-if="visibleItems.length === 0" class="palette-empty">No matching commands</div>
+                <div v-if="visibleItems.length === 0" class="palette-empty">{{ $t("No matching commands") }}</div>
             </div>
         </div>
     </wa-dialog>

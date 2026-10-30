@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ ui_language }}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>TwiCC — Password required</title>
+<title>{{ ui.page_title }}</title>
 <style>
 :root{--bg:#18181b;--card:#27272a;--border:#3f3f46;--text:#f4f4f5;--muted:#a1a1aa;--brand:#06b6d4;--brand-text:#08171c;--input-bg:#18181b;--danger-bg:#7f1d1d;--danger-text:#fecaca;color-scheme:dark}
 @media (prefers-color-scheme: light){:root{--bg:#f4f4f5;--card:#ffffff;--border:#e4e4e7;--text:#18181b;--muted:#71717a;--brand:#0891b2;--brand-text:#ffffff;--input-bg:#ffffff;--danger-bg:#fee2e2;--danger-text:#991b1b;color-scheme:light}}
@@ -26,13 +26,13 @@ button:hover{filter:brightness(1.08)}
 <form class="card" method="post">
   <div class="head">
     <h1 class="title">TwiCC</h1>
-    <p class="sub">This shared link is password-protected</p>
+    <p class="sub">{{ ui.share_intro }}</p>
   </div>
   <input type="hidden" name="redirect" value="{{ redirect }}">
-  <label for="pw">Password</label>
-  <input id="pw" type="password" name="password" placeholder="Enter password" autofocus autocomplete="current-password">
-  {% if error %}<p class="err">Incorrect password. Try again.</p>{% endif %}
-  <button type="submit">Open</button>
+  <label for="pw">{{ ui.password }}</label>
+  <input id="pw" type="password" name="password" placeholder="{{ ui.placeholder }}" autofocus autocomplete="current-password">
+  {% if error %}<p class="err">{{ ui.incorrect }}</p>{% endif %}
+  <button type="submit">{{ ui.open }}</button>
 </form>
 </body>
 </html>

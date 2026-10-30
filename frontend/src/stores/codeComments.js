@@ -1,3 +1,5 @@
+
+import { t as $t } from '../i18n/index.js'
 // frontend/src/stores/codeComments.js
 // Pinia store for code comments (inline annotations on code lines).
 
@@ -378,13 +380,13 @@ function formatQuotedSelection(text, quoteMode, lang) {
  */
 export function formatComment(
     comment,
-    { isSelectedText = false, sourceLabel = '', subject = 'selected text', quoteMode = 'code', lang = null } = {},
+    { isSelectedText = false, sourceLabel = '', subject = $t("selected text"), quoteMode = 'code', lang = null } = {},
 ) {
     const body = comment.content?.trim() || ''
     const marker = makeContainerMarker(comment.lineText, body)
     // The label's first word is the container type: a block with no comment is
     // a bare excerpt, not a comment on something.
-    const verb = body ? 'comment on' : 'excerpt of'
+    const verb = body ? $t("comment on") : $t("excerpt of")
 
     if (isSelectedText) {
         const suffix = sourceLabel ? ` ${sourceLabel}` : ''
@@ -397,11 +399,11 @@ export function formatComment(
         if (comment.filePath) {
             if (comment.lineFrom != null) {
                 const range = comment.lineFrom === comment.lineTo
-                    ? `line ${comment.lineFrom}`
-                    : `lines ${comment.lineFrom}-${comment.lineTo}`
-                location = ` from \`${comment.filePath}\` ${range}`
+                    ? $t("line {p0}", { p0: (comment.lineFrom) })
+                    : $t("lines {p0}-{p1}", { p0: (comment.lineFrom), p1: (comment.lineTo) })
+                location = $t(" from `{p0}` {p1}", { p0: (comment.filePath), p1: (range) })
             } else {
-                location = ` from \`${comment.filePath}\``
+                location = $t(" from `{p0}`", { p0: (comment.filePath) })
             }
         }
         const label = `${verb} ${subject}${location}${suffix}`
@@ -412,7 +414,7 @@ export function formatComment(
 
     const resolvedLang = lang || getLanguageFromPath(comment.filePath) || ''
     const line = comment.displayLineNumber ?? comment.lineNumber
-    const label = `${verb} \`${comment.filePath}\` line ${line}`
+    const label = $t("{p0} `{p1}` line {p2}", { p0: (verb), p1: (comment.filePath), p2: (line) })
     const quoted = formatQuotedSelection(comment.lineText, 'code', resolvedLang)
     return `\n${marker} ${label}\n${quoted}${body ? `\n\n${body}` : ''}\n${marker}`
 }

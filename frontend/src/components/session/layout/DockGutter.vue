@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../../i18n/index.js'
+
 // One edge gutter (thin rail) holding the icons of collapsed / responsively-hidden docks.
 // One icon PER TAB, anchored start/end mirroring the dock origin. A click dispatches the
 // item's action (swap | restore | overlay) up to the layout.
@@ -149,7 +151,7 @@ const startPlus = computed(() => plan.value.start < startIcons.value.length
 const endPlus = computed(() => plan.value.end < endIcons.value.length
     ? plusEntryFor(endIcons.value, plan.value.end) : null)
 function plusTitle(p) {
-    return `${p.hidden.length} more: ${p.hidden.map((e) => e.tab.label).join(', ')} — ${verb(p)}`
+    return $t("{p0} more: {p1} — {p2}", { p0: (p.hidden.length), p1: (p.hidden.map((e) => e.tab.label).join(', ')), p2: (verb(p)) })
 }
 
 // The peek is open on THIS chip: its edge holds the open overlay, the chip is its dock's active tab, and
@@ -161,23 +163,23 @@ function isOpen(entry) {
         && entry.item.tabs.some((t) => t.id === props.openOverlayTabId)
 }
 function verb(entry) {
-    if (entry.item.action === 'swap') return 'show this column'
+    if (entry.item.action === 'swap') return $t("show this column")
     if (entry.item.action === 'restore') return 'restore'
-    return isOpen(entry) ? 'close overlay' : 'peek overlay'
+    return isOpen(entry) ? $t("close overlay") : $t("peek overlay")
 }
 // A restore/swap chip's double-click maximizes its dock (see onClick); advertise it in the chip's
 // title. Overlay chips don't maximize on double-click (their second click just forces the peek open),
 // so they keep the plain single-action title.
 function chipTitle(entry) {
     const base = `${entry.tab.label} — ${verb(entry)}`
-    return entry.item.action === 'overlay' ? base : `${base} · double-click to maximize`
+    return entry.item.action === 'overlay' ? base : $t("{p0} · double-click to maximize", { p0: (base) })
 }
 // Title for the rail's empty area (clicking anywhere acts on the pointed dock). The double-click hint
 // only holds when a restore/swap dock is here — an overlay-only rail double-click just forces the peek.
 const emptyAreaTitle = computed(() =>
     props.gutter.items.some((it) => it.action !== 'overlay')
-        ? 'Click to open · double-click to maximize'
-        : 'Click to open'
+        ? $t("Click to open · double-click to maximize")
+        : $t("Click to open")
 )
 // Double-click on a rail chip = maximize that dock. A native dblclick is impossible on a restore/swap
 // chip: its first click moves the dock out of the rail, so the chip is gone before a dblclick could

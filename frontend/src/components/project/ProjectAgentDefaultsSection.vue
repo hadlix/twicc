@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // Per-project agent settings defaults, edited inside ProjectEditDialog (edit
 // mode only). Lets a project declare a default provider + per-provider agent
 // settings bundles that seed a new session's settings, inherited up the project
@@ -202,7 +204,7 @@ function loadSources(provider) {
     // "Reset all to inherit": clear every field for this provider. Only shown
     // when at least one field is currently set, since otherwise it's a no-op.
     if (Object.keys(localSettings.value[provider] || {}).length) {
-        sources.push({ key: 'inherit-all', label: 'Reset all to inherit', summaryParts: [{ text: 'every field inherits' }] })
+        sources.push({ key: 'inherit-all', get label() { return $t("Reset all to inherit") }, summaryParts: [{ get text() { return $t("every field inherits") } }] })
     }
     // Ancestor projects that define their own defaults for this provider.
     for (const node of ancestorChain(props.project.id, store.projects)) {
@@ -210,15 +212,15 @@ function loadSources(provider) {
         const bundle = node.default_agent_settings?.[provider]
         if (bundle && Object.keys(bundle).length) {
             const name = node.name || node.directory || node.id
-            sources.push({ key: `ancestor:${node.id}`, label: `Project: ${name}` })
+            sources.push({ key: `ancestor:${node.id}`, get label() { return $t("Project: {p0}", { p0: (name) }) } })
         }
     }
     // The provider's global (synced) defaults.
-    sources.push({ key: 'global', label: 'Global defaults' })
+    sources.push({ key: 'global', get label() { return $t("Global defaults") } })
     // Named presets.
     const presets = presetsStore.getPresets(provider) || []
     presets.forEach((preset, index) => {
-        sources.push({ key: `preset:${index}`, label: `Preset: ${preset.name}` })
+        sources.push({ key: `preset:${index}`, get label() { return $t("Preset: {p0}", { p0: (preset.name) }) } })
     })
     // Resolve every partial source against the current project's inherited
     // baseline. The summary therefore matches the concrete settings a new
@@ -229,7 +231,7 @@ function loadSources(provider) {
             const parts = bundleSummaryParts(sourceBundle(provider, s.key), h, {
                 defaults: inheritedDefaultsFor(provider),
             })
-            return { ...s, summaryParts: parts.length ? parts : [{ text: 'all default' }] }
+            return { ...s, summaryParts: parts.length ? parts : [{ get text() { return $t("all default") } }] }
         })
         : sources
 }
@@ -315,10 +317,9 @@ defineExpose({ getChangedFields, reset: initLocal })
 
 <template>
     <div class="form-group">
-        <label class="form-label">Default provider</label>
+        <label class="form-label">{{ $t("Default provider") }}</label>
         <p class="agset-intro">
-            Which agent a new session in this project starts with. Inherits from
-            parent projects, then your global default.
+            {{ $t("Which agent a new session in this project starts with. Inherits from parent projects, then your global default.") }}
         </p>
         <wa-select
             :value.prop="localProvider"
@@ -331,27 +332,26 @@ defineExpose({ getChangedFields, reset: initLocal })
                 slot="start"
                 :provider="localProvider"
             />
-            <wa-option value="" label="Inherit">Inherit</wa-option>
+            <wa-option value="" :label="$t(&quot;Inherit&quot;)">{{ $t("Inherit") }}</wa-option>
             <wa-option
                 v-for="p in providers"
                 :key="p.value"
                 :value="p.value"
-                :label="isEnabled(p.value) ? getProviderLabel(p.value) : getProviderLabel(p.value) + ' (disabled)'"
+                :label="isEnabled(p.value) ? getProviderLabel(p.value) : getProviderLabel(p.value) + $t(&quot; (disabled)&quot;)"
             >
                 <ProviderIcon :provider="p.value" class="provider-option-icon" />
-                {{ getProviderLabel(p.value) }}<template v-if="!isEnabled(p.value)"> (disabled)</template>
+                {{ getProviderLabel(p.value) }}<template v-if="!isEnabled(p.value)"> {{ $t("(disabled)") }}</template>
             </wa-option>
         </wa-select>
         <div v-if="localProvider === ''" class="form-hint">
-            Inherited: <strong>{{ inheritedProviderLabel }}</strong>
+            {{ $t("Inherited:") }} <strong>{{ inheritedProviderLabel }}</strong>
         </div>
     </div>
 
     <div class="form-group">
-        <label class="form-label">Agent settings defaults</label>
+        <label class="form-label">{{ $t("Agent settings defaults") }}</label>
         <p class="agset-intro">
-            Per-provider defaults for new sessions here. Empty fields inherit from
-            parent projects, then your global defaults.
+            {{ $t("Per-provider defaults for new sessions here. Empty fields inherit from parent projects, then your global defaults.") }}
         </p>
         <!-- .stop on the tab events so our per-provider tabs never bubble up to
              the dialog's main "Project / Agent settings" tab-group; the handler
@@ -368,7 +368,7 @@ defineExpose({ getChangedFields, reset: initLocal })
                 :panel="p.value"
             >
                 <ProviderIcon :provider="p.value" class="agset-tab-icon" />
-                {{ getProviderLabel(p.value) }}<span v-if="!isEnabled(p.value)" class="agset-disabled-badge">disabled</span>
+                {{ getProviderLabel(p.value) }}<span v-if="!isEnabled(p.value)" class="agset-disabled-badge">{{ $t("disabled") }}</span>
             </wa-tab>
 
             <wa-tab-panel v-for="p in providers" :key="p.value" :name="p.value">
@@ -376,7 +376,7 @@ defineExpose({ getChangedFields, reset: initLocal })
                     v-if="loadSources(p.value).length"
                     value=""
                     @change="loadFrom(p.value, $event)"
-                    placeholder="Load from…"
+                    :placeholder="$t(&quot;Load from…&quot;)"
                     size="small"
                     class="agset-load-select"
                 >
@@ -402,8 +402,8 @@ defineExpose({ getChangedFields, reset: initLocal })
                             :value.prop="toSentinel(fieldValue(p.value, 'selected_model'))"
                             @change="setField(p.value, 'selected_model', $event.target.value)"
                         >
-                            <wa-option :value="DEFAULT_SENTINEL">Inherit</wa-option>
-                            <small class="agset-group-label">Force to:</small>
+                            <wa-option :value="DEFAULT_SENTINEL">{{ $t("Inherit") }}</wa-option>
+                            <small class="agset-group-label">{{ $t("Force to:") }}</small>
                             <template v-for="(group, gi) in modelGroups(p.value)" :key="gi">
                                 <wa-divider v-if="gi > 0 && group.entries.length"></wa-divider>
                                 <wa-option
@@ -445,8 +445,8 @@ defineExpose({ getChangedFields, reset: initLocal })
                                 :icon="permissionSelectIcon(p.value, field).icon"
                                 :color="permissionSelectIcon(p.value, field).color"
                             />
-                            <wa-option :value="DEFAULT_SENTINEL">Inherit</wa-option>
-                            <small class="agset-group-label">Force to:</small>
+                            <wa-option :value="DEFAULT_SENTINEL">{{ $t("Inherit") }}</wa-option>
+                            <small class="agset-group-label">{{ $t("Force to:") }}</small>
                             <wa-option
                                 v-for="opt in fieldChoices(p.value, field)"
                                 :key="String(opt.value)"
@@ -479,7 +479,7 @@ defineExpose({ getChangedFields, reset: initLocal })
                 </template>
 
                 <div v-if="!supportedFields(p.value).length" class="form-hint">
-                    This provider has no configurable agent settings.
+                    {{ $t("This provider has no configurable agent settings.") }}
                 </div>
             </wa-tab-panel>
         </TabBar>

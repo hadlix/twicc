@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // ContributionGraphs.vue - Fetches daily activity data once and renders
 // the user messages, sessions, and cost contribution graphs.
 // Supports toggling between heatmap view and sparkline view.
@@ -60,10 +62,10 @@ const combinedSwitchRef = ref(null)
 
 /** Granularity slider: group data by day, week, month, or quarter */
 const granularitySteps = [
-    { key: 'day', label: 'Day' },
-    { key: 'week', label: 'Week' },
-    { key: 'month', label: 'Month' },
-    { key: 'quarter', label: 'Quarter' },
+    { key: 'day', get label() { return $t("Day") } },
+    { key: 'week', get label() { return $t("Week") } },
+    { key: 'month', get label() { return $t("Month") } },
+    { key: 'quarter', get label() { return $t("Quarter") } },
 ]
 const granularityStepIndex = ref(0) // default: Day
 const granularity = computed(() => granularitySteps[granularityStepIndex.value].key)
@@ -76,21 +78,21 @@ function onGranularityChange(e) {
 /** Time range slider: discrete steps depend on the selected granularity */
 const rangeStepsMap = {
     day: [
-        { days: 7, label: '1 week' },
-        { days: 14, label: '2 weeks' },
-        { days: 30, label: '1 month' },
-        { days: 90, label: '3 months' },
-        { days: 182, label: '6 months' },
-        { days: 365, label: '1 year' },
+        { days: 7, get label() { return $t("1 week") } },
+        { days: 14, get label() { return $t("2 weeks") } },
+        { days: 30, get label() { return $t("1 month") } },
+        { days: 90, get label() { return $t("3 months") } },
+        { days: 182, get label() { return $t("6 months") } },
+        { days: 365, get label() { return $t("1 year") } },
     ],
     week: [
-        { days: 28, label: '4 weeks' },
-        { days: 84, label: '12 weeks' },
-        { days: 168, label: '24 weeks' },
-        { days: 365, label: '1 year' },
+        { days: 28, get label() { return $t("4 weeks") } },
+        { days: 84, get label() { return $t("12 weeks") } },
+        { days: 168, get label() { return $t("24 weeks") } },
+        { days: 365, get label() { return $t("1 year") } },
     ],
-    month: [{ days: 0, label: '' }, { days: 365, label: '1 year' }],      // 2 steps so slider shows at right; disabled
-    quarter: [{ days: 0, label: '' }, { days: 365, label: '1 year' }],   // 2 steps so slider shows at right; disabled
+    month: [{ days: 0, label: '' }, { days: 365, get label() { return $t("1 year") } }],      // 2 steps so slider shows at right; disabled
+    quarter: [{ days: 0, label: '' }, { days: 365, get label() { return $t("1 year") } }],   // 2 steps so slider shows at right; disabled
 }
 const rangeSteps = computed(() => rangeStepsMap[granularity.value])
 const rangeStepIndex = ref(5) // default: last step (1Y)
@@ -201,7 +203,7 @@ useStartupPolling(fetchDailyActivity)
                 slot="start"
                 :provider="selectedProvider"
             />
-            <wa-option value="all" label="All providers">All providers</wa-option>
+            <wa-option value="all" :label="$t(&quot;All providers&quot;)">{{ $t("All providers") }}</wa-option>
             <wa-option
                 v-for="option in providerOptions"
                 :key="option.value"
@@ -225,13 +227,13 @@ useStartupPolling(fetchDailyActivity)
                 class="view-toggle-label"
                 :class="{ active: !isSparkline }"
                 @click="onHeatmapLabelClick"
-            >Heatmap</span>
+            >{{ $t("Heatmap") }}</span>
             <wa-switch
                 ref="viewSwitchRef"
                 size="small"
                 :checked="isSparkline"
                 @change="onViewModeChange"
-            ><span class="view-toggle-label" :class="{ active: isSparkline }">Graph</span></wa-switch>
+            ><span class="view-toggle-label" :class="{ active: isSparkline }">{{ $t("Graph") }}</span></wa-switch>
         </div>
 
         <!-- Separate / Combined switch (only visible in graph mode) -->
@@ -240,13 +242,13 @@ useStartupPolling(fetchDailyActivity)
                 class="view-toggle-label"
                 :class="{ active: !isCombined }"
                 @click="onSeparateLabelClick"
-            >Separate</span>
+            >{{ $t("Separate") }}</span>
             <wa-switch
                 ref="combinedSwitchRef"
                 size="small"
                 :checked="isCombined"
                 @change="onCombinedModeChange"
-            ><span class="view-toggle-label" :class="{ active: isCombined }">Combined</span></wa-switch>
+            ><span class="view-toggle-label" :class="{ active: isCombined }">{{ $t("Combined") }}</span></wa-switch>
         </div>
 
         <!-- Granularity slider (only visible in graph mode) -->

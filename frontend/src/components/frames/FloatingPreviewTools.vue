@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 import { ref, computed, watch, useId, onMounted, onBeforeUnmount } from 'vue'
 import { useResizeObserver } from '@vueuse/core'
 import AppTooltip from '../ui/AppTooltip.vue'
@@ -36,7 +38,7 @@ const orderedButtons = computed(() => {
     const fullscreenButton = {
         id: previewFullscreenButtonId,
         icon: props.fullscreen ? 'compress' : 'expand',
-        label: props.fullscreen ? 'Exit full screen' : 'Full screen',
+        label: props.fullscreen ? $t("Exit full screen") : $t("Full screen"),
         disabled: props.fullscreenDisabled && !props.fullscreen,
         action: () => emit('toggle-fullscreen'),
     }
@@ -235,7 +237,7 @@ onBeforeUnmount(() => {
                     class="preview-action-btn preview-tools-btn floating-over-text"
                     :class="{ 'preview-action-btn--active': previewActionsExpanded }"
                     size="small" variant="neutral" appearance="filled"
-                    :aria-label="previewActionsExpanded ? 'Hide tools' : 'Tools'"
+                    :aria-label="previewActionsExpanded ? $t(&quot;Hide tools&quot;) : $t(&quot;Tools&quot;)"
                     :aria-expanded="previewActionsExpanded"
                     @click="onToolsClick"
                     @pointerdown="onToolsPointerDown"
@@ -249,7 +251,7 @@ onBeforeUnmount(() => {
                 <span v-if="!previewActionsExpanded && modeActive" class="preview-tools-dot"></span>
             </span>
             <AppTooltip :for="previewToolsButtonId" :placement="previewTooltipPlacement">
-                {{ previewActionsExpanded ? 'Hide tools' : 'Tools' }}
+                {{ previewActionsExpanded ? $t("Hide tools") : $t("Tools") }}
             </AppTooltip>
         </template>
         <div v-if="!previewActionsCollapsible || previewActionsExpanded" class="preview-actions-list"

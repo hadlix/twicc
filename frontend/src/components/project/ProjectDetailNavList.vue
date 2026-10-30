@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // ProjectDetailNavList.vue - Horizontal navigation list of workspaces and/or projects.
 //
 // Quick navigation displayed in header panels:
@@ -87,7 +89,7 @@ const items = computed(() => {
         result.push({
             type: 'up',
             id: 'all-projects',
-            label: 'All Projects',
+            get label() { return $t("All Projects") },
             to: { name: 'projects-all' },
         })
 
@@ -112,7 +114,7 @@ const items = computed(() => {
         result.push({
             type: 'up',
             id: 'all-projects',
-            label: 'All Projects',
+            get label() { return $t("All Projects") },
             to: { name: 'projects-all' },
         })
 
@@ -188,7 +190,7 @@ const items = computed(() => {
             <span v-else-if="item.type === 'break'" class="nav-break"></span>
             <span v-else-if="item.type === 'worktrees-label'" class="nav-section-label">
                 <wa-icon name="code-branch" auto-width class="nav-item-icon"></wa-icon>
-                <span class="nav-item-name">Worktrees</span>
+                <span class="nav-item-name">{{ $t("Worktrees") }}</span>
             </span>
             <RouterLink
                 v-else

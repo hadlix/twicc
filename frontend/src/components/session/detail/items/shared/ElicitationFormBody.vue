@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../../../../i18n/index.js'
+
 // ElicitationFormBody.vue (shared) — body sub-component for an
 // ``elicitationForm`` pending request (request_type ``ask_user_question``,
 // mode ``form``). Used by BOTH providers' PendingRequestBody: Codex (untagged
@@ -44,7 +46,7 @@ function fieldLabelId(fieldIndex) {
 
 // Wire params.
 const input = computed(() => props.pendingRequest.tool_input || {})
-const serverName = computed(() => input.value.serverName || 'unknown server')
+const serverName = computed(() => input.value.serverName || $t("unknown server"))
 const message = computed(() => input.value.message || '')
 const schema = computed(() => input.value.requestedSchema || {})
 const requiredSet = computed(() => new Set(schema.value.required || []))
@@ -301,7 +303,7 @@ usePendingRequestDraft({
     <div v-scroll-shadow class="elicitation-form-body">
         <div class="elicit-section">
             <div class="elicit-summary">
-                <span class="elicit-summary-label">MCP form</span>
+                <span class="elicit-summary-label">{{ $t("MCP form") }}</span>
                 <wa-badge variant="neutral">{{ serverName }}</wa-badge>
             </div>
             <div v-if="message" class="elicit-reason">
@@ -393,7 +395,7 @@ usePendingRequestDraft({
 
                 <template v-else-if="field.kind === 'unsupported'">
                     <p class="elicit-unsupported">
-                        Unsupported field type for "{{ field.name }}".
+                        {{ $t("Unsupported field type for \"") }}{{ field.name }}".
                     </p>
                     <p v-if="field.spec.description" class="elicit-help">{{ field.spec.description }}</p>
                 </template>
@@ -410,9 +412,9 @@ usePendingRequestDraft({
                 @click="cancel"
             >
                 <wa-icon slot="start" name="ban" variant="classic"></wa-icon>
-                Cancel
+                {{ $t("Cancel") }}
             </wa-button>
-            <AppTooltip :for="cancelButtonId">Dismiss the form without answering.</AppTooltip>
+            <AppTooltip :for="cancelButtonId">{{ $t("Dismiss the form without answering.") }}</AppTooltip>
 
             <wa-button
                 :id="declineButtonId"
@@ -423,9 +425,9 @@ usePendingRequestDraft({
                 @click="decline"
             >
                 <wa-icon slot="start" name="xmark" variant="classic"></wa-icon>
-                Decline
+                {{ $t("Decline") }}
             </wa-button>
-            <AppTooltip :for="declineButtonId">Refuse to provide this information.</AppTooltip>
+            <AppTooltip :for="declineButtonId">{{ $t("Refuse to provide this information.") }}</AppTooltip>
 
             <wa-button
                 :id="submitButtonId"
@@ -437,9 +439,9 @@ usePendingRequestDraft({
                 @click="submit"
             >
                 <wa-icon slot="start" name="check" variant="classic"></wa-icon>
-                Submit
+                {{ $t("Submit") }}
             </wa-button>
-            <AppTooltip :for="submitButtonId">Send the form to the MCP server.</AppTooltip>
+            <AppTooltip :for="submitButtonId">{{ $t("Send the form to the MCP server.") }}</AppTooltip>
         </div>
     </div>
 </template>

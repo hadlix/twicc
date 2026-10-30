@@ -1,3 +1,5 @@
+
+import { t as $t } from '../../../i18n/index.js'
 // Shared, Vue-free metadata for the dockable layout UI (labels, placement options, edges).
 // The pure geometry/rules live in utils/layoutResolver.js; this is presentation-only.
 
@@ -7,13 +9,13 @@ import { resolvePublicAssetUrl } from '../../../utils/publicAsset'
 export const CENTER = 'center'
 
 export const DOCK_LABELS = {
-    center: 'Main area',
-    'left-top': 'Left top',
-    'left-bottom': 'Left bottom',
-    'right-top': 'Right top',
-    'right-bottom': 'Right bottom',
-    'bottom-left': 'Bottom left',
-    'bottom-right': 'Bottom right',
+    get center() { return $t("Main area") },
+    get 'left-top'() { return $t("Left top") },
+    get 'left-bottom'() { return $t("Left bottom") },
+    get 'right-top'() { return $t("Right top") },
+    get 'right-bottom'() { return $t("Right bottom") },
+    get 'bottom-left'() { return $t("Bottom left") },
+    get 'bottom-right'() { return $t("Bottom right") },
 }
 
 // Custom position-hinting icons (PyCharm-style: layout frame + a filled bar where the panel docks).

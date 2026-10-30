@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../../i18n/index.js'
+
 // TextSelectionComment.vue — Ephemeral floating widget for commenting on selected
 // text in the session view. Shows a small button on text selection; clicking it
 // expands a panel with a textarea + "Add to message" action. Nothing is persisted
@@ -20,7 +22,7 @@ const props = defineProps({
     /** Optional source suffix for the formatted output (e.g. "from terminal"). */
     sourceLabel: { type: String, default: '' },
     /** What the quoted block is in the formatted output (e.g. "selected area"). */
-    subject: { type: String, default: 'selected text' },
+    subject: { type: String, get default() { return $t("selected text") } },
     /** Optional source metadata used to enrich the formatted comment.
      *  Shape: { filePath: string, lineFrom: number, lineTo: number,
      *  quoteMode: 'code'|'quote', lang: string }. The last two override the
@@ -60,9 +62,9 @@ const selectionSendPending = computed(() => !!selectionCommentSend?.pending)
 const settingsStore = useSettingsStore()
 
 const placeholderText = computed(() => {
-    if (settingsStore.isTouchDevice) return 'Optional comment...'
-    const keys = settingsStore.isMac ? '⌘↵ or Ctrl↵' : 'Ctrl↵ or Meta↵'
-    return `Optional comment... (${keys} to add to message)`
+    if (settingsStore.isTouchDevice) return $t("Optional comment...")
+    const keys = settingsStore.isMac ? $t("⌘↵ or Ctrl↵") : $t("Ctrl↵ or Meta↵")
+    return $t("Optional comment... ({p0} to add to message)", { p0: (keys) })
 })
 
 // The help hint (discard-on-click-outside note) is dismissible: once
@@ -253,12 +255,12 @@ async function onIncludeToggle(event) {
     try {
         const dataUrl = await props.captureScreenshot()
         if (typeof dataUrl !== 'string' || !dataUrl.startsWith('data:image/')) {
-            throw new Error('no image returned')
+            throw new Error($t("no image returned"))
         }
         screenshotDataUrl.value = dataUrl
     } catch (e) {
         includeScreenshot.value = false
-        toast.error(`Screenshot failed: ${e?.message || e}`)
+        toast.error($t("Screenshot failed: {p0}", { p0: (e?.message || e) }))
     } finally {
         screenshotLoading.value = false
     }
@@ -270,7 +272,7 @@ async function onIncludeToggle(event) {
 // guard there keeps the widget alive while the preview is up.
 function openShotPreview() {
     if (!screenshotDataUrl.value) return
-    openMediaPreview([{ type: 'image', src: screenshotDataUrl.value, name: 'Screenshot' }])
+    openMediaPreview([{ type: 'image', src: screenshotDataUrl.value, name: "Screenshot" }])
 }
 
 function getFormattedComment() {
@@ -307,8 +309,8 @@ async function sendToAgent() {
         })
     } catch (error) {
         toast.error(screenshot && attach
-            ? `Couldn't attach screenshot: ${error?.message || error}`
-            : `Couldn't send selection: ${error?.message || error}`)
+            ? $t("Couldn't attach screenshot: {p0}", { p0: (error?.message || error) })
+            : $t("Couldn't send selection: {p0}", { p0: (error?.message || error) }))
     } finally {
         submitting.value = false
     }
@@ -328,7 +330,7 @@ async function addToMessage({ fromKeyboard = false } = {}) {
         }
     } catch (e) {
         submitting.value = false
-        toast.error(`Couldn't attach screenshot: ${e?.message || e}`)
+        toast.error($t("Couldn't attach screenshot: {p0}", { p0: (e?.message || e) }))
         return
     }
 
@@ -348,7 +350,7 @@ async function addToMessage({ fromKeyboard = false } = {}) {
 
 function copy() {
     navigator.clipboard.writeText(props.selectedText)
-    toast.success('Copied to clipboard', { duration: 2000 })
+    toast.success($t("Copied to clipboard"), { duration: 2000 })
     props.clearSourceSelection?.()
     close()
 }
@@ -434,12 +436,12 @@ defineExpose({ isExpanded: expanded })
                 size="small"
                 variant="neutral"
                 appearance="plain"
-                aria-label="Close"
+                :aria-label="$t(&quot;Close&quot;)"
                 :disabled="submitting"
                 @click="close"
             >
                 <wa-icon name="xmark"></wa-icon>
-                <span class="tsc-control-label">Close</span>
+                <span class="tsc-control-label">{{ $t("Close") }}</span>
             </wa-button>
 
             <wa-button
@@ -447,11 +449,11 @@ defineExpose({ isExpanded: expanded })
                 size="small"
                 variant="neutral"
                 appearance="plain"
-                aria-label="Move dialog"
-                title="Move dialog"
+                :aria-label="$t(&quot;Move dialog&quot;)"
+                :title="$t(&quot;Move dialog&quot;)"
             >
                 <wa-icon name="grip-vertical" family="classic" variant="solid"></wa-icon>
-                <span class="tsc-control-label">Move dialog</span>
+                <span class="tsc-control-label">{{ $t("Move dialog") }}</span>
             </wa-button>
 
             <wa-textarea
@@ -472,7 +474,7 @@ defineExpose({ isExpanded: expanded })
                         :checked="includeScreenshot"
                         :disabled="screenshotLoading || submitting"
                         @change="onIncludeToggle"
-                    >Include screenshot</wa-switch>
+                    >{{ $t("Include screenshot") }}</wa-switch>
                     <wa-spinner v-if="screenshotLoading"></wa-spinner>
                 </div>
                 <div
@@ -480,13 +482,13 @@ defineExpose({ isExpanded: expanded })
                     class="tsc-shot-thumb"
                     @click="openShotPreview"
                 >
-                    <img :src="screenshotDataUrl" alt="Screenshot" />
+                    <img :src="screenshotDataUrl" :alt="$t(&quot;Screenshot&quot;)" />
                 </div>
             </div>
 
             <div v-if="showHelpHint" class="tsc-help">
-                <strong>Note:</strong> Clicking outside this dialog will discard the selection and any comment entered.
-                <a class="tsc-help-dismiss" href="#" @click.prevent="dismissHelpHint">Dismiss</a>
+                <strong>{{ $t("Note:") }}</strong> {{ $t("Clicking outside this dialog will discard the selection and any comment entered.") }}
+                <a class="tsc-help-dismiss" href="#" @click.prevent="dismissHelpHint">{{ $t("Dismiss") }}</a>
             </div>
 
             <div class="tsc-actions">
@@ -497,7 +499,7 @@ defineExpose({ isExpanded: expanded })
                     :disabled="!canAdd || screenshotLoading || submitting"
                     @click="addToMessage()"
                 >
-                    Add to message
+                    {{ $t("Add to message") }}
                 </wa-button>
                 <wa-button
                     v-if="canSendToAgent"
@@ -506,7 +508,7 @@ defineExpose({ isExpanded: expanded })
                     :disabled="screenshotLoading || submitting || selectionSendPending"
                     @click="sendToAgent"
                 >
-                    Send to Agent
+                    {{ $t("Send to Agent") }}
                 </wa-button>
             </div>
         </div>

@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 /**
  * ProviderSettingsSection — the per-provider section of the Settings popover
  * (one per registered provider), editing that provider's persisted agent-
@@ -47,8 +49,8 @@ const PERMISSION_FIELDS = ['permission_mode', 'permission_mode_if_untrusted']
 // Section-specific labels — kept distinct from the generic ``getFieldLabel`` so
 // the existing UI strings stay stable ("Default permission mode", …).
 const PERMISSION_LABELS = {
-    permission_mode: 'Default permission mode',
-    permission_mode_if_untrusted: 'Default permission mode (untrusted projects)',
+    get permission_mode() { return $t("Default permission mode") },
+    get permission_mode_if_untrusted() { return $t("Default permission mode (untrusted projects)") },
 }
 
 // ─── Matrix + task controls + switches (shared AgentSettingsDefaultsPicker) ──
@@ -99,7 +101,7 @@ const permissionRows = computed(() => {
                 const disabledReason = disabled ? h.getChoiceDisabledReason(field, opt.value, ctx) : null
                 return {
                     value: String(opt.value),
-                    labelWithSuffix: disabled ? `${opt.label} (not available)` : opt.label,
+                    labelWithSuffix: disabled ? $t("{p0} (not available)", { p0: (opt.label) }) : opt.label,
                     description: disabledReason ?? opt.description ?? null,
                     disabled,
                     icon: opt.icon ?? null,
@@ -157,7 +159,7 @@ function onOrchestrationToggle(event) {
     <section class="settings-section">
         <h3 class="settings-section-title">
             <ProviderIcon v-if="providerIcon" :provider="provider" />
-            {{ helpers.constructor.label }} settings
+            {{ helpers.constructor.label }} {{ $t("settings") }}
             <wa-icon name="cloud" class="synced-icon"></wa-icon>
         </h3>
 
@@ -165,11 +167,11 @@ function onOrchestrationToggle(event) {
              mode. Drafts only — existing sessions are never enforced. Hidden while
              the hybrid feature flag is off (the whole feature is dormant). -->
         <div v-if="provider === 'claude_code' && settingsStore.isClaudeHybridEnabled" class="setting-group">
-            <label class="setting-group-label">Hybrid Mode</label>
+            <label class="setting-group-label">{{ $t("Hybrid Mode") }}</label>
             <wa-switch
                 :checked="settingsStore.isClaudeHybridDefault"
                 @change="settingsStore.setClaudeHybridDefault($event.target.checked)"
-            >Activate on new sessions</wa-switch>
+            >{{ $t("Activate on new sessions") }}</wa-switch>
             <HybridModeExplainer />
         </div>
         <wa-divider v-if="provider === 'claude_code' && settingsStore.isClaudeHybridEnabled"></wa-divider>
@@ -179,8 +181,8 @@ function onOrchestrationToggle(event) {
              `label ~ :not(label)` indent rule doesn't shift the wide grid. -->
         <div class="agent-defaults-group">
             <div class="matrix-heading">
-                <label class="setting-group-label">Model &amp; effort picker</label>
-                <HelpTextLink help-key="model-effort-score" label="What are those numbers?" />
+                <label class="setting-group-label">{{ $t("Model & effort picker") }}</label>
+                <HelpTextLink help-key="model-effort-score" :label="$t(&quot;What are those numbers?&quot;)" />
             </div>
             <AgentSettingsDefaultsPicker
                 :provider="provider"
@@ -236,31 +238,30 @@ function onOrchestrationToggle(event) {
         <wa-divider></wa-divider>
 
         <div class="setting-group">
-            <label class="setting-group-label">Presets</label>
+            <label class="setting-group-label">{{ $t("Presets") }}</label>
             <span class="setting-group-hint">
-                Define bundles of {{ helpers.constructor.label }} settings to quickly apply to a session
+                {{ $t("Define bundles of") }} {{ helpers.constructor.label }} {{ $t("settings to quickly apply to a session") }}
             </span>
             <wa-button size="small" @click="openPresetsDialog">
                 <wa-icon slot="start" name="sliders"></wa-icon>
-                Manage presets…
+                {{ $t("Manage presets…") }}
             </wa-button>
         </div>
 
         <wa-divider></wa-divider>
 
         <div class="setting-group">
-            <label class="setting-group-label">Orchestration</label>
+            <label class="setting-group-label">{{ $t("Orchestration") }}</label>
             <wa-switch
                 :checked="orchestrationEnabled"
                 :disabled="isLastOrchestrationProvider"
                 @change="onOrchestrationToggle"
-            >Enabled in orchestration</wa-switch>
+            >{{ $t("Enabled in orchestration") }}</wa-switch>
             <span class="setting-group-hint">
-                When off, agents won't pick {{ helpers.constructor.label }} on their own when
-                orchestrating sessions. You can still explicitly ask an agent to use it.
+                {{ $t("When off, agents won't pick") }} {{ helpers.constructor.label }} {{ $t("on their own when orchestrating sessions. You can still explicitly ask an agent to use it.") }}
             </span>
             <span v-if="isLastOrchestrationProvider" class="setting-group-hint">
-                At least one provider must remain enabled in orchestration.
+                {{ $t("At least one provider must remain enabled in orchestration.") }}
             </span>
         </div>
 

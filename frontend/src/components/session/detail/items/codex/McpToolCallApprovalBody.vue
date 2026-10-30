@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../../../../i18n/index.js'
+
 import { computed, nextTick, onMounted, ref, useId, watch } from 'vue'
 import AppTooltip from '../../../../ui/AppTooltip.vue'
 import { canStealFocus } from '../../../../../utils/focusGuard'
@@ -20,7 +22,7 @@ const approveAlwaysId = useId()
 
 // Wire params: McpServerElicitationRequestParams (mode=form, approval-tagged).
 const input = computed(() => props.pendingRequest.tool_input || {})
-const serverName = computed(() => input.value.serverName || 'unknown server')
+const serverName = computed(() => input.value.serverName || $t("unknown server"))
 const message = computed(() => input.value.message || '')
 const meta = computed(() => {
     const m = input.value._meta
@@ -93,7 +95,7 @@ usePendingRequestSubmitShortcut((e) => {
     <div v-scroll-shadow class="mcp-approval-body">
         <div class="codex-pending-section">
             <div class="codex-pending-summary">
-                <span class="codex-summary-label">MCP tool call</span>
+                <span class="codex-summary-label">{{ $t("MCP tool call") }}</span>
                 <wa-badge variant="neutral">
                     {{ serverName }}<template v-if="toolTitle"> · {{ toolTitle }}</template>
                 </wa-badge>
@@ -110,7 +112,7 @@ usePendingRequestSubmitShortcut((e) => {
                 </li>
             </ul>
             <details v-else-if="rawParams" class="mcp-raw-params">
-                <summary class="codex-summary-label">Arguments</summary>
+                <summary class="codex-summary-label">{{ $t("Arguments") }}</summary>
                 <pre class="codex-summary-code">{{ JSON.stringify(rawParams, null, 2) }}</pre>
             </details>
         </div>
@@ -125,11 +127,11 @@ usePendingRequestSubmitShortcut((e) => {
                 @click="deny"
             >
                 <wa-icon slot="start" name="xmark" variant="classic"></wa-icon>
-                Deny
+                {{ $t("Deny") }}
             </wa-button>
-            <AppTooltip :for="denyButtonId">Refuse this tool call. Codex may try another approach.</AppTooltip>
+            <AppTooltip :for="denyButtonId">{{ $t("Refuse this tool call. Codex may try another approach.") }}</AppTooltip>
 
-            <wa-button-group label="Approve">
+            <wa-button-group :label="$t(&quot;Approve&quot;)">
                 <wa-button
                     :id="approveButtonId"
                     ref="approveButtonRef"
@@ -140,9 +142,9 @@ usePendingRequestSubmitShortcut((e) => {
                     @click="approve()"
                 >
                     <wa-icon slot="start" name="check" variant="classic"></wa-icon>
-                    Approve
+                    {{ $t("Approve") }}
                 </wa-button>
-                <AppTooltip :for="approveButtonId">Approve this tool call.</AppTooltip>
+                <AppTooltip :for="approveButtonId">{{ $t("Approve this tool call.") }}</AppTooltip>
 
                 <wa-dropdown v-if="hasApproveMenu" placement="top-end">
                     <wa-button
@@ -152,25 +154,25 @@ usePendingRequestSubmitShortcut((e) => {
                         size="small"
                         :disabled="isResponding"
                     >
-                        <wa-icon name="chevron-up" label="More approve options" variant="classic"></wa-icon>
+                        <wa-icon name="chevron-up" :label="$t(&quot;More approve options&quot;)" variant="classic"></wa-icon>
                     </wa-button>
-                    <AppTooltip :for="approveMenuId">More approve options.</AppTooltip>
+                    <AppTooltip :for="approveMenuId">{{ $t("More approve options.") }}</AppTooltip>
 
                     <wa-dropdown-item :id="approveOnceId" :disabled="isResponding" @click="approve()">
                         <wa-icon slot="icon" name="check" variant="classic"></wa-icon>
-                        Once
+                        {{ $t("Once") }}
                     </wa-dropdown-item>
-                    <AppTooltip placement="left" :for="approveOnceId">Approve only this call.</AppTooltip>
+                    <AppTooltip placement="left" :for="approveOnceId">{{ $t("Approve only this call.") }}</AppTooltip>
                     <wa-dropdown-item v-if="canPersistSession" :id="approveSessionId" :disabled="isResponding" @click="approve('session')">
                         <wa-icon slot="icon" name="rotate" variant="classic"></wa-icon>
-                        For this session
+                        {{ $t("For this session") }}
                     </wa-dropdown-item>
-                    <AppTooltip v-if="canPersistSession" placement="left" :for="approveSessionId">Approve and remember for the rest of the session.</AppTooltip>
+                    <AppTooltip v-if="canPersistSession" placement="left" :for="approveSessionId">{{ $t("Approve and remember for the rest of the session.") }}</AppTooltip>
                     <wa-dropdown-item v-if="canPersistAlways" :id="approveAlwaysId" :disabled="isResponding" @click="approve('always')">
                         <wa-icon slot="icon" name="infinity" variant="classic"></wa-icon>
-                        Always
+                        {{ $t("Always") }}
                     </wa-dropdown-item>
-                    <AppTooltip v-if="canPersistAlways" placement="left" :for="approveAlwaysId">Approve and never ask again for this tool.</AppTooltip>
+                    <AppTooltip v-if="canPersistAlways" placement="left" :for="approveAlwaysId">{{ $t("Approve and never ask again for this tool.") }}</AppTooltip>
                 </wa-dropdown>
             </wa-button-group>
         </div>

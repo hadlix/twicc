@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../../i18n/index.js'
+
 import { INLINE_ARTIFACT_CONTEXT, INLINE_ARTIFACT_NAVIGATION, revealInlinePublication } from '../../../inline-artifacts/context.js'
 import { MARKDOWN_RENDER_VIEW_CONTEXT, STREAMING_VIEW_CONTEXT } from '../../../composables/streamPublicationKeys.js'
 import { computed, watch, ref, reactive, provide, nextTick, inject, onMounted, onBeforeUnmount, onActivated, onDeactivated, unref } from 'vue'
@@ -205,11 +207,11 @@ watch(isEphemeral, (active) => { if (active) showSessionSearch.value = false })
 const ephemeralNotice = computed(() => {
     const result = session.value?.ephemeralResult
     switch (session.value?.ephemeralPhase) {
-        case 'done': return { variant: 'success', text: 'Ephemeral session finished.' }
-        case 'error': return { variant: 'danger', text: `Ephemeral session failed. ${result?.error || ''}` }
-        case 'stopped': return { variant: 'neutral', text: 'Ephemeral session stopped.' }
-        case 'lost': return { variant: 'warning', text: 'This ephemeral run is no longer available. Its answer was not received.' }
-        default: return { variant: 'brand', text: `Ephemeral session running. TwiCC and ${providerLabel.value} do not save a local session transcript. This browser keeps your prompt and final answer until you discard them.` }
+        case 'done': return { variant: 'success', get text() { return $t("Ephemeral session finished.") } }
+        case 'error': return { variant: 'danger', get text() { return $t("Ephemeral session failed. {p0}", { p0: (result?.error || '') }) } }
+        case 'stopped': return { variant: 'neutral', get text() { return $t("Ephemeral session stopped.") } }
+        case 'lost': return { variant: 'warning', get text() { return $t("This ephemeral run is no longer available. Its answer was not received.") } }
+        default: return { variant: 'brand', get text() { return $t("Ephemeral session running. TwiCC and {p0} do not save a local session transcript. This browser keeps your prompt and final answer until you discard them.", { p0: (providerLabel.value) }) } }
     }
 })
 const project = computed(() => store.getProject(props.projectId))
@@ -1601,7 +1603,7 @@ function getScrollerElement() {
 function onDragEnter(event) {
     const types = event.dataTransfer?.types
     // Only handle file or text drops (not internal browser drags like link/bookmark)
-    const hasFiles = types?.includes('Files')
+    const hasFiles = types?.includes($t("Files"))
     const hasText = types?.includes('text/plain')
     if (!hasFiles && !hasText) return
     event.preventDefault()
@@ -1633,7 +1635,7 @@ function onDragEnd() {
  */
 function onDragLeave(event) {
     const types = event.dataTransfer?.types
-    if (!types?.includes('Files') && !types?.includes('text/plain')) return
+    if (!types?.includes($t("Files")) && !types?.includes('text/plain')) return
     event.preventDefault()
     dragCounter--
     if (dragCounter === 0) {
@@ -1647,7 +1649,7 @@ function onDragLeave(event) {
  */
 function onDragOver(event) {
     const types = event.dataTransfer?.types
-    if (!types?.includes('Files') && !types?.includes('text/plain')) return
+    if (!types?.includes($t("Files")) && !types?.includes('text/plain')) return
     event.preventDefault()
 }
 
@@ -1661,7 +1663,7 @@ async function onDrop(event) {
     document.removeEventListener('dragend', onDragEnd, true)
 
     const dataTransfer = event.dataTransfer
-    const hasFiles = dataTransfer?.types?.includes('Files')
+    const hasFiles = dataTransfer?.types?.includes($t("Files"))
 
     if (hasFiles) {
         const files = dataTransfer.files
@@ -1690,8 +1692,8 @@ async function processDroppedFile(file) {
     try {
         await store.addAttachment(props.sessionId, file)
     } catch (error) {
-        toast.error(error.message || 'Failed to process file', {
-            title: 'Cannot attach file'
+        toast.error(error.message || $t("Failed to process file"), {
+            get title() { return $t("Cannot attach file") }
         })
     }
 }
@@ -2181,7 +2183,7 @@ defineExpose({
             <wa-spinner v-if="session.ephemeralPhase === 'running'" slot="icon"></wa-spinner>
             <span>{{ ephemeralNotice.text }}</span>
             <span v-if="settingsStore.areCostsShown && session.ephemeralResult?.cost_usd != null"> · ${{ Number(session.ephemeralResult.cost_usd).toFixed(4) }}</span>
-            <span v-if="session.ephemeralResult?.duration_ms != null"> · {{ (session.ephemeralResult.duration_ms / 1000).toFixed(1) }} s</span>
+            <span v-if="session.ephemeralResult?.duration_ms != null"> · {{ (session.ephemeralResult.duration_ms / 1000).toFixed(1) }} {{ $t("s") }}</span>
         </wa-callout>
 
         <!-- In-session search bar (Ctrl+F): it slides down from the top edge of this list, which
@@ -2206,13 +2208,12 @@ defineExpose({
                 <wa-callout variant="danger">
                     <wa-icon slot="icon" name="circle-exclamation"></wa-icon>
                     <div class="compute-pending-copy">
-                        <span>This session's history is not available.</span>
+                        <span>{{ $t("This session's history is not available.") }}</span>
                         <span v-if="unavailableReason === 'rollout_missing'">
-                            Its Codex rollout file is no longer on disk.
+                            {{ $t("Its Codex rollout file is no longer on disk.") }}
                         </span>
                         <span v-else>
-                            Codex could not convert its rollout to the current session format
-                            ({{ unavailableReason }}).
+                            {{ $t("Codex could not convert its rollout to the current session format (") }}{{ unavailableReason }}).
                         </span>
                     </div>
                 </wa-callout>
@@ -2223,13 +2224,12 @@ defineExpose({
                 <wa-callout variant="warning">
                     <wa-icon slot="icon" name="hourglass"></wa-icon>
                     <div class="compute-pending-copy">
-                        <span>Session is being prepared, please wait...</span>
+                        <span>{{ $t("Session is being prepared, please wait...") }}</span>
                         <span v-if="computePendingHintPhase">
-                            Preparation is taking longer than expected. An agent outside this TwiCC instance may still be
-                            updating this session. Preparation will resume automatically when the session becomes stable.
+                            {{ $t("Preparation is taking longer than expected. An agent outside this TwiCC instance may still be updating this session. Preparation will resume automatically when the session becomes stable.") }}
                         </span>
                         <span v-if="computePendingHintPhase === 'restart'">
-                            If this message remains after the agent finishes, restart this TwiCC instance.
+                            {{ $t("If this message remains after the agent finishes, restart this TwiCC instance.") }}
                         </span>
                     </div>
                 </wa-callout>
@@ -2241,7 +2241,7 @@ defineExpose({
                 :loading="isLoading"
                 @retry="handleRetry"
             >
-                Failed to load session content
+                {{ $t("Failed to load session content") }}
             </FetchErrorPanel>
 
             <!-- Loading state: an empty spacer, the skeleton overlay covers it -->
@@ -2253,7 +2253,7 @@ defineExpose({
 
             <!-- Empty state (no items and not a special state above) -->
             <div v-else-if="!visualItems.length" class="empty-state">
-                Nothing to show yet
+                {{ $t("Nothing to show yet") }}
             </div>
 
             <!--
@@ -2410,8 +2410,8 @@ defineExpose({
                 <wa-callout variant="warning">
                     <wa-icon slot="icon" name="link-slash" class="session-state-icon session-state-icon--stale"></wa-icon>
                     <div class="stale-banner-content">
-                        <strong>Read-only session</strong>
-                        <span>The session files were cleaned up by {{ providerLabel }}. The conversation history has been preserved for reference.</span>
+                        <strong>{{ $t("Read-only session") }}</strong>
+                        <span>{{ $t("The session files were cleaned up by") }} {{ providerLabel }}{{ $t(". The conversation history has been preserved for reference.") }}</span>
                     </div>
                 </wa-callout>
             </div>
@@ -2420,10 +2420,10 @@ defineExpose({
                 <wa-callout variant="warning">
                     <wa-icon slot="icon" name="circle-pause"></wa-icon>
                     <div class="provider-disabled-content">
-                        <strong>{{ providerLabel }} is disabled</strong>
+                        <strong>{{ providerLabel }} {{ $t("is disabled") }}</strong>
                         <span>
-                            Re-enable {{ providerLabel }} from
-                            <strong>Settings → Providers</strong> to resume this session.
+                            {{ $t("Re-enable") }} {{ providerLabel }} {{ $t("from") }}
+                            <strong>{{ $t("Settings → Providers") }}</strong> {{ $t("to resume this session.") }}
                         </span>
                     </div>
                 </wa-callout>
@@ -2493,9 +2493,7 @@ defineExpose({
                 >
                     <wa-callout variant="warning" size="small">
                         <wa-icon slot="icon" name="triangle-exclamation" variant="classic"></wa-icon>
-                        This session runs in hybrid Claude CLI mode, which is currently
-                        disabled on this server. It can't be used until hybrid mode is
-                        re-enabled.
+                        {{ $t("This session runs in hybrid Claude CLI mode, which is currently disabled on this server. It can't be used until hybrid mode is re-enabled.") }}
                     </wa-callout>
                 </div>
                 <!-- Message input (main sessions only). Always rendered so prepared text is
@@ -2528,7 +2526,7 @@ defineExpose({
         <div v-if="dragOverType" class="drop-overlay">
             <div class="drop-overlay-content">
                 <wa-icon :name="dragOverType === 'files' ? 'cloud-upload' : 'text-indent-left'" style="font-size: 3rem;"></wa-icon>
-                <span>{{ dragOverType === 'files' ? 'Drop files here' : 'Drop text into message' }}</span>
+                <span>{{ dragOverType === 'files' ? $t("Drop files here") : $t("Drop text into message") }}</span>
             </div>
         </div>
 

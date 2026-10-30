@@ -1,3 +1,5 @@
+
+import { t as $t } from '../../i18n/index.js'
 import { matchesStreamingBlock } from './streamMatching.js'
 import { buildEphemeralResultContent } from '../ephemeralContent.js'
 import { BaseProviderHelpers, formatRetirementDate } from '../baseHelpers'
@@ -30,9 +32,9 @@ import {
 // collaboration mode (enter-only — it never toggles back to Default); an
 // optional prompt runs as a normal turn right after the switch.
 const BUILTIN_COMMANDS = [
-    { name: 'compact', plugin_name: null, is_builtin: true, is_global: true, description: 'Compact the conversation context into a summary', argument_hint: null },
-    { name: 'goal', plugin_name: null, is_builtin: true, is_global: true, description: "Set the session's goal (the objective Codex works toward), or 'clear' to remove it", argument_hint: '<objective> | clear' },
-    { name: 'plan', plugin_name: null, is_builtin: true, is_global: true, description: 'Enter Plan mode — Codex designs an implementation plan before touching code', argument_hint: '[prompt]' },
+    { name: 'compact', plugin_name: null, is_builtin: true, is_global: true, get description() { return $t("Compact the conversation context into a summary") }, argument_hint: null },
+    { name: 'goal', plugin_name: null, is_builtin: true, is_global: true, get description() { return $t("Set the session's goal (the objective Codex works toward), or 'clear' to remove it") }, get argument_hint() { return $t("<objective> | clear") } },
+    { name: 'plan', plugin_name: null, is_builtin: true, is_global: true, get description() { return $t("Enter Plan mode — Codex designs an implementation plan before touching code") }, get argument_hint() { return $t("[prompt]") } },
 ]
 
 // Map of agent-setting wire names → store getter/setter for the persisted
@@ -80,11 +82,11 @@ const USAGE_FILE_FIELD_TO_STORE_BINDING = {
 // Statuspage display map: Statuspage v2 status values → footer rendering.
 // Matches the status strings broadcast by the backend statuspage task.
 const OPENAI_STATUS_DISPLAY = {
-    operational:          { label: 'Operational',      modifier: 'ok' },
-    degraded_performance: { label: 'Degraded',         modifier: 'warning' },
-    partial_outage:       { label: 'Partial outage',   modifier: 'warning' },
-    major_outage:         { label: 'Major outage',     modifier: 'error' },
-    under_maintenance:    { label: 'Maintenance',      modifier: 'info' },
+    operational:          { get label() { return $t("Operational") },      modifier: 'ok' },
+    degraded_performance: { get label() { return $t("Degraded") },         modifier: 'warning' },
+    partial_outage:       { get label() { return $t("Partial outage") },   modifier: 'warning' },
+    major_outage:         { get label() { return $t("Major outage") },     modifier: 'error' },
+    under_maintenance:    { get label() { return $t("Maintenance") },      modifier: 'info' },
 }
 
 // Per-field choice catalogue for the Codex provider.
@@ -100,53 +102,53 @@ const AGENT_SETTINGS_CHOICES = {
     permission_mode: [
         {
             value: PERMISSION_MODE.STRICT,
-            label: 'Strict',
-            description: 'Read-only. Writes are refused silently (no prompt).',
+            get label() { return $t("Strict") },
+            get description() { return $t("Read-only. Writes are refused silently (no prompt).") },
             icon: 'shield-halved',
             color: 'var(--wa-color-blue-60)',
         },
         {
             value: PERMISSION_MODE.READ_ONLY,
-            label: 'Read-only',
-            description: 'Read-only. Any write requires confirmation.',
+            get label() { return $t("Read-only") },
+            get description() { return $t("Read-only. Any write requires confirmation.") },
             icon: 'eye',
             color: 'var(--wa-color-green-60)',
         },
         {
             value: PERMISSION_MODE.AUTO,
-            label: 'Auto',
-            description: 'Writes freely in the project; asks to step outside.',
+            get label() { return $t("Auto") },
+            get description() { return $t("Writes freely in the project; asks to step outside.") },
             icon: 'pen-to-square',
             color: 'var(--wa-color-yellow-60)',
         },
         {
             value: PERMISSION_MODE.AUTONOMOUS,
-            label: 'Autonomous',
-            description: 'Writes in the project; rejects requests to step outside.',
+            get label() { return $t("Autonomous") },
+            get description() { return $t("Writes in the project; rejects requests to step outside.") },
             icon: 'shield-check',
             color: 'var(--wa-color-yellow-60)',
         },
         {
             value: PERMISSION_MODE.AUTO_REVIEW,
-            label: 'Auto-review',
-            description: 'Writes in the project; automatically reviews requests to step outside.',
+            get label() { return $t("Auto-review") },
+            get description() { return $t("Writes in the project; automatically reviews requests to step outside.") },
             icon: 'shield-check',
             color: 'var(--wa-color-orange-60)',
         },
         {
             value: PERMISSION_MODE.YOLO,
-            label: 'YOLO',
-            description: 'No restrictions.',
+            get label() { return $t("YOLO") },
+            get description() { return $t("No restrictions.") },
             icon: 'triangle-exclamation',
             color: 'var(--wa-color-red-60)',
         },
     ],
     effort: [
-        { value: EFFORT.LOW,    label: 'Low',    display_label: 'Low effort' },
-        { value: EFFORT.MEDIUM, label: 'Medium', display_label: 'Medium effort' },
-        { value: EFFORT.HIGH,   label: 'High',   display_label: 'High effort' },
-        { value: EFFORT.X_HIGH, label: 'xHigh',  display_label: 'xHigh effort' },
-        { value: EFFORT.MAX,    label: 'Max',    display_label: 'Max effort' },
+        { value: EFFORT.LOW,    get label() { return $t("Low") },    get display_label() { return $t("Low effort") } },
+        { value: EFFORT.MEDIUM, get label() { return $t("Medium") }, get display_label() { return $t("Medium effort") } },
+        { value: EFFORT.HIGH,   get label() { return $t("High") },   get display_label() { return $t("High effort") } },
+        { value: EFFORT.X_HIGH, get label() { return $t("xHigh") },  get display_label() { return $t("xHigh effort") } },
+        { value: EFFORT.MAX,    get label() { return $t("Max") },    get display_label() { return $t("Max effort") } },
         // ``ultra`` is temporarily disabled product-wide (see the backend switch
         // ``ULTRA_EFFORT_TEMPORARILY_DISABLED`` in codex/constants.py). Kept out
         // of the selectable efforts so it drops from the picker and the
@@ -157,11 +159,11 @@ const AGENT_SETTINGS_CHOICES = {
     fast_mode: [
         {
             value: true,
-            label: 'Enabled',
-            display_label: 'Fast mode',
-            description: 'Faster generation — 2x on GPT-6 Astra and GPT-6.1 Sol, 1.5x on other models; uses credits at 2.5x.',
+            get label() { return $t("Enabled") },
+            get display_label() { return $t("Fast mode") },
+            get description() { return $t("Faster generation — 2x on GPT-6 Astra and GPT-6.1 Sol, 1.5x on other models; uses credits at 2.5x.") },
         },
-        { value: false, label: 'Disabled', display_label: 'No fast mode' },
+        { value: false, get label() { return $t("Disabled") }, get display_label() { return $t("No fast mode") } },
     ],
     // Not a user choice: the window is fixed by the model (272K for GPT-6 and
     // pre-5.6, 372K for the GPT-5.6 tiers) — for the selected model the
@@ -169,8 +171,8 @@ const AGENT_SETTINGS_CHOICES = {
     // ``getFieldChoices``, and ``enforceAgentSettingsConsistency`` pins the
     // value to the model's.
     context_max: [
-        { value: CONTEXT_MAX.DEFAULT, label: '272K' },
-        { value: CONTEXT_MAX.LARGE, label: '372K' },
+        { value: CONTEXT_MAX.DEFAULT, get label() { return $t("272K") } },
+        { value: CONTEXT_MAX.LARGE, get label() { return $t("372K") } },
     ],
 }
 
@@ -423,8 +425,8 @@ export class CodexHelpers extends BaseProviderHelpers {
      * disappear has nothing useful to advertise about being the latest.
      */
     _modelLabelSuffix(entry) {
-        if (entry?.retirement_date) return ` (until ${formatRetirementDate(entry.retirement_date)})`
-        if (entry?.latest) return ` (latest: ${entry.version})`
+        if (entry?.retirement_date) return $t(" (until {p0})", { p0: (formatRetirementDate(entry.retirement_date)) })
+        if (entry?.latest) return $t(" (latest: {p0})", { p0: (entry.version) })
         return ''
     }
 
@@ -531,7 +533,7 @@ export class CodexHelpers extends BaseProviderHelpers {
         if (field === 'context_max') {
             const windowSize = this.modelContextWindow(context?.effectiveModel)
             if (windowSize && choiceValue !== windowSize) {
-                return 'The context window is fixed by the model.'
+                return $t("The context window is fixed by the model.")
             }
         }
         return super.getChoiceDisabledReason(field, choiceValue, context)
@@ -540,7 +542,7 @@ export class CodexHelpers extends BaseProviderHelpers {
     getFieldHelpText(field, context) {
         if (field === 'fast_mode') {
             if (!this.modelSupportsFast(context?.effectiveModel)) {
-                return 'Fast mode is not available for this model.'
+                return $t("Fast mode is not available for this model.")
             }
             return null
         }
@@ -549,7 +551,7 @@ export class CodexHelpers extends BaseProviderHelpers {
             // GPT_56_CONTEXT_WINDOW_TEMPORARILY_REDUCED). Restore the
             // "272K up to GPT 5.5, 372K for the 5.6 tiers" wording when it returns.
             return super.getFieldHelpText(field, context)
-                ?? 'Fixed by the model: currently 272K across all Codex models.'
+                ?? $t("Fixed by the model: currently 272K across all Codex models.")
         }
         return super.getFieldHelpText(field, context)
     }
@@ -576,7 +578,7 @@ export class CodexHelpers extends BaseProviderHelpers {
     getUsageExternalLink() {
         return {
             url: 'https://chatgpt.com/codex/cloud/settings/analytics#usage',
-            label: 'View usage on chatgpt.com',
+            get label() { return $t("View usage on chatgpt.com") },
         }
     }
 
@@ -625,7 +627,7 @@ export class CodexHelpers extends BaseProviderHelpers {
         return {
             ...entry,
             url: this.constructor.serviceStatusUrl,
-            tooltip: "Codex status on OpenAI's side",
+            get tooltip() { return $t("Codex status on OpenAI's side") },
         }
     }
 

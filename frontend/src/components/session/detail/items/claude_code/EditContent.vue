@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../../../../i18n/index.js'
+
 import { computed } from 'vue'
 import { applyStructuredPatch, reconstructFromHunks } from '../../../../../utils/patchUtils'
 import ToolDiffViewer from './ToolDiffViewer.vue'
@@ -129,7 +131,7 @@ const showSpinner = computed(() => props.backendPatchLoading && !props.backendPa
             <wa-spinner></wa-spinner>
         </div>
         <template v-else>
-            <p v-if="isSubagent" class="subagent-line-warning">Line numbers shown are relative to the edited fragment, not the actual file position.</p>
+            <p v-if="isSubagent" class="subagent-line-warning">{{ $t("Line numbers shown are relative to the edited fragment, not the actual file position.") }}</p>
             <ToolDiffViewer
                 mode="diff"
                 :original="diffData.original"

@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // ProjectDetailHeader.vue - Header section of the project detail panel.
 // Shows the project/workspace name with its status icons (code comments, live process), then the
 // zones below: identity (directory path), the action buttons (archive, edit/manage), a stats container
@@ -96,8 +98,8 @@ const allProjects = computed(() => store.getProjects)
 
 // Display name
 const displayName = computed(() => {
-    if (isAllProjectsMode.value) return 'All Projects'
-    if (isWorkspaceMode.value) return workspace.value?.name || 'Workspace'
+    if (isAllProjectsMode.value) return $t("All Projects")
+    if (isWorkspaceMode.value) return workspace.value?.name || $t("Workspace")
     return store.getProjectDisplayName(props.projectId)
 })
 
@@ -217,10 +219,10 @@ function handleUnarchive() {
                     v-if="isArchived"
                     id="project-detail-archived-icon"
                     name="box-archive"
-                    :label="isWorkspaceMode ? 'Archived workspace' : 'Archived project'"
+                    :label="isWorkspaceMode ? $t(&quot;Archived workspace&quot;) : $t(&quot;Archived project&quot;)"
                     class="session-state-icon session-state-icon--archived"
                 ></wa-icon>
-                <AppTooltip v-if="isArchived" for="project-detail-archived-icon">{{ isWorkspaceMode ? 'Archived workspace' : 'Archived project' }}</AppTooltip>
+                <AppTooltip v-if="isArchived" for="project-detail-archived-icon">{{ isWorkspaceMode ? $t("Archived workspace") : $t("Archived project") }}</AppTooltip>
 
                 <!-- Single project mode -->
                 <template v-if="isSingleProjectMode">
@@ -261,7 +263,7 @@ function handleUnarchive() {
                         :class="['compact-tool-button', 'reduced-height', { 'compact-tool-button--active': isCompactExpanded }]"
                         @click.stop="isCompactExpanded = !isCompactExpanded"
                     >
-                        <wa-icon name="screwdriver-wrench" label="Toggle details"></wa-icon>
+                        <wa-icon name="screwdriver-wrench" :label="$t(&quot;Toggle details&quot;)"></wa-icon>
                         <wa-icon class="compact-tool-chevron" :name="isCompactExpanded ? 'chevron-up' : 'chevron-down'"></wa-icon>
                     </wa-button>
                 </div>
@@ -294,10 +296,10 @@ function handleUnarchive() {
                     class="archive-button reduced-height"
                     @click="handleArchive"
                 >
-                    <wa-icon auto-width name="box-archive" :label="isWorkspaceMode ? 'Archive workspace' : 'Archive project'"></wa-icon>
-                    <span class="action-label">Archive</span>
+                    <wa-icon auto-width name="box-archive" :label="isWorkspaceMode ? $t(&quot;Archive workspace&quot;) : $t(&quot;Archive project&quot;)"></wa-icon>
+                    <span class="action-label">{{ $t("Archive") }}</span>
                 </wa-button>
-                <AppTooltip v-if="!isArchived" for="detail-archive-button">{{ isWorkspaceMode ? 'Archive workspace' : 'Archive project' }}</AppTooltip>
+                <AppTooltip v-if="!isArchived" for="detail-archive-button">{{ isWorkspaceMode ? $t("Archive workspace") : $t("Archive project") }}</AppTooltip>
 
                 <wa-button
                     v-else
@@ -308,10 +310,10 @@ function handleUnarchive() {
                     class="archive-button archive-button--archived reduced-height"
                     @click="handleUnarchive"
                 >
-                    <wa-icon auto-width name="box-archive" :label="isWorkspaceMode ? 'Unarchive workspace' : 'Unarchive project'"></wa-icon>
-                    <span class="action-label">Unarchive</span>
+                    <wa-icon auto-width name="box-archive" :label="isWorkspaceMode ? $t(&quot;Unarchive workspace&quot;) : $t(&quot;Unarchive project&quot;)"></wa-icon>
+                    <span class="action-label">{{ $t("Unarchive") }}</span>
                 </wa-button>
-                <AppTooltip v-if="isArchived" for="detail-unarchive-button">{{ isWorkspaceMode ? 'Unarchive workspace' : 'Unarchive project' }}</AppTooltip>
+                <AppTooltip v-if="isArchived" for="detail-unarchive-button">{{ isWorkspaceMode ? $t("Unarchive workspace") : $t("Unarchive project") }}</AppTooltip>
 
                 <wa-button
                     id="detail-edit-button"
@@ -321,11 +323,11 @@ function handleUnarchive() {
                     class="edit-button reduced-height"
                     @click="handleEditClick"
                 >
-                    <wa-icon auto-width :name="isWorkspaceMode ? 'gear' : 'pencil'" :label="isWorkspaceMode ? 'Manage workspace' : 'Edit project'"></wa-icon>
-                    <span class="action-label">{{ isWorkspaceMode ? 'Manage' : 'Edit' }}</span>
+                    <wa-icon auto-width :name="isWorkspaceMode ? 'gear' : 'pencil'" :label="isWorkspaceMode ? $t(&quot;Manage workspace&quot;) : $t(&quot;Edit project&quot;)"></wa-icon>
+                    <span class="action-label">{{ isWorkspaceMode ? $t("Manage") : $t("Edit") }}</span>
                 </wa-button>
-                <AppTooltip v-if="isWorkspaceMode" for="detail-edit-button">Manage workspace</AppTooltip>
-                <AppTooltip v-else-if="isSingleProjectMode" for="detail-edit-button">Edit project (name and color)</AppTooltip>
+                <AppTooltip v-if="isWorkspaceMode" for="detail-edit-button">{{ $t("Manage workspace") }}</AppTooltip>
+                <AppTooltip v-else-if="isSingleProjectMode" for="detail-edit-button">{{ $t("Edit project (name and color)") }}</AppTooltip>
             </div>
 
             <!-- Stats container: labelled cells over the activity sparkline, drawn as a soft backdrop. -->
@@ -338,26 +340,26 @@ function handleUnarchive() {
                         :data="weeklyActivity"
                     />
                 </span>
-                <AppTooltip :for="`detail-sparkline-${projectId}`">{{ isWorkspaceMode ? 'Workspace' : isAllProjectsMode ? 'Overall' : 'Project' }} activity (message turns per week)</AppTooltip>
+                <AppTooltip :for="`detail-sparkline-${projectId}`">{{ isWorkspaceMode ? $t("Workspace") : isAllProjectsMode ? $t("Overall") : $t("Project") }} {{ $t("activity (message turns per week)") }}</AppTooltip>
 
                 <div class="detail-cells">
                     <div class="detail-cell">
-                        <span class="detail-cell-label">Sessions</span>
+                        <span class="detail-cell-label">{{ $t("Sessions") }}</span>
                         <div id="detail-sessions-count" class="detail-cell-value">
                             <wa-icon name="folder-open" class="detail-icon" variant="regular"></wa-icon>
                             <span>{{ sessionsCount }}</span>
                         </div>
-                        <AppTooltip for="detail-sessions-count">Number of sessions</AppTooltip>
+                        <AppTooltip for="detail-sessions-count">{{ $t("Number of sessions") }}</AppTooltip>
                     </div>
 
                     <div v-if="showCosts" class="detail-cell">
-                        <span class="detail-cell-label">Cost</span>
+                        <span class="detail-cell-label">{{ $t("Cost") }}</span>
                         <CostDisplay id="detail-cost" :cost="totalCost" class="detail-cell-value" />
-                        <AppTooltip for="detail-cost">Total cost</AppTooltip>
+                        <AppTooltip for="detail-cost">{{ $t("Total cost") }}</AppTooltip>
                     </div>
 
                     <div v-if="mtime" class="detail-cell">
-                        <span class="detail-cell-label">Last activity</span>
+                        <span class="detail-cell-label">{{ $t("Last activity") }}</span>
                         <div id="detail-mtime" class="detail-cell-value">
                             <wa-icon name="clock" class="detail-icon" variant="regular"></wa-icon>
                             <span>
@@ -365,7 +367,7 @@ function handleUnarchive() {
                                 <template v-else>{{ formatDate(mtime) }}</template>
                             </span>
                         </div>
-                        <AppTooltip for="detail-mtime">{{ useRelativeTime ? `Last activity: ${formatDate(mtime)}` : 'Last activity' }}</AppTooltip>
+                        <AppTooltip for="detail-mtime">{{ useRelativeTime ? $t("Last activity: {p0}", { p0: (formatDate(mtime)) }) : $t("Last activity") }}</AppTooltip>
                     </div>
                 </div>
             </div>

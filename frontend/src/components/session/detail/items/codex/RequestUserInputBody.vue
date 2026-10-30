@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../../../../i18n/index.js'
+
 // RequestUserInputBody.vue (codex) — body sub-component for a
 // ``toolRequestUserInput`` pending request (request_type ``ask_user_question``).
 //
@@ -178,9 +180,9 @@ usePendingRequestDraft({
                 @click="dismiss"
             >
                 <wa-icon slot="start" name="ban" variant="classic"></wa-icon>
-                Dismiss
+                {{ $t("Dismiss") }}
             </wa-button>
-            <AppTooltip :for="dismissButtonId">Dismiss without answering — Codex treats it as cancelled.</AppTooltip>
+            <AppTooltip :for="dismissButtonId">{{ $t("Dismiss without answering — Codex treats it as cancelled.") }}</AppTooltip>
 
             <wa-button
                 :id="submitButtonId"
@@ -190,9 +192,9 @@ usePendingRequestDraft({
                 @click="submit"
             >
                 <wa-icon slot="start" name="check" variant="classic"></wa-icon>
-                Submit
+                {{ $t("Submit") }}
             </wa-button>
-            <AppTooltip :for="submitButtonId">Send your answers.</AppTooltip>
+            <AppTooltip :for="submitButtonId">{{ $t("Send your answers.") }}</AppTooltip>
         </div>
     </div>
 </template>

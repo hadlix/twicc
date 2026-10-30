@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../../../../i18n/index.js'
+
 import { computed } from 'vue'
 import MarkdownContent from '../../../../ui/MarkdownContent.vue'
 
@@ -29,7 +31,7 @@ const markdownSource = computed(() => {
 
 <template>
     <MarkdownContent v-if="markdownSource" :source="markdownSource" :show-toolbar="false" />
-    <div v-else class="monitor-output__no-events">(no events)</div>
+    <div v-else class="monitor-output__no-events">{{ $t("(no events)") }}</div>
 </template>
 
 <style scoped>

@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 /**
  * ProviderStatusToastContent — body of the persistent "<vendor> status update"
  * toast: the outage (or recovery, with its time window) sentence and a link
@@ -61,7 +63,7 @@ onBeforeUnmount(() => {
 
 <template>
     <span class="provider-status-toast">
-        {{ sentence }} —
+        {{ sentence }} {{ $t("—") }}
         <a :href="identity.statusUrl" target="_blank" rel="noopener">{{ statusHost }}</a>
     </span>
 </template>

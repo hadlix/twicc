@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../../i18n/index.js'
+
 // One shown dock region (a side column slice or the bottom). Renders a native WA tab bar
 // (nav-only, like TerminalPanel) with a per-tab placement arrow and a far-right minimize
 // button; the body is a Teleport target the parent fills with the real panel(s). The region
@@ -112,7 +114,7 @@ function onEmptyBarDblClick(event) {
         <!-- Flex row [scrollable tabs][fixed controls], like TerminalPanel's actions bar: the
              window buttons must stay visible while the tab strip scrolls, and never sit over a
              tab — they live beside the scroll area, not inside it. -->
-        <div class="dock-topbar" :class="{ 'tabnav-dimmed': !isRouteActive }" :title="maximized ? 'Double-click to restore' : 'Double-click to maximize'">
+        <div class="dock-topbar" :class="{ 'tabnav-dimmed': !isRouteActive }" :title="maximized ? $t(&quot;Double-click to restore&quot;) : $t(&quot;Double-click to maximize&quot;)">
         <TabBar class="dock-tabnav" :active="activeTabId" crossfade @crossfade-start="emit('crossfade-start')" @wa-tab-show.stop="onShow" @click="onEmptyBarClick" @dblclick="onEmptyBarDblClick">
             <!-- Clicking a tab header activates it: focuses its filter + claims the route (onTabClick).
                  wa-tab-show handles switching to a *different* tab; the claim also covers clicking the
@@ -149,8 +151,8 @@ function onEmptyBarDblClick(event) {
                 variant="brand"
                 appearance="accent"
                 size="small"
-                title="Restore (Alt+Shift+Enter)"
-                aria-label="Restore"
+                :title="$t(&quot;Restore (Alt+Shift+Enter)&quot;)"
+                :aria-label="$t(&quot;Restore&quot;)"
                 @click.stop="emit('restore')"
             >
                 <wa-icon name="compress"></wa-icon>
@@ -160,8 +162,8 @@ function onEmptyBarDblClick(event) {
                     class="dock-winbtn dock-minimize reduced-height"
                     appearance="plain"
                     size="small"
-                    title="Minimize to gutter (Alt+Shift+Backspace)"
-                    aria-label="Minimize to gutter"
+                    :title="$t(&quot;Minimize to gutter (Alt+Shift+Backspace)&quot;)"
+                    :aria-label="$t(&quot;Minimize to gutter&quot;)"
                     @click.stop="emit('minimize', dockIds)"
                 >
                     <wa-icon name="window-minimize"></wa-icon>
@@ -170,8 +172,8 @@ function onEmptyBarDblClick(event) {
                     class="dock-winbtn dock-maximize reduced-height"
                     appearance="plain"
                     size="small"
-                    title="Maximize (Alt+Shift+Enter)"
-                    aria-label="Maximize"
+                    :title="$t(&quot;Maximize (Alt+Shift+Enter)&quot;)"
+                    :aria-label="$t(&quot;Maximize&quot;)"
                     @click.stop="emit('maximize', dockIds, activeTabId)"
                 >
                     <wa-icon name="expand"></wa-icon>

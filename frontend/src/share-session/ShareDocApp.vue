@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../i18n/index.js'
+
 import { ref, onMounted } from 'vue'
 import MarkdownContent from '../components/ui/MarkdownContent.vue'
 // Singleton driven by MarkdownContent's openMediaPreview() — without it, clicking a
@@ -28,7 +30,7 @@ async function load() {
     if (docKind === 'image') {
         // Angle-bracket URL form tolerates spaces/parens in the file path; strip
         // brackets from the alt so a name can't break the ![]() syntax.
-        const alt = (props.meta.title || 'Image').replace(/[[\]\n]/g, ' ')
+        const alt = (props.meta.title || "Image").replace(/[[\]\n]/g, ' ')
         source.value = `![${alt}](<${props.meta.docUrl}>)`
         return
     }
@@ -58,9 +60,9 @@ onMounted(() => {
         <div class="share-doc-scroll">
             <div class="share-doc-body">
                 <wa-callout v-if="updated" variant="brand" class="share-banner">
-                    This artifact was updated — <a href="#" @click.prevent="location.reload()">Reload</a>
+                    {{ $t("This artifact was updated —") }} <a href="#" @click.prevent="location.reload()">{{ $t("Reload") }}</a>
                 </wa-callout>
-                <wa-callout v-if="error" variant="danger">This document is not available.</wa-callout>
+                <wa-callout v-if="error" variant="danger">{{ $t("This document is not available.") }}</wa-callout>
                 <MarkdownContent v-else :source="source" :show-toolbar="false"
                                  :class="{ 'doc-image': docKind === 'image' }" />
             </div>

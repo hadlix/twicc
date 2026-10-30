@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // ActivityDashboard.vue - KPI cards for daily/weekly/monthly periods + all-time total,
 // with trend badges comparing to the previous period (except total which has no comparison).
 // Supports two modes:
@@ -97,8 +99,8 @@ function computeTrend(cur, prev, upIsGood) {
 const periodDefs = [
     {
         key: 'daily',
-        label: 'Daily',
-        sublabel: 'current day',
+        get label() { return $t("Daily") },
+        get sublabel() { return $t("current day") },
         icon: 'calendar-day',
         previousLabel: 'yesterday',
         offsetCurrent: 0,
@@ -107,20 +109,20 @@ const periodDefs = [
     },
     {
         key: 'weekly',
-        label: 'Weekly',
-        sublabel: 'rolling 7 days',
+        get label() { return $t("Weekly") },
+        get sublabel() { return $t("rolling 7 days") },
         icon: 'calendar-week',
-        previousLabel: 'the previous 7 days period',
+        get previousLabel() { return $t("the previous 7 days period") },
         offsetCurrent: -6,
         offsetPrevious: -13,
         days: 7,
     },
     {
         key: 'monthly',
-        label: 'Monthly',
-        sublabel: 'rolling 30 days',
+        get label() { return $t("Monthly") },
+        get sublabel() { return $t("rolling 30 days") },
         icon: 'calendar-days',
-        previousLabel: 'the previous 30 days period',
+        get previousLabel() { return $t("the previous 30 days period") },
         offsetCurrent: -29,
         offsetPrevious: -59,
         days: 30,
@@ -208,8 +210,8 @@ const periods = computed(() => {
 
         rollingPeriods.push({
             key: 'total',
-            label: 'Total',
-            sublabel: 'all time',
+            get label() { return $t("Total") },
+            get sublabel() { return $t("all time") },
             icon: 'calendar',
             isTotal: true,
             mainValue,
@@ -224,7 +226,7 @@ const periods = computed(() => {
 
 <template>
     <div v-if="periods.length > 0" class="activity-dashboard">
-        <h3 class="dashboard-title">{{ isSessionsMode ? 'Sessions overview' : 'Message turns overview' }}</h3>
+        <h3 class="dashboard-title">{{ isSessionsMode ? $t("Sessions overview") : $t("Message turns overview") }}</h3>
         <div class="wa-cluster dashboard-grid">
             <wa-card v-for="period in periods" :key="period.label">
                 <div class="wa-flank wa-align-items-start">
@@ -250,16 +252,16 @@ const periods = computed(() => {
                                 >
                                     <wa-icon
                                         :name="period.mainTrend.direction === 'up' ? 'arrow-up' : 'arrow-down'"
-                                        :label="period.mainTrend.direction === 'up' ? 'Up' : 'Down'"
+                                        :label="period.mainTrend.direction === 'up' ? $t(&quot;Up&quot;) : $t(&quot;Down&quot;)"
                                     ></wa-icon>
                                     {{ period.mainTrend.value }}%
                                 </wa-tag>
                                 <template v-if="!period.isTotal">
-                                    <wa-tag v-if="!period.mainTrend" :id="`na-main-${mode}-${period.key}`" variant="neutral" pill>N/A</wa-tag>
-                                    <AppTooltip v-if="!period.mainTrend" :for="`na-main-${mode}-${period.key}`">No data for {{ period.previousLabel }}</AppTooltip>
+                                    <wa-tag v-if="!period.mainTrend" :id="`na-main-${mode}-${period.key}`" variant="neutral" pill>{{ $t("N/A") }}</wa-tag>
+                                    <AppTooltip v-if="!period.mainTrend" :for="`na-main-${mode}-${period.key}`">{{ $t("No data for") }} {{ period.previousLabel }}</AppTooltip>
                                 </template>
                             </div>
-                            <span class="wa-caption-s kpi-label">{{ isSessionsMode ? 'sessions created' : 'message turns' }}</span>
+                            <span class="wa-caption-s kpi-label">{{ isSessionsMode ? $t("sessions created") : $t("message turns") }}</span>
                         </div>
 
                         <!-- Sub metric 1: total cost (messages mode) or avg turns/session (sessions mode) -->
@@ -288,16 +290,16 @@ const periods = computed(() => {
                                     >
                                         <wa-icon
                                             :name="period.sub1Trend.direction === 'up' ? 'arrow-up' : 'arrow-down'"
-                                            :label="period.sub1Trend.direction === 'up' ? 'Up' : 'Down'"
+                                            :label="period.sub1Trend.direction === 'up' ? $t(&quot;Up&quot;) : $t(&quot;Down&quot;)"
                                         ></wa-icon>
                                         {{ period.sub1Trend.value }}%
                                     </wa-tag>
                                     <template v-if="!period.isTotal">
-                                        <wa-tag v-if="!period.sub1Trend" :id="`na-sub1-${mode}-${period.key}`" variant="neutral" pill size="small">N/A</wa-tag>
-                                        <AppTooltip v-if="!period.sub1Trend" :for="`na-sub1-${mode}-${period.key}`">No data for {{ period.previousLabel }}</AppTooltip>
+                                        <wa-tag v-if="!period.sub1Trend" :id="`na-sub1-${mode}-${period.key}`" variant="neutral" pill size="small">{{ $t("N/A") }}</wa-tag>
+                                        <AppTooltip v-if="!period.sub1Trend" :for="`na-sub1-${mode}-${period.key}`">{{ $t("No data for") }} {{ period.previousLabel }}</AppTooltip>
                                     </template>
                                 </div>
-                                <span class="wa-caption-xs kpi-label">{{ isSessionsMode ? 'avg. turns per session' : 'total cost' }}</span>
+                                <span class="wa-caption-xs kpi-label">{{ isSessionsMode ? $t("avg. turns per session") : $t("total cost") }}</span>
                             </div>
                         </template>
 
@@ -319,16 +321,16 @@ const periods = computed(() => {
                                     >
                                         <wa-icon
                                             :name="period.sub2Trend.direction === 'up' ? 'arrow-up' : 'arrow-down'"
-                                            :label="period.sub2Trend.direction === 'up' ? 'Up' : 'Down'"
+                                            :label="period.sub2Trend.direction === 'up' ? $t(&quot;Up&quot;) : $t(&quot;Down&quot;)"
                                         ></wa-icon>
                                         {{ period.sub2Trend.value }}%
                                     </wa-tag>
                                     <template v-if="!period.isTotal">
-                                        <wa-tag v-if="!period.sub2Trend" :id="`na-sub2-${mode}-${period.key}`" variant="neutral" pill size="small">N/A</wa-tag>
-                                        <AppTooltip v-if="!period.sub2Trend" :for="`na-sub2-${mode}-${period.key}`">No data for {{ period.previousLabel }}</AppTooltip>
+                                        <wa-tag v-if="!period.sub2Trend" :id="`na-sub2-${mode}-${period.key}`" variant="neutral" pill size="small">{{ $t("N/A") }}</wa-tag>
+                                        <AppTooltip v-if="!period.sub2Trend" :for="`na-sub2-${mode}-${period.key}`">{{ $t("No data for") }} {{ period.previousLabel }}</AppTooltip>
                                     </template>
                                 </div>
-                                <span class="wa-caption-xs kpi-label">{{ isSessionsMode ? 'avg. cost per session' : 'avg. cost per turn' }}</span>
+                                <span class="wa-caption-xs kpi-label">{{ isSessionsMode ? $t("avg. cost per session") : $t("avg. cost per turn") }}</span>
                             </div>
                         </template>
                     </div>

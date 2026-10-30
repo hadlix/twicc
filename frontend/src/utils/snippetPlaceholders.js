@@ -1,3 +1,5 @@
+
+import { t as $t } from '../i18n/index.js'
 // Placeholder definitions, extraction, resolution, and availability checks for snippets.
 
 /**
@@ -22,17 +24,17 @@ function localISO(d = new Date()) {
  */
 export const PLACEHOLDERS = [
     // Project-related
-    { id: 'project-dir', label: 'Project dir', resolve: (ctx) => ctx.project?.directory },
-    { id: 'project-name', label: 'Project name', resolve: (ctx) => ctx.projectName },
+    { id: 'project-dir', get label() { return $t("Project dir") }, resolve: (ctx) => ctx.project?.directory },
+    { id: 'project-name', get label() { return $t("Project name") }, resolve: (ctx) => ctx.projectName },
     // Session-related
-    { id: 'session-cwd', label: 'Session dir', resolve: (ctx) => ctx.session?.cwd },
-    { id: 'session-git-branch', label: 'Git branch', resolve: (ctx) => ctx.session?.git_branch },
-    { id: 'session-git-dir', label: 'Git dir', resolve: (ctx) => ctx.session?.git_directory },
-    { id: 'session-id', label: 'Session ID', resolve: (ctx) => ctx.session?.id },
+    { id: 'session-cwd', get label() { return $t("Session dir") }, resolve: (ctx) => ctx.session?.cwd },
+    { id: 'session-git-branch', get label() { return $t("Git branch") }, resolve: (ctx) => ctx.session?.git_branch },
+    { id: 'session-git-dir', get label() { return $t("Git dir") }, resolve: (ctx) => ctx.session?.git_directory },
+    { id: 'session-id', get label() { return $t("Session ID") }, resolve: (ctx) => ctx.session?.id },
     // Dynamic (always available — computed at insertion time)
-    { id: 'date', label: 'Date', resolve: () => localISO().date },
-    { id: 'time', label: 'Time', resolve: () => localISO().time },
-    { id: 'datetime', label: 'Datetime', resolve: () => localISO().datetime },
+    { id: 'date', get label() { return $t("Date") }, resolve: () => localISO().date },
+    { id: 'time', get label() { return $t("Time") }, resolve: () => localISO().time },
+    { id: 'datetime', get label() { return $t("Datetime") }, resolve: () => localISO().datetime },
 ]
 
 /** Regex matching {placeholder-id} tokens. */

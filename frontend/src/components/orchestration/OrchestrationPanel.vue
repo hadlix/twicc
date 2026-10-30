@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // Orchestration tab content. Two trees, one switch (shown only when both exist):
 //
 //   - "sessions": the sessions spawned BY this session (the topology re-rooted on it), with a
@@ -57,8 +59,8 @@ const hasAgents = visibleComputed(() => store.hasSubagents(props.sessionId), fal
 const orchestrationActivity = visibleComputed(() => store.getOrchestrationActivity(props.sessionId), null)
 const canSwitchView = visibleComputed(() => props.hasSpawnTree && hasAgents.value, false)
 const VIEW_OPTIONS = [
-    { value: 'sessions', label: 'Sessions', icon: 'diagram-project' },
-    { value: 'agents', label: 'Subagents', icon: 'robot' },
+    { value: 'sessions', get label() { return $t("Sessions") }, icon: 'diagram-project' },
+    { value: 'agents', get label() { return $t("Subagents") }, icon: 'robot' },
 ]
 // User choice, only honoured when both views exist; otherwise the available one wins.
 const selectedView = ref('sessions')
@@ -254,7 +256,7 @@ async function load({ silent = false } = {}) {
         const url = `/api/projects/${encodeURIComponent(props.projectId)}/sessions/${encodeURIComponent(props.sessionId)}/topology/`
         const response = await fetch(url, { signal: controller.signal })
         if (!response.ok) {
-            throw new Error(`Failed to load topology: ${response.status}`)
+            throw new Error($t("Failed to load topology: {p0}", { p0: (response.status) }))
         }
         const payload = await response.json()
         if (controller.signal.aborted || inFlightController !== controller || !sessionsActive.value) return
@@ -270,7 +272,7 @@ async function load({ silent = false } = {}) {
         if (controller.signal.aborted || inFlightController !== controller || !sessionsActive.value || e.name === 'AbortError') return // superseded by a newer load
         console.error('Failed to load orchestration topology:', e)
         if (!silent || !topology.value) {
-            error.value = 'Failed to load the orchestration topology.'
+            error.value = $t("Failed to load the orchestration topology.")
         }
     } finally {
         // A superseded (aborted) read leaves the flag to the newer one, which owns the controller now.
@@ -437,7 +439,7 @@ onUnmounted(() => {
                     <SegmentedControl
                         v-if="canSwitchView"
                         class="orch-view-switch"
-                        label="Tree to show"
+                        :label="$t(&quot;Tree to show&quot;)"
                         :model-value="view"
                         :options="VIEW_OPTIONS"
                         @update:model-value="selectedView = $event"
@@ -452,18 +454,18 @@ onUnmounted(() => {
                     </SegmentedControl>
                     <span v-else class="orch-mode-tag">
                         <wa-icon :name="view === 'agents' ? 'robot' : 'diagram-project'"></wa-icon>
-                        {{ view === 'agents' ? 'Subagents' : 'Sessions' }}
+                        {{ view === 'agents' ? $t("Subagents") : $t("Sessions") }}
                     </span>
                     <wa-button
                         size="small"
                         appearance="plain"
-                        title="Refresh"
+                        :title="$t(&quot;Refresh&quot;)"
                         :loading="refreshing"
                         :disabled="refreshing"
                         @click="refresh()"
                     >
                         <wa-icon slot="start" name="arrow-rotate-right"></wa-icon>
-                        <span class="orch-refresh-label">Refresh</span>
+                        <span class="orch-refresh-label">{{ $t("Refresh") }}</span>
                     </wa-button>
                 </div>
                 <OrchestrationSummary v-if="summary" v-bind="summary" :show-costs="showCosts" />
@@ -480,7 +482,7 @@ onUnmounted(() => {
                         size="small"
                         variant="neutral"
                         appearance="filled"
-                        aria-label="Scroll to bottom"
+                        :aria-label="$t(&quot;Scroll to bottom&quot;)"
                         @click="scrollListTo(true)"
                     >
                         <wa-icon name="arrow-down"></wa-icon>
@@ -490,12 +492,12 @@ onUnmounted(() => {
                     v-if="hasOverflow"
                     :for="scrollBottomButtonId"
                     placement="left"
-                >Scroll to bottom</AppTooltip>
+                >{{ $t("Scroll to bottom") }}</AppTooltip>
                 <!-- Both views stay mounted once shown (v-show); a view not mounted yet shows a placeholder. -->
                 <div v-show="view === 'agents'" class="orch-view">
                     <div v-if="!mountedViews.agents || agentsPending" class="orch-state">
                         <wa-spinner></wa-spinner>
-                        <span>Loading subagents…</span>
+                        <span>{{ $t("Loading subagents…") }}</span>
                     </div>
                     <div v-else-if="agentNodes.length" ref="agentsTreeEl" class="orch-tree">
                         <AgentTreeNode
@@ -508,33 +510,33 @@ onUnmounted(() => {
                     </div>
                     <div v-else class="orch-state orch-state-empty">
                         <wa-icon name="robot"></wa-icon>
-                        <span>No subagent.</span>
+                        <span>{{ $t("No subagent.") }}</span>
                     </div>
                 </div>
                 <div v-show="view === 'sessions'" class="orch-view">
                     <!-- Spinner until the first snapshot lands (not only while a request is in flight: the first read can start late). -->
                     <div v-if="!mountedViews.sessions || (!topology && !error)" class="orch-state">
                         <wa-spinner></wa-spinner>
-                        <span>Loading topology…</span>
+                        <span>{{ $t("Loading topology…") }}</span>
                     </div>
                     <template v-else>
                         <!-- A failed read never replaces a tree already shown: the banner sits above it. -->
                         <wa-callout v-if="error" variant="danger" size="small">
                             <wa-icon slot="icon" name="triangle-exclamation"></wa-icon>
-                            {{ error }}
+                            {{ $t(error) }}
                         </wa-callout>
                         <template v-if="subtree">
                             <div v-if="parentNode" class="orch-parent">
                                 <wa-icon name="arrow-turn-up" class="orch-parent-icon"></wa-icon>
-                                <span class="orch-parent-label">Spawned by</span>
+                                <span class="orch-parent-label">{{ $t("Spawned by") }}</span>
                                 <router-link v-if="parentRoute" :to="parentRoute" class="orch-parent-link">{{ parentTitle }}</router-link>
                                 <template v-else>
                                     <span class="orch-parent-link">{{ parentTitle }}</span>
-                                    <wa-icon name="eye-slash" label="Hidden session" title="Hidden session"></wa-icon>
+                                    <wa-icon name="eye-slash" :label="$t(&quot;Hidden session&quot;)" :title="$t(&quot;Hidden session&quot;)"></wa-icon>
                                 </template>
                             </div>
                             <div v-if="showHiddenNote" class="orch-note">
-                                Sessions marked <wa-icon name="eye-slash" class="orch-note-icon"></wa-icon> were created hidden by their parent and can't be opened.
+                                {{ $t("Sessions marked") }} <wa-icon name="eye-slash" class="orch-note-icon"></wa-icon> {{ $t("were created hidden by their parent and can't be opened.") }}
                             </div>
                             <div ref="sessionsTreeEl" class="orch-tree">
                                 <OrchestrationNode
@@ -544,12 +546,12 @@ onUnmounted(() => {
                             </div>
                             <div v-if="!subtree.children.length" class="orch-empty-line">
                                 <wa-icon name="diagram-project"></wa-icon>
-                                This session has not spawned any session.
+                                {{ $t("This session has not spawned any session.") }}
                             </div>
                         </template>
                         <div v-else-if="topology" class="orch-state orch-state-empty">
                             <wa-icon name="sitemap"></wa-icon>
-                            <span>No orchestration data.</span>
+                            <span>{{ $t("No orchestration data.") }}</span>
                         </div>
                     </template>
                 </div>
@@ -561,7 +563,7 @@ onUnmounted(() => {
                         size="small"
                         variant="neutral"
                         appearance="filled"
-                        aria-label="Scroll to top"
+                        :aria-label="$t(&quot;Scroll to top&quot;)"
                         @click="scrollListTo(false)"
                     >
                         <wa-icon name="arrow-up"></wa-icon>
@@ -571,7 +573,7 @@ onUnmounted(() => {
                     v-if="hasOverflow"
                     :for="scrollTopButtonId"
                     placement="left"
-                >Scroll to top</AppTooltip>
+                >{{ $t("Scroll to top") }}</AppTooltip>
             </div>
         </div>
     </div>

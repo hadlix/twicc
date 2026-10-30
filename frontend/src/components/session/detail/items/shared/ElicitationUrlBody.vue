@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../../../../i18n/index.js'
+
 // ElicitationUrlBody.vue (shared) — body sub-component for an
 // ``elicitationUrl`` pending request (request_type ``ask_user_question``,
 // mode ``url``) — an MCP server asking the user to open an external page
@@ -34,7 +36,7 @@ const openLinkId = useId()
 
 // Wire params.
 const input = computed(() => props.pendingRequest.tool_input || {})
-const serverName = computed(() => input.value.serverName || 'unknown server')
+const serverName = computed(() => input.value.serverName || $t("unknown server"))
 const message = computed(() => input.value.message || '')
 const url = computed(() => input.value.url || '')
 
@@ -52,7 +54,7 @@ const isValidUrl = computed(() => {
 
 function copyUrl() {
     navigator.clipboard.writeText(url.value)
-    toast.success('URL copied to clipboard', { duration: 2000 })
+    toast.success($t("URL copied to clipboard"), { duration: 2000 })
 }
 
 function done() {
@@ -90,7 +92,7 @@ usePendingRequestSubmitShortcut((e) => {
     <div v-scroll-shadow class="elicitation-url-body">
         <div class="elicit-section">
             <div class="elicit-summary">
-                <span class="elicit-summary-label">MCP URL request</span>
+                <span class="elicit-summary-label">{{ $t("MCP URL request") }}</span>
                 <wa-badge variant="neutral">{{ serverName }}</wa-badge>
             </div>
             <div v-if="message" class="elicit-reason">
@@ -108,7 +110,7 @@ usePendingRequestSubmitShortcut((e) => {
                     {{ url }}
                 </code>
                 <code v-else class="elicit-summary-code elicitation-url-code elicitation-url-inert">{{ url }}</code>
-                <AppTooltip v-if="isValidUrl" :for="copyUrlId">Click to copy</AppTooltip>
+                <AppTooltip v-if="isValidUrl" :for="copyUrlId">{{ $t("Click to copy") }}</AppTooltip>
 
                 <wa-button
                     v-if="isValidUrl"
@@ -121,9 +123,9 @@ usePendingRequestSubmitShortcut((e) => {
                     size="small"
                 >
                     <wa-icon slot="start" name="up-right-from-square" variant="classic"></wa-icon>
-                    Open link
+                    {{ $t("Open link") }}
                 </wa-button>
-                <AppTooltip v-if="isValidUrl" :for="openLinkId">Open this URL in a new tab.</AppTooltip>
+                <AppTooltip v-if="isValidUrl" :for="openLinkId">{{ $t("Open this URL in a new tab.") }}</AppTooltip>
             </div>
         </div>
 
@@ -137,9 +139,9 @@ usePendingRequestSubmitShortcut((e) => {
                 @click="cancel"
             >
                 <wa-icon slot="start" name="ban" variant="classic"></wa-icon>
-                Cancel
+                {{ $t("Cancel") }}
             </wa-button>
-            <AppTooltip :for="cancelButtonId">Dismiss without answering.</AppTooltip>
+            <AppTooltip :for="cancelButtonId">{{ $t("Dismiss without answering.") }}</AppTooltip>
 
             <wa-button
                 :id="declineButtonId"
@@ -150,9 +152,9 @@ usePendingRequestSubmitShortcut((e) => {
                 @click="decline"
             >
                 <wa-icon slot="start" name="xmark" variant="classic"></wa-icon>
-                Decline
+                {{ $t("Decline") }}
             </wa-button>
-            <AppTooltip :for="declineButtonId">Refuse this request.</AppTooltip>
+            <AppTooltip :for="declineButtonId">{{ $t("Refuse this request.") }}</AppTooltip>
 
             <wa-button
                 :id="doneButtonId"
@@ -164,9 +166,9 @@ usePendingRequestSubmitShortcut((e) => {
                 @click="done"
             >
                 <wa-icon slot="start" name="check" variant="classic"></wa-icon>
-                Done
+                {{ $t("Done") }}
             </wa-button>
-            <AppTooltip :for="doneButtonId">Confirm you completed the flow in the opened page.</AppTooltip>
+            <AppTooltip :for="doneButtonId">{{ $t("Confirm you completed the flow in the opened page.") }}</AppTooltip>
         </div>
     </div>
 </template>

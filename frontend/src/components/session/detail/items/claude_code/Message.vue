@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../../../../i18n/index.js'
+
 import { computed } from 'vue'
 import { SYNTHETIC_ITEM } from '../../../../../constants'
 import { useDataStore } from '../../../../../stores/data'
@@ -151,7 +153,7 @@ const displayItems = computed(() => {
 </script>
 
 <template>
-    <WorkingAssistantMessage v-if="isStartingAssistantMessage" label="starting" process-state="starting" :session-id="sessionId" />
+    <WorkingAssistantMessage v-if="isStartingAssistantMessage" :label="$t(&quot;starting&quot;)" process-state="starting" :session-id="sessionId" />
     <WorkingAssistantMessage v-else-if="isWorkingAssistantMessage" :label="data.label || null" :tools="data.tools || []" :last-started-tool-id="data.lastStartedToolId || null" :last-tool-visible="data.lastToolVisible !== false" :session-id="sessionId" />
     <template v-else>
         <AttachmentStrip

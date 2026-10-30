@@ -1,4 +1,7 @@
 <script setup>
+import { locale } from '../../i18n/index.js'
+import { t as $t } from '../../i18n/index.js'
+
 // HelpDialog.vue — the single, app-wide help dialog. Mounted once at the
 // App root; it watches the help store's `currentHelpKey` and renders the
 // matching `help/<key>.md` body. Opened either automatically by a code
@@ -33,13 +36,16 @@ const title = computed(() => meta.value?.title || '')
 // The switch visibility is a per-call decision carried by the store.
 const showSwitch = computed(() => helpStore.currentHelpShowSwitch)
 
+let loadVersion = 0
 async function loadBody(key) {
+    const version = ++loadVersion
+    const cacheKey = `${locale.value}:${key}`
     // In dev, always re-fetch so on-disk edits to a help .md show on every
     // open. This dialog is a singleton, so its bodyCache would otherwise
     // persist a page's HTML for the whole app session (unlike tip toasts,
     // which re-mount per toast). In prod the cache avoids redundant fetches.
-    if (!import.meta.env.DEV && bodyCache.has(key)) {
-        bodyHtml.value = bodyCache.get(key)
+    if (!import.meta.env.DEV && bodyCache.has(cacheKey)) {
+        bodyHtml.value = bodyCache.get(cacheKey)
         loading.value = false
         errored.value = false
         return
@@ -47,29 +53,32 @@ async function loadBody(key) {
     loading.value = true
     errored.value = false
     try {
-        const r = await fetch(resolvePublicAssetUrl(`help/${key}.md`))
-        if (!r.ok) throw new Error(`HTTP ${r.status}`)
+        const r = await fetch(resolvePublicAssetUrl(`help/${locale.value === 'fr' ? 'fr/' : ''}${key}.md`))
+        if (!r.ok) throw new Error($t("HTTP {p0}", { p0: (r.status) }))
         const raw = await r.text()
+        if (version !== loadVersion) return
         const body = stripFrontMatter(raw)
         // Help pages are authored with soft line wraps for source
         // readability; render with CommonMark paragraph behavior (soft wrap
         // -> space) rather than the chat-style breaks: true.
         const html = await renderMarkdown(body, { softBreakAsSpace: true })
+        if (version !== loadVersion) return
         const finalHtml = rewriteAssetUrls(html, { folder: 'help' })
-        bodyCache.set(key, finalHtml)
+        bodyCache.set(cacheKey, finalHtml)
         bodyHtml.value = finalHtml
     } catch (e) {
+        if (version !== loadVersion) return
         console.error('Failed to load help', key, e)
         errored.value = true
     } finally {
-        loading.value = false
+        if (version === loadVersion) loading.value = false
     }
 }
 
 // Open / swap the dialog when the active help key changes. Swapping in
 // place (e.g. following a cross-link) keeps the dialog open; clearing the
 // key (close) leaves it closed.
-watch(currentKey, async (key) => {
+watch([currentKey, locale], async ([key]) => {
     if (!key) return
     dontShowAgain.value = true
     await loadBody(key)
@@ -101,8 +110,8 @@ function onAfterHide(event) {
         class="help-dialog"
         @wa-after-hide="onAfterHide"
     >
-        <div v-if="loading" class="help-loading">Loading…</div>
-        <div v-else-if="errored" class="help-error">Failed to load help content.</div>
+        <div v-if="loading" class="help-loading">{{ $t("Loading…") }}</div>
+        <div v-else-if="errored" class="help-error">{{ $t("Failed to load help content.") }}</div>
         <div v-else class="help-body" v-html="bodyHtml" @click="handleHelpLinkClick" />
 
         <div slot="footer" class="help-footer">
@@ -112,9 +121,9 @@ function onAfterHide(event) {
                 @change="dontShowAgain = $event.target.checked"
                 size="small"
             >
-                Don't show this again
+                {{ $t("Don't show this again") }}
             </wa-switch>
-            <wa-button variant="brand" @click="closeDialog">Close</wa-button>
+            <wa-button variant="brand" @click="closeDialog">{{ $t("Close") }}</wa-button>
         </div>
     </wa-dialog>
 </template>

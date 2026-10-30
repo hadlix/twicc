@@ -1,3 +1,5 @@
+
+import { t as $t } from '../i18n/index.js'
 // frontend/src/utils/notificationSounds.js
 // Audio notification sounds synthesized via Web Audio API
 // Adapted from claude-code-viewer's notification system
@@ -24,17 +26,17 @@ export const NOTIFICATION_SOUNDS = {
  * Display labels for each sound type (used in settings UI).
  */
 export const NOTIFICATION_SOUND_LABELS = {
-    [NOTIFICATION_SOUNDS.NONE]: 'No sound',
-    [NOTIFICATION_SOUNDS.BEEP]: 'Beep',
-    [NOTIFICATION_SOUNDS.CHIME]: 'Chime',
-    [NOTIFICATION_SOUNDS.PING]: 'Ping',
-    [NOTIFICATION_SOUNDS.POP]: 'Pop',
-    [NOTIFICATION_SOUNDS.BLOOP]: 'Bloop',
-    [NOTIFICATION_SOUNDS.TINK]: 'Tink',
-    [NOTIFICATION_SOUNDS.KNOCK]: 'Knock',
-    [NOTIFICATION_SOUNDS.SWEEP]: 'Sweep',
-    [NOTIFICATION_SOUNDS.SIGNAL]: 'Signal',
-    [NOTIFICATION_SOUNDS.RIPPLE]: 'Ripple',
+    get [NOTIFICATION_SOUNDS.NONE]() { return $t("No sound") },
+    get [NOTIFICATION_SOUNDS.BEEP]() { return $t("Beep") },
+    get [NOTIFICATION_SOUNDS.CHIME]() { return $t("Chime") },
+    get [NOTIFICATION_SOUNDS.PING]() { return $t("Ping") },
+    get [NOTIFICATION_SOUNDS.POP]() { return $t("Pop") },
+    get [NOTIFICATION_SOUNDS.BLOOP]() { return $t("Bloop") },
+    get [NOTIFICATION_SOUNDS.TINK]() { return $t("Tink") },
+    get [NOTIFICATION_SOUNDS.KNOCK]() { return $t("Knock") },
+    get [NOTIFICATION_SOUNDS.SWEEP]() { return $t("Sweep") },
+    get [NOTIFICATION_SOUNDS.SIGNAL]() { return $t("Signal") },
+    get [NOTIFICATION_SOUNDS.RIPPLE]() { return $t("Ripple") },
 }
 
 /**

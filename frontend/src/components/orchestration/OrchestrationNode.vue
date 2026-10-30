@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // One session card of the Orchestration tree, rendered recursively. The card: title (link) + process-state
 // icon, agent-settings summary + project, time bar, dates/duration/turns/context with the cost at the right,
 // annotations. The left border carries the state bucket. Hidden sessions are dimmed and not linked.
@@ -39,11 +41,11 @@ const showCosts = visibleComputed(() => settingsStore.areCostsShown)
 // Process-state vocabulary from the topology payload. ``dead`` shows NO icon (a stopped session is the
 // common, expected state). The label stays as the tooltip and accessible name; no text is drawn.
 const PROCESS_STATUS = {
-    starting:            { label: 'Starting',        icon: 'hourglass-start', color: 'var(--wa-color-warning-60)' },
-    assistant_turn:      { label: 'Assistant turn',  icon: 'robot',           color: 'var(--wa-color-blue-60)',    pulse: 'work' },
-    awaiting_user_input: { label: 'Awaiting input',  icon: 'hand',            color: 'var(--wa-color-warning-60)', pulse: 'pending' },
-    user_turn:           { label: 'User turn',       icon: 'check',           color: 'var(--wa-color-success-60)' },
-    dead:                { label: 'Stopped',         icon: null,              color: 'var(--wa-color-neutral-50)' },
+    starting:            { get label() { return $t("Starting") },        icon: 'hourglass-start', color: 'var(--wa-color-warning-60)' },
+    assistant_turn:      { get label() { return $t("Assistant turn") },  icon: 'robot',           color: 'var(--wa-color-blue-60)',    pulse: 'work' },
+    awaiting_user_input: { get label() { return $t("Awaiting input") },  icon: 'hand',            color: 'var(--wa-color-warning-60)', pulse: 'pending' },
+    user_turn:           { get label() { return $t("User turn") },       icon: 'check',           color: 'var(--wa-color-success-60)' },
+    dead:                { get label() { return $t("Stopped") },         icon: null,              color: 'var(--wa-color-neutral-50)' },
 }
 
 const nodeData = visibleComputed(() => nodesById.value[props.node.id] ?? null)
@@ -158,7 +160,7 @@ const contextUsageTooltip = visibleComputed(() => {
     const max = contextMax.value
     if (max == null) return null
     const label = providerHelpers.value?.getChoiceLabel('context_max', max) || `${Math.round(max / 1000)}K`
-    return `Context window usage (${label} max)`
+    return $t("Context window usage ({p0} max)", { p0: (label) })
 })
 const contextUsageColor = visibleComputed(() => {
     const pct = contextUsagePercentage.value
@@ -191,8 +193,8 @@ const expanded = ref(true)
                     <wa-icon
                         v-if="isHidden"
                         name="eye-slash"
-                        label="Hidden session"
-                        title="Hidden session"
+                        :label="$t(&quot;Hidden session&quot;)"
+                        :title="$t(&quot;Hidden session&quot;)"
                         class="orch-hidden-icon"
                     ></wa-icon>
                     <wa-icon
@@ -204,14 +206,14 @@ const expanded = ref(true)
                         class="orch-status-icon"
                         :class="status.pulse === 'work' ? 'robot-working' : (status.pulse ? `orch-status-icon--pulse-${status.pulse}` : null)"
                     ></wa-icon>
-                    <span v-if="isCurrent" class="orch-current-tag">current</span>
+                    <span v-if="isCurrent" class="orch-current-tag">{{ $t("current") }}</span>
                 </span>
                 <button
                     v-if="hasChildren"
                     type="button"
                     class="ocard-toggle"
                     :aria-expanded="expanded"
-                    :aria-label="expanded ? 'Collapse' : 'Expand'"
+                    :aria-label="expanded ? $t(&quot;Collapse&quot;) : $t(&quot;Expand&quot;)"
                     @click="expanded = !expanded"
                 >
                     <span>{{ descendantCount }}</span>
@@ -258,7 +260,7 @@ const expanded = ref(true)
                 </span>
                 <span v-if="showCosts" class="orch-cost">
                     <CostDisplay :cost="ownCost" />
-                    <span v-if="hasChildren" class="orch-cost-sub" title="Cumulative cost including spawned children">
+                    <span v-if="hasChildren" class="orch-cost-sub" :title="$t(&quot;Cumulative cost including spawned children&quot;)">
                         Σ <CostDisplay :cost="cumulativeCost" />
                     </span>
                 </span>

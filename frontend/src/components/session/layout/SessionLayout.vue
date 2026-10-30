@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../../i18n/index.js'
+
 // Dumb render of the dockable layout from the resolver's renderDescription. No layout math
 // here. The CENTER is provided by the parent as the default slot (the existing wa-tab-group);
 // this component only positions it and adds dock regions / gutters / overlay around it.
@@ -752,7 +754,7 @@ onBeforeUnmount(() => {
                 class="layout-splitter"
                 :class="[`axis-${s.axis}`, `kind-${s.kind}`, { dragging: draggingId === s.id }]"
                 :style="splitterStyle(s)"
-                title="Drag to resize · double-click to maximize"
+                :title="$t(&quot;Drag to resize · double-click to maximize&quot;)"
                 @pointerdown="onSplitterDown($event, s)"
             >
                 <!-- Touch affordance (coarse pointers only): see .panel-grip in styles/surfaces.css. -->

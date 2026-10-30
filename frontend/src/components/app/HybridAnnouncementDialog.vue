@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // App-load announcement for the 15 June 2026 billing change / hybrid mode.
 // Auto-opens once for users who haven't seen the explainer yet
 // (claudeHybridExplainerSeen === false). Reuses the shared HybridModeExplainer
@@ -65,14 +67,12 @@ function onAfterHide(event) {
     <wa-dialog
         ref="dialogRef"
         class="hybrid-announcement-dialog"
-        label="An important change to Claude usage"
+        :label="$t(&quot;An important change to Claude usage&quot;)"
         style="--width: min(40rem, calc(100vw - 2rem))"
         @wa-after-hide="onAfterHide"
     >
         <p class="announcement-intro">
-            Anthropic has changed how programmatic Claude usage is billed, and it
-            affects what your TwiCC sessions cost. <strong>Hybrid mode</strong> is how
-            you keep them on your Pro/Max plan — here's what it is and why it matters:
+            {{ $t("Anthropic has changed how programmatic Claude usage is billed, and it affects what your TwiCC sessions cost.") }} <strong>{{ $t("Hybrid mode") }}</strong> {{ $t("is how you keep them on your Pro/Max plan — here's what it is and why it matters:") }}
         </p>
 
         <HybridModeExplainer :open="true" />
@@ -82,8 +82,8 @@ function onAfterHide(event) {
             class="announcement-switch"
             :checked="dontShowAgain"
             @change="dontShowAgain = $event.target.checked"
-        >Don't show this again</wa-switch>
-        <wa-button slot="footer" variant="brand" @click="onOk">OK</wa-button>
+        >{{ $t("Don't show this again") }}</wa-switch>
+        <wa-button slot="footer" variant="brand" @click="onOk">{{ $t("OK") }}</wa-button>
     </wa-dialog>
 </template>
 

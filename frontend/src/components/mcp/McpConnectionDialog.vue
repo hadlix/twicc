@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 /**
  * McpConnectionDialog - review a pending external MCP request, or inspect and
  * rename an existing connection.
@@ -56,14 +58,14 @@ const name = ref(initialName())
 const code = ref('')
 const busy = ref(false)
 const formId = 'mcp-connection-detail-form'
-const title = computed(() => (props.review ? 'Review MCP connection' : 'MCP connection details'))
-const status = computed(() => (props.entry.revoked ? 'Revoked' : props.entry.active ? 'Active' : 'Awaiting OAuth completion'))
+const title = computed(() => (props.review ? $t("Review MCP connection") : $t("MCP connection details")))
+const status = computed(() => (props.entry.revoked ? $t("Revoked") : props.entry.active ? $t("Active") : $t("Awaiting OAuth completion")))
 // Say where a prefilled name comes from, so the owner reads it as a claim to
 // confirm rather than as a name TwiCC established.
 const nameHint = computed(() =>
     props.review && props.entry.client_name
-        ? 'Used in message headers. The client declared this name — confirm, change, or clear it.'
-        : 'Used in message headers. Without a name, they read "message via external MCP".',
+        ? $t("Used in message headers. The client declared this name — confirm, change, or clear it.")
+        : $t("Used in message headers. Without a name, they read \"message via external MCP\"."),
 )
 
 function moment(iso) {
@@ -101,11 +103,11 @@ async function act(action) {
     >
         <div slot="label" class="mcp-dialog-title">
             <span>{{ title }}</span>
-            <HelpFeatureLink help-key="external-mcp" label="What is external MCP?" />
+            <HelpFeatureLink help-key="external-mcp" :label="$t(&quot;What is external MCP?&quot;)" />
         </div>
 
         <form :id="formId" class="mcp-detail" @submit.prevent="act(review ? 'approve' : 'rename')">
-            <div class="mcp-detail__client">{{ entry.client_name || 'External MCP client' }}</div>
+            <div class="mcp-detail__client">{{ entry.client_name || $t("External MCP client") }}</div>
 
             <wa-callout v-if="store.error || store.loadError" variant="danger" size="small">
                 {{ store.error || store.loadError }}
@@ -113,55 +115,54 @@ async function act(action) {
 
             <template v-if="review">
                 <wa-callout variant="warning" size="small">
-                    <strong>Full access.</strong>
-                    This connection can read and change your TwiCC data, send messages,
-                    and manage sessions and shares.
+                    <strong>{{ $t("Full access.") }}</strong>
+                    {{ $t("This connection can read and change your TwiCC data, send messages, and manage sessions and shares.") }}
                 </wa-callout>
                 <wa-input
                     ref="firstInput" class="mcp-detail__code"
-                    label="Verification code from the connecting browser"
+                    :label="$t(&quot;Verification code from the connecting browser&quot;)"
                     :value="code" @input="code = $event.target.value"
                     required maxlength="8"
                     autocomplete="off" autocapitalize="characters" spellcheck="false"
                 ></wa-input>
                 <wa-input
-                    label="Connection name (optional)" placeholder="ChatGPT" :hint="nameHint"
+                    :label="$t(&quot;Connection name (optional)&quot;)" :placeholder="$t(&quot;ChatGPT&quot;)" :hint="nameHint"
                     :value="name" @input="name = $event.target.value" :maxlength="NAME_MAX_CHARS"
                 ></wa-input>
             </template>
             <wa-input
                 v-else ref="firstInput"
-                label="Connection name (optional)" placeholder="External MCP" :hint="nameHint"
+                :label="$t(&quot;Connection name (optional)&quot;)" :placeholder="$t(&quot;External MCP&quot;)" :hint="nameHint"
                 :value="name" @input="name = $event.target.value" :maxlength="NAME_MAX_CHARS"
                 :disabled="entry.revoked"
             ></wa-input>
 
             <dl class="mcp-detail__facts">
                 <template v-if="!review">
-                    <dt>Status</dt><dd>{{ status }}</dd>
-                    <dt>Created</dt><dd>{{ moment(entry.created_at) }}</dd>
-                    <dt>Last used</dt><dd>{{ entry.last_used_at ? moment(entry.last_used_at) : 'Not yet used' }}</dd>
+                    <dt>{{ $t("Status") }}</dt><dd>{{ status }}</dd>
+                    <dt>{{ $t("Created") }}</dt><dd>{{ moment(entry.created_at) }}</dd>
+                    <dt>{{ $t("Last used") }}</dt><dd>{{ entry.last_used_at ? moment(entry.last_used_at) : $t("Not yet used") }}</dd>
                 </template>
-                <dt>Client ID</dt><dd class="mcp-detail__identifier">{{ entry.client_id }}</dd>
+                <dt>{{ $t("Client ID") }}</dt><dd class="mcp-detail__identifier">{{ entry.client_id }}</dd>
                 <template v-if="review">
-                    <dt>Redirect URL</dt><dd class="mcp-detail__identifier">{{ entry.redirect_uri }}</dd>
-                    <dt>Requested</dt><dd>{{ moment(entry.created_at) }}</dd>
-                    <dt>Expires</dt><dd>{{ moment(entry.expires_at) }}</dd>
+                    <dt>{{ $t("Redirect URL") }}</dt><dd class="mcp-detail__identifier">{{ entry.redirect_uri }}</dd>
+                    <dt>{{ $t("Requested") }}</dt><dd>{{ moment(entry.created_at) }}</dd>
+                    <dt>{{ $t("Expires") }}</dt><dd>{{ moment(entry.expires_at) }}</dd>
                 </template>
             </dl>
         </form>
 
         <div slot="footer" class="mcp-detail__actions">
-            <wa-button variant="neutral" appearance="outlined" @click="visible = false">Close</wa-button>
+            <wa-button variant="neutral" appearance="outlined" @click="visible = false">{{ $t("Close") }}</wa-button>
             <wa-button v-if="review" variant="danger" appearance="outlined" :disabled="busy" @click="act('refuse')">
-                Refuse
+                {{ $t("Refuse") }}
             </wa-button>
             <wa-button
                 v-else-if="!entry.revoked"
                 variant="danger" appearance="outlined" :disabled="busy" @click="act('revoke')"
-            >Revoke</wa-button>
+            >{{ $t("Revoke") }}</wa-button>
             <wa-button v-if="review || !entry.revoked" ref="submitButton" type="submit" variant="brand" :disabled="busy">
-                {{ review ? 'Authorize' : 'Apply' }}
+                {{ review ? $t("Authorize") : $t("Apply") }}
             </wa-button>
         </div>
     </wa-dialog>

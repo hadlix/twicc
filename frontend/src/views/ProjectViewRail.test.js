@@ -90,7 +90,7 @@ test('rail actions, unconditional floating anchor, and focus transfers are conne
     const button = source.match(/<button[^>]*id="sidebar-toggle-button"[^>]*>/)?.[0]
     assert.ok(button)
     assert.doesNotMatch(button, /v-if|v-show/)
-    for (const attr of ['ref="floatingToggleEl"', 'class="sidebar-toggle rail-button"', ':aria-label="OPEN_SIDEBAR_LABEL"', '@click="handleFloatingToggle"']) assert.ok(button.includes(attr), attr)
+    for (const attr of ['ref="floatingToggleEl"', 'class="sidebar-toggle rail-button"', ':aria-label="$t(OPEN_SIDEBAR_LABEL)"', '@click="handleFloatingToggle"']) assert.ok(button.includes(attr), attr)
     assert.match(source, /<wa-icon name="angles-right"><\/wa-icon>\s*<PeerInboxBadge v-if="peersStore.inboxCount > 0" :count="peersStore.inboxCount" \/>\s*<\/button>\s*<AppTooltip for="sidebar-toggle-button" placement="top">/)
     assert.ok(source.indexOf('<SidebarRail') < source.indexOf('<button', source.indexOf('<SidebarRail')))
     assert.ok(source.indexOf('placement="top">{{ OPEN_SIDEBAR_LABEL }}') < source.indexOf('<wa-split-panel'))

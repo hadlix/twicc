@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // The global "Shared links" screen. Rather than one flat list (where an
 // unlabelled link gives no clue what it points at), links are grouped by the
 // object they share — one session or one artifact — each group headed by its
@@ -32,7 +34,7 @@ const groups = computed(() => {
                 key,
                 kind: s.kind,
                 icon: isArtifact ? ARTIFACT_ICON : 'comment',
-                kindLabel: isArtifact ? 'Artifact' : 'Session',
+                kindLabel: isArtifact ? $t("Artifact") : $t("Session"),
                 title: (isArtifact ? s.target_name : s.target_title) || '',
                 shares: [],
             }
@@ -47,15 +49,15 @@ function onHide(e) { if (e.target === dialogRef.value) emit('close') }
 </script>
 
 <template>
-    <wa-dialog ref="dialogRef" :open="open" label="Shared links"
+    <wa-dialog ref="dialogRef" :open="open" :label="$t(&quot;Shared links&quot;)"
                style="--width: min(720px, calc(100vw - 2rem))" @wa-hide="onHide">
-        <p v-if="!groups.length" class="sm-empty muted">No share links yet.</p>
+        <p v-if="!groups.length" class="sm-empty muted">{{ $t("No share links yet.") }}</p>
         <div v-for="g in groups" :key="g.key" class="sm-group">
             <div class="sm-group__header">
                 <wa-icon :name="g.icon" class="sm-group__icon"></wa-icon>
                 <span class="sm-group__kind">{{ g.kindLabel }}</span>
-                <span class="sm-group__title">{{ g.title || (g.kind === 'artifact' ? 'Unnamed artifact' : 'Untitled session') }}</span>
-                <span class="sm-group__count">{{ g.shares.length }} link{{ g.shares.length > 1 ? 's' : '' }}</span>
+                <span class="sm-group__title">{{ g.title || (g.kind === 'artifact' ? $t("Unnamed artifact") : $t("Untitled session")) }}</span>
+                <span class="sm-group__count">{{ g.shares.length }} {{ $t("link") }}{{ g.shares.length > 1 ? $t("s") : '' }}</span>
             </div>
             <ShareListPanel :shares="g.shares" @edit="editing = $event" />
         </div>
@@ -64,7 +66,7 @@ function onHide(e) { if (e.target === dialogRef.value) emit('close') }
                      :allowed-hosts="editing.allowed_hosts || {}"
                      :default-title="editing.target_title || editing.target_name || ''"
                      :edit="editing" @close="editing = null" />
-        <div slot="footer" class="dialog-footer"><wa-button @click="emit('close')">Close</wa-button></div>
+        <div slot="footer" class="dialog-footer"><wa-button @click="emit('close')">{{ $t("Close") }}</wa-button></div>
     </wa-dialog>
 </template>
 

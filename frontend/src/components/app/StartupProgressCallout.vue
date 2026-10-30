@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 import { computed } from 'vue'
 import { useDataStore } from '../../stores/data'
 
@@ -69,34 +71,34 @@ const searchIndexingPercent = computed(() => {
                 <!-- Phase 1: Syncing sessions from disk -->
                 <div class="progress-phase">
                     <div class="phase-header">
-                        <span class="phase-label">Syncing sessions data from disk</span>
+                        <span class="phase-label">{{ $t("Syncing sessions data from disk") }}</span>
                         <span v-if="syncProgress" class="phase-counter">
                             {{ syncProgress.current }}/{{ syncProgress.total }}
                         </span>
                     </div>
                     <wa-progress-bar
                         :value="syncPercent"
-                        :label="`Syncing sessions: ${syncPercent}%`"
+                        :label="$t(&quot;Syncing sessions: {p0}%&quot;, { p0: (syncPercent) })"
                     ></wa-progress-bar>
                     <p v-if="isSyncActive" class="phase-hint">
-                        Sessions will become available once indexing begins in the next step.
+                        {{ $t("Sessions will become available once indexing begins in the next step.") }}
                     </p>
                 </div>
 
                 <!-- Phase 2: Making sessions usable -->
                 <div class="progress-phase">
                     <div class="phase-header">
-                        <span class="phase-label">Indexing sessions data</span>
+                        <span class="phase-label">{{ $t("Indexing sessions data") }}</span>
                         <span v-if="computeProgress" class="phase-counter">
                             {{ computeProgress.current }}/{{ computeProgress.total }}
                         </span>
                     </div>
                     <wa-progress-bar
                         :value="computePercent"
-                        :label="`Indexing sessions: ${computePercent}%`"
+                        :label="$t(&quot;Indexing sessions: {p0}%&quot;, { p0: (computePercent) })"
                     ></wa-progress-bar>
                     <p v-if="isComputeActive" class="phase-hint">
-                        Most recent sessions are indexed first and already available to browse.
+                        {{ $t("Most recent sessions are indexed first and already available to browse.") }}
                     </p>
                     <p
                         v-for="detail in (computeProgress?.details || [])"
@@ -110,17 +112,17 @@ const searchIndexingPercent = computed(() => {
                 <!-- Phase 3: Building search index -->
                 <div class="progress-phase">
                     <div class="phase-header">
-                        <span class="phase-label">Building search index</span>
+                        <span class="phase-label">{{ $t("Building search index") }}</span>
                         <span v-if="searchIndexingProgress" class="phase-counter">
                             {{ searchIndexingProgress.current }}/{{ searchIndexingProgress.total }}
                         </span>
                     </div>
                     <wa-progress-bar
                         :value="searchIndexingPercent"
-                        :label="`Building search index: ${searchIndexingPercent}%`"
+                        :label="$t(&quot;Building search index: {p0}%&quot;, { p0: (searchIndexingPercent) })"
                     ></wa-progress-bar>
                     <p v-if="isSearchIndexingActive" class="phase-hint">
-                        Search is available now — results will become more complete as indexing progresses.
+                        {{ $t("Search is available now — results will become more complete as indexing progresses.") }}
                     </p>
                 </div>
             </div>

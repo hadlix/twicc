@@ -1,7 +1,11 @@
+import '../i18n/index.js'
+import '@awesome.me/webawesome/dist/translations/fr.js'
 // Entry for the read-only shared-session viewer (design §8). Mounts a minimal
 // Pinia app over the reused transcript tree; the store imports are aliased to
 // shims (vite.config.share.js), so no SPA/auth/router/WS code is pulled in.
 import { createApp } from 'vue'
+import { watchEffect } from 'vue'
+import { t } from '../i18n/index.js'
 import { createPinia } from 'pinia'
 import { initShareTheme } from './theme'
 import { initReducedMotion } from '../utils/reducedMotion'
@@ -62,6 +66,12 @@ import { recordShareView } from '../share-recent/recordView'  // 3.19
 
 const el = document.getElementById('twicc-share-data')
 const data = el ? JSON.parse(el.textContent) : {}
+watchEffect(() => {
+    const label = data.mode === 'recent' ? t('Shared with you')
+        : t(data.meta?.kind === 'artifact' ? 'Shared artifact' : 'Shared session')
+    const title = data.mode === 'recent' ? '' : (data.meta?.title || '').trim()
+    document.title = title ? `TwiCC - ${label} - ${title}` : `TwiCC - ${label}`
+})
 
 let app
 if (data.mode === 'recent') {

@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 /**
  * CommandPickerPopup - A popup for selecting a provider command triggered by
  * an activation character (e.g. ``/`` for Claude Code; Codex will eventually
@@ -93,12 +95,12 @@ const PAGE_SIZE = 10
 function commandTag(cmd) {
     const scope = cmd.is_global ? 'global' : 'project'
     if (cmd.is_workflow) {
-        if (cmd.is_builtin) return 'built-in workflow'
-        if (cmd.plugin_name) return `${cmd.plugin_name} plugin workflow, ${scope}`
-        return `workflow, ${scope}`
+        if (cmd.is_builtin) return $t("built-in workflow")
+        if (cmd.plugin_name) return $t("{p0} plugin workflow, {p1}", { p0: (cmd.plugin_name), p1: (scope) })
+        return $t("workflow, {p0}", { p0: (scope) })
     }
     if (cmd.is_builtin) return 'built-in'
-    if (cmd.plugin_name) return `${cmd.plugin_name} plugin, ${scope}`
+    if (cmd.plugin_name) return $t("{p0} plugin, {p1}", { p0: (cmd.plugin_name), p1: (scope) })
     return scope
 }
 
@@ -140,7 +142,7 @@ async function fetchCommands() {
         const res = await apiFetch(`/api/projects/${props.projectId}/commands/?provider=${encodeURIComponent(props.provider)}&activation_char=${encodeURIComponent(props.activationChar)}`)
         if (!res.ok) {
             const data = await res.json()
-            error.value = data.error || `HTTP ${res.status}`
+            error.value = data.error || $t("HTTP {p0}", { p0: (res.status) })
             allCommands.value = []
             return
         }
@@ -433,7 +435,7 @@ defineExpose({ open, close, isOpen })
                 <wa-input
                     ref="searchInputRef"
                     :value="searchQuery"
-                    placeholder="Filter commands..."
+                    :placeholder="$t(&quot;Filter commands...&quot;)"
                     size="small"
                     with-clear
                     class="picker-search-input"
@@ -453,14 +455,14 @@ defineExpose({ open, close, isOpen })
             >
                 <span ref="listInkRef" class="glide-ink" aria-hidden="true"></span>
                 <template v-if="loading">
-                    <div class="picker-status">Loading...</div>
+                    <div class="picker-status">{{ $t('Loading...') }}</div>
                 </template>
                 <template v-else-if="error">
-                    <div class="picker-status picker-error">{{ error }}</div>
+                    <div class="picker-status picker-error">{{ $t(error) }}</div>
                 </template>
                 <template v-else-if="filteredCommands.length === 0">
                     <div class="picker-status">
-                        {{ searchQuery ? 'No matching commands' : 'No commands available' }}
+                        {{ searchQuery ? $t("No matching commands") : $t("No commands available") }}
                     </div>
                 </template>
                 <template v-else>

@@ -1,3 +1,5 @@
+
+import { t as $t } from '../i18n/index.js'
 import { pluralize } from './backgroundWork.js'
 
 export function getProcessStateNotificationEffects(msg, previousState, options) {
@@ -40,9 +42,9 @@ export function getProcessStateNotificationEffects(msg, previousState, options) 
 export function getUserTurnNotificationText({ providerLabel, backgroundShells = 0, ephemeral = false }) {
     const shells = Number.isFinite(backgroundShells) && backgroundShells > 0 ? backgroundShells : 0
     let title
-    if (ephemeral) title = 'Ephemeral session finished'
-    else if (shells) title = `${providerLabel} finished its turn`
-    else title = `${providerLabel} finished working`
-    const detail = shells ? `${pluralize(shells, 'background shell')} still running` : null
+    if (ephemeral) title = $t("Ephemeral session finished")
+    else if (shells) title = $t("{p0} finished its turn", { p0: (providerLabel) })
+    else title = $t("{p0} finished working", { p0: (providerLabel) })
+    const detail = shells ? $t("{p0} still running", { p0: (pluralize(shells, 'background shell')) }) : null
     return { title, detail }
 }

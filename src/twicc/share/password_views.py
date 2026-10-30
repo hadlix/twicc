@@ -9,6 +9,7 @@ from urllib.parse import parse_qs
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 
+from twicc.auth.labels import auth_labels
 from twicc.auth.hashers import verify_password
 from twicc.auth.views import _check_rate_limit, _get_client_ip, _login_attempts, _record_failed_attempt
 from twicc.core.services.share_tokens import aresolve_share, password_fingerprint
@@ -34,14 +35,14 @@ async def share_auth(request, token):
 
     if request.method == "GET":
         target = _safe_redirect(token, request.GET.get("redirect", ""))
-        return render(request, "share_auth.html", {"redirect": target, "error": False})
+        return render(request, "share_auth.html", {"redirect": target, "error": False, **auth_labels(request)})
 
     body = parse_qs(request.body.decode("utf-8", "replace"))
     target = _safe_redirect(token, (body.get("redirect") or [""])[0])
     ip = _get_client_ip(request)
     wait = _check_rate_limit(ip)
     if wait is not None:
-        return render(request, "share_auth.html", {"redirect": target, "error": True}, status=429)
+        return render(request, "share_auth.html", {"redirect": target, "error": True, **auth_labels(request)}, status=429)
     password = (body.get("password") or [""])[0]
     if await asyncio.to_thread(verify_password, password, share.password_hash):
         grants = await request.session.aget(SHARE_GRANTS_SESSION_KEY) or {}
@@ -50,4 +51,4 @@ async def share_auth(request, token):
         _login_attempts.pop(ip, None)
         return HttpResponseRedirect(target)
     _record_failed_attempt(ip)
-    return render(request, "share_auth.html", {"redirect": target, "error": True}, status=401)
+    return render(request, "share_auth.html", {"redirect": target, "error": True, **auth_labels(request)}, status=401)

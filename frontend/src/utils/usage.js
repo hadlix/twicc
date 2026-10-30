@@ -1,3 +1,4 @@
+import { locale, getFormatLocale } from '../i18n/index.js'
 // frontend/src/utils/usage.js
 
 /**
@@ -88,7 +89,7 @@ export function formatBurnChip(quota) {
 export function formatExtraUsageAmount(value, decimalPlaces) {
     if (value == null || decimalPlaces == null || decimalPlaces < 0) return null
     const amount = value / 10 ** decimalPlaces
-    return amount.toLocaleString(navigator.language, { maximumFractionDigits: decimalPlaces })
+    return amount.toLocaleString(getFormatLocale(), { maximumFractionDigits: decimalPlaces })
 }
 
 /**
@@ -347,7 +348,7 @@ export function formatResetTime(resetsAt) {
     if (!resetsAt) return '?'
     const reset = resetsAt instanceof Date ? resetsAt : new Date(resetsAt)
     const now = new Date()
-    const locale = navigator.language
+    const locale = getFormatLocale()
     const diffMs = reset - now
     const diffHours = diffMs / (1000 * 60 * 60)
     // < 24h: time only
@@ -375,11 +376,11 @@ export function formatQuotaMoment(when) {
     if (!when) return { time: null, day: null }
     const date = when instanceof Date ? when : new Date(when)
     const diffHours = (date - new Date()) / (1000 * 60 * 60)
-    const time = date.toLocaleTimeString(navigator.language, { hour: '2-digit', minute: '2-digit' })
-    const weekday = date.toLocaleDateString('en', { weekday: 'long' })
+    const time = date.toLocaleTimeString(getFormatLocale(), { hour: '2-digit', minute: '2-digit' })
+    const weekday = date.toLocaleDateString(locale.value === 'fr' ? 'fr-FR' : 'en', { weekday: 'long' })
     if (diffHours < 24) return { time, day: null }
     if (diffHours < 7 * 24) return { time, day: weekday }
-    return { time: null, day: `${weekday} ${date.getDate()} ${date.toLocaleDateString('en', { month: 'long' })}` }
+    return { time: null, day: `${weekday} ${date.getDate()} ${date.toLocaleDateString(locale.value === 'fr' ? 'fr-FR' : 'en', { month: 'long' })}` }
 }
 
 /**
@@ -391,7 +392,7 @@ export function formatQuotaMoment(when) {
 export function formatResetTimePrecise(resetsAt) {
     if (!resetsAt) return ''
     const reset = resetsAt instanceof Date ? resetsAt : new Date(resetsAt)
-    const locale = navigator.language
+    const locale = getFormatLocale()
     return reset.toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })
 }
 

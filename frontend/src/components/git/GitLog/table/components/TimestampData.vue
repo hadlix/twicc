@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, useId, type CSSProperties } from 'vue'
 import dayjs from 'dayjs'
+import 'dayjs/locale/fr'
+import { locale } from '../../../../../i18n/index.js'
 import utc from 'dayjs/plugin/utc'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useTableContext } from '../../composables/useTableContext'
@@ -38,7 +40,7 @@ const { timestampFormat } = useTableContext()
 const timestampId = useId()
 
 const formattedTimestamp = computed(() => {
-  const commitDate = dayjs.utc(props.timestamp)
+  const commitDate = dayjs.utc(props.timestamp).locale(locale.value)
 
   if (dayjs.utc().diff(commitDate, 'week') >= 1) {
     return commitDate.format(timestampFormat.value)

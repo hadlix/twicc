@@ -1,3 +1,5 @@
+
+import { t as $t } from '../i18n/index.js'
 // frontend/src/extensions/collapsedBar.js
 // Shared separator bar for collapsed unchanged lines in diffs (used by smartCollapseUnchanged
 // and patchEllipsis). A hatched band: the top half reveals lines above the bar, the bottom half
@@ -43,9 +45,9 @@ function halfButton(direction, step, onClick) {
     const word = direction === 'up' ? 'above' : 'below'
     const button = el('button', `cm-cb-half cm-cb-${direction}`)
     button.type = 'button'
-    button.title = `Show ${step} lines ${word} the bar`
+    button.title = $t("Show {p0} lines {p1} the bar", { p0: (step), p1: (word) })
     button.setAttribute('aria-label', button.title)
-    button.append(glyph(direction), ...tiers('h', [`Show ${step} lines ${word}`, `+${step} ${word}`, `+${step}`]))
+    button.append(glyph(direction), ...tiers('h', [$t("Show {p0} lines {p1}", { p0: (step), p1: (word) }), `+${step} ${word}`, `+${step}`]))
     button.addEventListener('click', e => {
         e.stopPropagation()
         onClick(e.currentTarget)
@@ -60,7 +62,7 @@ function halfPlaceholder(direction) {
 }
 
 function preview(direction) {
-    return el('div', `cm-cb-preview cm-cb-preview-${direction}`, '+ lines appear here')
+    return el('div', `cm-cb-preview cm-cb-preview-${direction}`, $t("+ lines appear here"))
 }
 
 function intersects(a, b, margin) {
@@ -149,12 +151,12 @@ export function createCollapsedBar({ lines, canShowAbove, canShowBelow, step, on
     const mid = el('div', 'cm-cb-mid')
     const all = el('button', 'cm-cb-all')
     all.type = 'button'
-    all.title = `Show all ${lines} unchanged lines`
+    all.title = $t("Show all {p0} unchanged lines", { p0: (lines) })
     all.setAttribute('aria-label', all.title)
     all.append(...tiers('p', [
-        `Show all ${lines} unchanged lines`,
-        `+${lines} unchanged lines`,
-        `Show all ${lines}`,
+        $t("Show all {p0} unchanged lines", { p0: (lines) }),
+        $t("+{p0} unchanged lines", { p0: (lines) }),
+        $t("Show all {p0}", { p0: (lines) }),
         `+${lines}`,
     ]))
     all.addEventListener('click', e => {

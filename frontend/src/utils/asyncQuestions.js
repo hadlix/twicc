@@ -1,4 +1,6 @@
-export const ASYNC_QUESTION_RECOVERY_NOTICE = 'These questions were handled elsewhere. Your answers are kept in your draft.'
+
+import { t as $t } from '../i18n/index.js'
+export const ASYNC_QUESTION_RECOVERY_NOTICE = $t("These questions were handled elsewhere. Your answers are kept in your draft.")
 
 /** Native question resolution must settle these sends before generic audit or expiry. */
 export function retainsAsyncQuestionSend(entry) {
@@ -59,7 +61,7 @@ export function formatAsyncQuestionMessage(batches, answers, text) {
     for (const batch of orderedBatches(batches)) {
         for (const question of [...batch.questions].sort((a, b) => a.index - b.index)) {
             const value = selected.get(JSON.stringify([batch.item_id, question.index]))
-            if (value !== undefined) sections.push(`**Question:** ${question.title}\n\n**Answer:** ${value}`)
+            if (value !== undefined) sections.push($t("**Question:** {p0}\n\n**Answer:** {p1}", { p0: (question.title), p1: (value) }))
         }
     }
     if (!sections.length) return text
@@ -69,7 +71,7 @@ export function formatAsyncQuestionMessage(batches, answers, text) {
     let max = 2
     for (const match of runs) max = Math.max(max, match[1].length)
     const marker = ':'.repeat(max + 1)
-    const message = `${marker} Answers to your questions\n\n${body}\n\n${marker}`
+    const message = $t("{p0} Answers to your questions\n\n{p1}\n\n{p2}", { p0: (marker), p1: (body), p2: (marker) })
     return hasText(text) ? `${message}\n\n${text}` : message
 }
 

@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../../../../i18n/index.js'
+
 // Detail-panel renderer for TaskCreate / TaskUpdate / TaskGet tool_uses.
 // The ``input`` prop is rendered as a JsonHumanView at the top. Per the
 // helper that consumes this component:
@@ -29,7 +31,7 @@ defineProps({
     </div>
     <template v-if="todos && todos.length">
         <wa-divider></wa-divider>
-        <div class="task-list-title">Task list:</div>
+        <div class="task-list-title">{{ $t("Task list:") }}</div>
         <TodoContent :todos="todos" />
     </template>
 </template>

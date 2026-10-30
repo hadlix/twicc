@@ -1,3 +1,5 @@
+
+import { t as $t } from '../i18n/index.js'
 // layoutResolver.js — PURE dockable-layout resolver. No DOM, no side effects, no Vue.
 // Ported verbatim from the design prototype (see docs/plans/2026-06-16-dockable-layout-design.md
 // and -impl-step1.md). Single source of all layout rules + thresholds. Mirrors the
@@ -148,7 +150,7 @@ export function resolveLayout(input) {
       viewport: { w: W, h: H },
       regions: [{
         id: 'center', kind: 'center', x: 0, y: 0, w: W, h: H,
-        label: 'Center (tabs)', slots: [{ dockId: 'center', tabs: allTabs }], merged: false,
+        get label() { return $t("Center (tabs)") }, slots: [{ dockId: 'center', tabs: allTabs }], merged: false,
       }],
       gutters: [],
       overlays: [],
@@ -325,7 +327,7 @@ export function resolveLayout(input) {
       const slots = m === 'merged' ? [mkSlot(top), mkSlot(bot)] : [mkSlot(demandOf(byDock, top, collapsed) ? top : bot)];
       regions.push({
         id: `${edge}-col`, kind: `col-${edge}`, x, y: 0, w: colW, h: sideBandH,
-        label: m === 'merged' ? `${edge} (merged)` : `${edge}`,
+        label: m === 'merged' ? $t("{p0} (merged)", { p0: (edge) }) : `${edge}`,
         slots, merged: m === 'merged', mergedFrom: m === 'merged' ? [top, bot] : undefined,
       });
     }
@@ -335,7 +337,7 @@ export function resolveLayout(input) {
 
   regions.push({
     id: 'center', kind: 'center', x: leftSpace, y: 0, w: centerW, h: topBandH,
-    label: 'Center (chat)', slots: [{ dockId: 'center', tabs: center }], merged: false,
+    get label() { return $t("Center (chat)") }, slots: [{ dockId: 'center', tabs: center }], merged: false,
   });
 
   if (bottomShown) {
@@ -353,7 +355,7 @@ export function resolveLayout(input) {
       const slots = mergeBottom ? [mkSlot('bottom-left'), mkSlot('bottom-right')] : [mkSlot(bL ? 'bottom-left' : 'bottom-right')];
       regions.push({
         id: 'bottom', kind: 'bottom', x: bx, y: by, w: bw, h: bottomRegionH,
-        label: mergeBottom ? 'bottom (merged)' : 'bottom',
+        label: mergeBottom ? $t("bottom (merged)") : 'bottom',
         slots, merged: mergeBottom, mergedFrom: mergeBottom ? ['bottom-left', 'bottom-right'] : undefined,
       });
     }

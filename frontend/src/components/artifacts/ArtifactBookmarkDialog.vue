@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // ArtifactBookmarkDialog.vue — create/edit (and remove) an artifact bookmark.
 // Mirrors ProjectEditDialog.vue's form/submit/focus/guard patterns.
 import { ref, computed, reactive, nextTick, useId, onMounted, onBeforeUnmount } from 'vue'
@@ -92,7 +94,7 @@ const hostRows = computed(() => {
         const pkey = d.share ? d.share.id : '__owner__'
         let prov = row.provenances.get(pkey)
         if (!prov) {
-            prov = { label: d.share ? d.share.label || d.share.id : 'You, in preview', count: 0, entries: [] }
+            prov = { label: d.share ? d.share.label || d.share.id : $t("You, in preview"), count: 0, entries: [] }
             row.provenances.set(pkey, prov)
         }
         prov.count += d.count
@@ -133,8 +135,8 @@ function kindOf(host) {
 
 // Adaptive non-public confirm copy — mirrors ArtifactBrokerPrompt's sentences.
 const NON_PUBLIC_TARGET = {
-    loopback: 'the machine TwiCC runs on (localhost)',
-    lan: 'an address on the local network of the machine TwiCC runs on',
+    get loopback() { return $t("the machine TwiCC runs on (localhost)") },
+    get lan() { return $t("an address on the local network of the machine TwiCC runs on") },
 }
 const confirmNonPublic = computed(() =>
     confirmAllow.hosts.map((h) => ({ host: h, kind: kindOf(h) })).filter((e) => e.kind && e.kind !== 'public'),
@@ -149,7 +151,7 @@ async function postHost(pathSuffix, method, body) {
     })
     if (!res.ok) {
         const err = await res.json().catch(() => ({}))
-        sectionError.value = err.error || `Request failed (${res.status})`
+        sectionError.value = err.error || $t("Request failed ({p0})", { p0: (res.status) })
         throw new Error(sectionError.value)
     }
 }
@@ -315,7 +317,7 @@ async function handleSave() {
     if (isSaving.value) return
     const name = localName.value.trim()
     if (!name) {
-        errorMessage.value = 'Name is required'
+        errorMessage.value = $t("Name is required")
         return
     }
     isSaving.value = true
@@ -334,7 +336,7 @@ async function handleSave() {
         emit('saved')
         close()
     } catch (err) {
-        errorMessage.value = err?.message || 'Failed to save bookmark'
+        errorMessage.value = err?.message || $t("Failed to save bookmark")
     } finally {
         isSaving.value = false
     }
@@ -349,7 +351,7 @@ async function handleRemove() {
         emit('removed')
         close()
     } catch (err) {
-        errorMessage.value = err?.message || 'Failed to remove bookmark'
+        errorMessage.value = err?.message || $t("Failed to remove bookmark")
     } finally {
         isSaving.value = false
     }
@@ -361,39 +363,39 @@ defineExpose({ open, close })
 <template>
     <wa-dialog
         ref="dialogRef"
-        :label="isEditMode ? 'Edit artifact bookmark' : 'Bookmark artifact'"
+        :label="isEditMode ? $t(&quot;Edit artifact bookmark&quot;) : $t(&quot;Bookmark artifact&quot;)"
         class="artifact-bookmark-dialog"
         @wa-show="handleDialogShow"
         @wa-after-show="handleDialogAfterShow"
     >
         <form :id="formId" class="dialog-content" @submit.prevent="handleSave">
             <div class="form-group">
-                <label class="form-label">Name</label>
+                <label class="form-label">{{ $t("Name") }}</label>
                 <wa-input
                     ref="nameInputRef"
                     :value.prop="localName"
                     @input="localName = $event.target.value; nameUserEdited = true"
-                    placeholder="Bookmark name"
+                    :placeholder="$t(&quot;Bookmark name&quot;)"
                     maxlength="255"
                 ></wa-input>
             </div>
             <div class="form-group">
-                <label class="form-label">Scope</label>
+                <label class="form-label">{{ $t("Scope") }}</label>
                 <wa-select
                     :value.prop="localScope"
                     @change="localScope = $event.target.value"
                     size="small"
                 >
-                    <wa-option value="project">Bookmark in project</wa-option>
-                    <wa-option value="workspace">Bookmark in workspace</wa-option>
-                    <wa-option value="all">Bookmark everywhere</wa-option>
+                    <wa-option value="project">{{ $t("Bookmark in project") }}</wa-option>
+                    <wa-option value="workspace">{{ $t("Bookmark in workspace") }}</wa-option>
+                    <wa-option value="all">{{ $t("Bookmark everywhere") }}</wa-option>
                 </wa-select>
-                <div class="form-hint">Where this bookmark shows in the Artifacts sidebar.</div>
+                <div class="form-hint">{{ $t("Where this bookmark shows in the Artifacts sidebar.") }}</div>
             </div>
             <div v-if="isEditMode && isHtmlArtifact" class="form-group network-section">
-                <label class="form-label">Network access</label>
-                <p v-if="denials === null" class="muted">Loading…</p>
-                <p v-else-if="!hostRows.length" class="muted">No network activity on this artifact.</p>
+                <label class="form-label">{{ $t("Network access") }}</label>
+                <p v-if="denials === null" class="muted">{{ $t("Loading…") }}</p>
+                <p v-else-if="!hostRows.length" class="muted">{{ $t("No network activity on this artifact.") }}</p>
                 <template v-else>
                     <div v-for="row in hostRows" :key="row.host" class="host-row">
                         <div class="host-row-main">
@@ -409,7 +411,7 @@ defineExpose({ open, close })
                             <code class="host-key">{{ row.host }}</code>
                             <wa-tag v-if="row.kind !== 'public'" size="small" variant="warning">{{ row.kind }}</wa-tag>
                             <button v-if="row.total" class="denial-count" type="button" @click="toggleHost(row.host)">
-                                {{ row.total }} refused
+                                {{ row.total }} {{ $t("refused") }}
                             </button>
                             <span class="host-actions">
                                 <wa-button
@@ -417,26 +419,26 @@ defineExpose({ open, close })
                                     size="small"
                                     appearance="outlined"
                                     @click="allowHosts([row.host])"
-                                >Allow</wa-button>
+                                >{{ $t("Allow") }}</wa-button>
                                 <wa-button
                                     v-if="row.state === 'pending'"
                                     size="small"
                                     appearance="outlined"
                                     @click="denyHost(row.host)"
-                                >Deny</wa-button>
+                                >{{ $t("Deny") }}</wa-button>
                                 <wa-button
                                     v-if="row.state === 'denied'"
                                     size="small"
                                     appearance="plain"
                                     @click="undenyHost(row.host)"
-                                >Un-deny</wa-button>
+                                >{{ $t("Un-deny") }}</wa-button>
                                 <wa-button
                                     v-if="row.state === 'allowed'"
                                     size="small"
                                     appearance="plain"
                                     variant="danger"
                                     @click="removeAllowed(row.host)"
-                                >Remove</wa-button>
+                                >{{ $t("Remove") }}</wa-button>
                             </span>
                         </div>
                         <!-- Level 2: provenances (share links / owner preview). -->
@@ -459,35 +461,33 @@ defineExpose({ open, close })
                         variant="brand"
                         @click="allowHosts(selectedHosts)"
                     >
-                        Allow selected ({{ selectedHosts.length }})
+                        {{ $t("Allow selected (") }}{{ selectedHosts.length }})
                     </wa-button>
                     <wa-callout v-if="confirmAllow.armed" variant="warning">
                         <ul class="confirm-hosts">
                             <li v-for="e in confirmNonPublic" :key="e.host">
-                                <code>{{ e.host }}</code> ({{ e.kind }}) resolves to {{ NON_PUBLIC_TARGET[e.kind] }}
+                                <code>{{ e.host }}</code> ({{ e.kind }}{{ $t(") resolves to") }} {{ NON_PUBLIC_TARGET[e.kind] }}
                             </li>
                         </ul>
                         <p class="confirm-text">
-                            TwiCC's server makes these requests from there, not the viewer's browser — and anonymous
-                            viewers of every share of this artifact will be able to reach these hosts.
+                            {{ $t("TwiCC's server makes these requests from there, not the viewer's browser — and anonymous viewers of every share of this artifact will be able to reach these hosts.") }}
                         </p>
                         <div class="confirm-actions">
                             <wa-button size="small" variant="warning" @click="confirmAllowNow">
-                                Allow anyway
+                                {{ $t("Allow anyway") }}
                             </wa-button>
                             <wa-button size="small" appearance="plain" @click="confirmAllow.armed = false">
-                                Cancel
+                                {{ $t("Cancel") }}
                             </wa-button>
                         </div>
                     </wa-callout>
-                    <wa-callout v-if="sectionError" variant="danger" size="small">{{ sectionError }}</wa-callout>
+                    <wa-callout v-if="sectionError" variant="danger" size="small">{{ $t(sectionError) }}</wa-callout>
                 </template>
                 <div class="form-hint">
-                    Hosts this artifact may reach — for you in preview and for the viewers of every share. Refused
-                    requests are listed with who triggered them.
+                    {{ $t("Hosts this artifact may reach — for you in preview and for the viewers of every share. Refused requests are listed with who triggered them.") }}
                 </div>
             </div>
-            <wa-callout v-if="errorMessage" variant="danger" size="small">{{ errorMessage }}</wa-callout>
+            <wa-callout v-if="errorMessage" variant="danger" size="small">{{ $t(errorMessage) }}</wa-callout>
         </form>
         <div slot="footer" class="dialog-footer">
             <wa-button
@@ -498,22 +498,22 @@ defineExpose({ open, close })
                 :disabled="isSaving"
                 @click="handleRemove"
             >
-                Remove
+                {{ $t("Remove") }}
             </wa-button>
             <wa-button
                 v-if="isEditMode && !hideShareEntry"
                 variant="neutral"
                 appearance="outlined"
                 :disabled="!sharingEnabled"
-                :title="sharingEnabled ? 'Share this artifact' : 'Configure a share host in Settings → Sharing'"
+                :title="sharingEnabled ? $t(&quot;Share this artifact&quot;) : $t(&quot;Configure a share host in Settings → Sharing&quot;)"
                 @click="openShareDialog"
             >
                 <wa-icon name="share-nodes" slot="start"></wa-icon>
-                Share…
+                {{ $t("Share…") }}
             </wa-button>
-            <wa-button variant="neutral" appearance="outlined" :disabled="isSaving" @click="close">Cancel</wa-button>
+            <wa-button variant="neutral" appearance="outlined" :disabled="isSaving" @click="close">{{ $t("Cancel") }}</wa-button>
             <wa-button ref="saveButtonRef" type="submit" variant="brand" :disabled="isSaving">
-                {{ isEditMode ? 'Save' : 'Bookmark' }}
+                {{ isEditMode ? $t("Save") : $t("Bookmark") }}
             </wa-button>
         </div>
         <ShareDialog v-if="isEditMode && !hideShareEntry" :open="showShareDialog" kind="artifact"

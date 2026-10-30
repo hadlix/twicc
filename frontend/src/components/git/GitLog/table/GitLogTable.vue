@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { t as $t } from '../../../../i18n/index.js'
+
 import { computed, provide } from 'vue'
 import { TABLE_CONTEXT_KEY, type TableContextBag } from '../composables/keys'
 import { useGitContext } from '../composables/useGitContext'
@@ -81,25 +83,25 @@ const tableData = computed<Commit[]>(() => {
       <div
         class="header"
       >
-        Commit message
+        {{ $t("Commit message") }}
       </div>
 
       <div
         class="header"
       >
-        Author
+        {{ $t("Author") }}
       </div>
 
       <div
         class="header"
       >
-        Timestamp
+        {{ $t("Timestamp") }}
       </div>
 
       <div
         class="header"
       >
-        Hash
+        {{ $t("Hash") }}
       </div>
     </div>
 

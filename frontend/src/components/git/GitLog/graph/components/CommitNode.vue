@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { t as $t } from '../../../../../i18n/index.js'
+
 import { computed, ref, useId, type CSSProperties } from 'vue'
 import { pxToRem } from '../../utils/units'
 import { useTheme, shiftAlphaChannel } from '../../composables/useTheme'
@@ -147,7 +149,7 @@ function handleKeyDown(event: KeyboardEvent): void {
   >
     <component :is="() => node!(customNodeProps)" />
   </div>
-  <AppTooltip v-if="commitUrl" :for="customNodeId">View Commit</AppTooltip>
+  <AppTooltip v-if="commitUrl" :for="customNodeId">{{ $t("View Commit") }}</AppTooltip>
 
   <!-- Default node rendering -->
   <div
@@ -199,7 +201,7 @@ function handleKeyDown(event: KeyboardEvent): void {
       />
     </div>
   </div>
-  <AppTooltip v-if="commitUrl" :for="defaultNodeId">View Commit</AppTooltip>
+  <AppTooltip v-if="commitUrl" :for="defaultNodeId">{{ $t("View Commit") }}</AppTooltip>
 </template>
 
 <style scoped>

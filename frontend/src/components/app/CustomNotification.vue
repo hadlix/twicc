@@ -1,4 +1,7 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+import { refreshTranslation } from '../../i18n/index.js'
+
 /**
  * CustomNotification - A toast notification component that mirrors Notivue's
  * built-in Notification component but allows rich HTML content in the message area.
@@ -91,7 +94,7 @@ const mergedStyle = computed(() => ({
             aria-atomic="true"
         >
             <!-- Title (same as Notivue: plain text in h3) -->
-            <h3 v-if="item.title" class="Notivue__content-title" v-text="item.title" />
+            <h3 v-if="item.title" class="Notivue__content-title" v-text="refreshTranslation(item.title)" />
 
             <!-- Rich content area: slot, component, HTML, or fallback to plain message -->
             <div class="Notivue__content-message">
@@ -103,7 +106,7 @@ const mergedStyle = computed(() => ({
                         :item="item"
                     />
                     <div v-else-if="contentHtml" v-html="contentHtml" />
-                    <template v-else>{{ item.message }}</template>
+                    <template v-else>{{ refreshTranslation(item.message) }}</template>
                 </slot>
             </div>
         </div>
@@ -112,7 +115,7 @@ const mergedStyle = computed(() => ({
         <button
             v-if="!hideClose && !item.props?.persistent && CloseIcon && item.type !== 'promise'"
             class="Notivue__close"
-            :aria-label="closeAriaLabel"
+            :aria-label="$t(closeAriaLabel)"
             type="button"
             tabindex="-1"
             @click="item.clear"

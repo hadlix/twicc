@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../../../../i18n/index.js'
+
 import { computed } from 'vue'
 import MarkdownContent from '../../../../ui/MarkdownContent.vue'
 import { getLanguageFromPath } from '../../../../../utils/languages'
@@ -51,7 +53,7 @@ const markdownSource = computed(() => {
 
 <template>
     <template v-if="parsed && markdownSource">
-        <div class="read-result-header">Lines {{ parsed.startLine }}–{{ parsed.endLine }}</div>
+        <div class="read-result-header">{{ $t("Lines") }} {{ parsed.startLine }}–{{ parsed.endLine }}</div>
         <MarkdownContent :source="markdownSource" :show-toolbar="false" />
     </template>
 </template>

@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useDataStore } from '../../stores/data'
@@ -30,7 +32,7 @@ const workspaceVisibleProjectIds = computed(() =>
     activeWorkspaceId.value ? workspacesStore.getVisibleProjectIds(activeWorkspaceId.value) : []
 )
 const activeWsLabel = computed(() =>
-    activeWorkspace.value ? `${activeWorkspace.value.name} projects` : null
+    activeWorkspace.value ? $t("{p0} projects", { p0: (activeWorkspace.value.name) }) : null
 )
 const nonStaleProjects = computed(() =>
     store.getListableProjects.filter(p => (showArchivedProjects.value || !p.archived) && !p.stale)
@@ -90,7 +92,7 @@ function openWorktreeDialog(project) {
         <slot name="trigger" />
         <wa-dropdown-item value="__new_project__">
             <wa-icon slot="icon" name="plus"></wa-icon>
-            New project
+            {{ $t("New project") }}
         </wa-dropdown-item>
 
         <!-- Workspace projects first (when workspace active) -->
@@ -139,7 +141,7 @@ function openWorktreeDialog(project) {
         <!-- Other projects -->
         <template v-if="activeWsLabel && (splitNamedProjects.others.length || splitFlatTree.others.length)">
             <wa-divider></wa-divider>
-            <wa-dropdown-item disabled class="section-header-item">Other projects</wa-dropdown-item>
+            <wa-dropdown-item disabled class="section-header-item">{{ $t("Other projects") }}</wa-dropdown-item>
         </template>
         <wa-divider v-else-if="splitNamedProjects.others.length"></wa-divider>
         <template v-for="p in splitNamedProjects.others" :key="p.id">

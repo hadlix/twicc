@@ -1,3 +1,5 @@
+
+import { t as $t } from '../../i18n/index.js'
 /**
  * The task a parent agent hands to a subagent (Codex multi-agent v2).
  *
@@ -25,7 +27,7 @@ const NEW_TASK_HEADER = 'Message Type: NEW_TASK'
 const TASK_NAME_PREFIX = 'Task name:'
 const PAYLOAD_MARKER = 'Payload:'
 const HEADER_LINE_RE = /^(Message Type|Task name|Sender|Payload):/
-const ENCRYPTED_NOTICE = 'The prompt is encrypted by Codex and cannot be displayed.'
+const ENCRYPTED_NOTICE = $t("The prompt is encrypted by Codex and cannot be displayed.")
 
 /** The envelope's leading plain-text block, or '' for any other shape. */
 function envelopeText(parsed) {

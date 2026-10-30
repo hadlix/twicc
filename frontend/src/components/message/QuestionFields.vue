@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // Shared single-select fields. Hosts own validation, persistence, and sending.
 // Questions have stable index/title fields and {label, description} options.
 import { nextTick, onMounted, ref, useId } from 'vue'
@@ -94,7 +96,7 @@ function handleOptionKeydown(event, index, option) {
         >
             <div v-if="question.header" class="question-header">{{ question.header }}</div>
             <div :id="questionTextId(question.index)" class="question-text">{{ question.title }}</div>
-            <div v-if="hasOptions(question)" class="question-select-hint">Select one</div>
+            <div v-if="hasOptions(question)" class="question-select-hint">{{ $t("Select one") }}</div>
 
             <!-- Options as selectable cards. -->
             <div v-if="hasOptions(question)" class="question-options">
@@ -133,7 +135,7 @@ function handleOptionKeydown(event, index, option) {
                     class="other-toggle-link"
                     :class="{ disabled }"
                     @click.prevent="!disabled && toggleOther(question.index)"
-                >{{ modelValue[question.index]?.kind === 'other' ? 'Cancel other' : 'Other...' }}</a>
+                >{{ modelValue[question.index]?.kind === 'other' ? $t("Cancel other") : $t('Other...') }}</a>
             </div>
             <div v-if="(allowOther || question.isOther) && hasOptions(question) && modelValue[question.index]?.kind === 'other'" class="other-input-row">
                 <!-- Normal case (the native tool never sets isSecret): an
@@ -142,7 +144,7 @@ function handleOptionKeydown(event, index, option) {
                     v-if="!question.isSecret"
                     :ref="el => setTextInputRef(question.index, el)"
                     :aria-label="question.title"
-                    placeholder="Type your answer..."
+                    :placeholder="$t(&quot;Type your answer...&quot;)"
                     size="small"
                     rows="1"
                     resize="auto"
@@ -158,7 +160,7 @@ function handleOptionKeydown(event, index, option) {
                     :ref="el => setTextInputRef(question.index, el)"
                     type="password"
                     :aria-label="question.title"
-                    placeholder="Type your answer..."
+                    :placeholder="$t(&quot;Type your answer...&quot;)"
                     size="small"
                     class="other-input"
                     :value.prop="modelValue[question.index]?.value || ''"
@@ -176,7 +178,7 @@ function handleOptionKeydown(event, index, option) {
                     class="other-input"
                     :class="{ 'auto-focused': autoFocus && position === 0 }"
                     :aria-label="question.title"
-                    placeholder="Type your answer..."
+                    :placeholder="$t(&quot;Type your answer...&quot;)"
                     size="small"
                     rows="1"
                     resize="auto"
@@ -191,7 +193,7 @@ function handleOptionKeydown(event, index, option) {
                     :class="{ 'auto-focused': autoFocus && position === 0 }"
                     type="password"
                     :aria-label="question.title"
-                    placeholder="Type your answer..."
+                    :placeholder="$t(&quot;Type your answer...&quot;)"
                     size="small"
                     :value.prop="modelValue[question.index]?.value || ''"
                     :disabled="disabled"
@@ -204,7 +206,7 @@ function handleOptionKeydown(event, index, option) {
                 class="other-toggle-link clear-answer"
                 :class="{ disabled }"
                 @click.prevent="clearAnswer(question.index)"
-            >Clear answer</a>
+            >{{ $t("Clear answer") }}</a>
         </div>
     </div>
 </template>

@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 import { ref, computed, watch, nextTick } from 'vue'
 
 const props = defineProps({
@@ -155,7 +157,7 @@ watch([() => props.x, () => props.y], () => {
                     :disabled="writableLoading || !writable"
                 >
                     <wa-icon slot="icon" name="file-circle-plus"></wa-icon>
-                    New file
+                    {{ $t("New file") }}
                 </wa-dropdown-item>
                 <wa-dropdown-item
                     v-if="nodeType === 'directory'"
@@ -163,7 +165,7 @@ watch([() => props.x, () => props.y], () => {
                     :disabled="writableLoading || !writable"
                 >
                     <wa-icon slot="icon" name="folder-plus"></wa-icon>
-                    New folder
+                    {{ $t("New folder") }}
                 </wa-dropdown-item>
                 <wa-dropdown-item
                     v-if="nodeType === 'directory' && canUpload"
@@ -171,7 +173,7 @@ watch([() => props.x, () => props.y], () => {
                     :disabled="writableLoading || !writable"
                 >
                     <wa-icon slot="icon" name="upload"></wa-icon>
-                    Upload files…
+                    {{ $t("Upload files…") }}
                 </wa-dropdown-item>
                 <wa-divider v-if="nodeType === 'directory' && !createOnly"></wa-divider>
 
@@ -181,7 +183,7 @@ watch([() => props.x, () => props.y], () => {
                     :disabled="writableLoading || !writable"
                 >
                     <wa-icon slot="icon" name="pencil"></wa-icon>
-                    Rename
+                    {{ $t("Rename") }}
                 </wa-dropdown-item>
                 <wa-dropdown-item
                     v-if="!createOnly"
@@ -189,7 +191,7 @@ watch([() => props.x, () => props.y], () => {
                     :disabled="writableLoading || !writable"
                 >
                     <wa-icon slot="icon" name="arrow-right-arrow-left"></wa-icon>
-                    Move
+                    {{ $t("Move") }}
                 </wa-dropdown-item>
                 <wa-dropdown-item
                     v-if="!createOnly"
@@ -198,7 +200,7 @@ watch([() => props.x, () => props.y], () => {
                     :disabled="writableLoading || !writable"
                 >
                     <wa-icon slot="icon" name="trash"></wa-icon>
-                    Delete
+                    {{ $t("Delete") }}
                 </wa-dropdown-item>
                 <wa-divider v-if="!createOnly"></wa-divider>
             </template>
@@ -207,11 +209,11 @@ watch([() => props.x, () => props.y], () => {
             <template v-if="isGitIndex && hasGitActions">
                 <wa-dropdown-item v-if="canStage" value="git-stage">
                     <wa-icon slot="icon" name="circle-plus"></wa-icon>
-                    {{ nodeType === 'directory' ? 'Stage all' : 'Stage' }}
+                    {{ nodeType === 'directory' ? $t("Stage all") : $t("Stage") }}
                 </wa-dropdown-item>
                 <wa-dropdown-item v-if="canUnstage" value="git-unstage">
                     <wa-icon slot="icon" name="circle-minus"></wa-icon>
-                    {{ nodeType === 'directory' ? 'Unstage all' : 'Unstage' }}
+                    {{ nodeType === 'directory' ? $t("Unstage all") : $t("Unstage") }}
                 </wa-dropdown-item>
                 <wa-dropdown-item
                     v-if="canDiscard"
@@ -219,7 +221,7 @@ watch([() => props.x, () => props.y], () => {
                     class="danger-item"
                 >
                     <wa-icon slot="icon" name="arrow-rotate-left"></wa-icon>
-                    {{ nodeType === 'directory' ? 'Discard all changes' : 'Discard changes' }}
+                    {{ nodeType === 'directory' ? $t("Discard all changes") : $t("Discard changes") }}
                 </wa-dropdown-item>
                 <wa-dropdown-item
                     v-if="canDelete"
@@ -227,7 +229,7 @@ watch([() => props.x, () => props.y], () => {
                     class="danger-item"
                 >
                     <wa-icon slot="icon" name="trash"></wa-icon>
-                    Delete
+                    {{ $t("Delete") }}
                 </wa-dropdown-item>
                 <wa-divider></wa-divider>
             </template>
@@ -236,11 +238,11 @@ watch([() => props.x, () => props.y], () => {
             <template v-if="canDownload && !createOnly">
                 <wa-dropdown-item value="download">
                     <wa-icon slot="icon" name="download"></wa-icon>
-                    {{ isFilesMode ? 'Download' : 'Download file' }}
+                    {{ isFilesMode ? $t("Download") : $t("Download file") }}
                 </wa-dropdown-item>
                 <wa-dropdown-item v-if="canDownloadDiff" value="download-diff">
                     <wa-icon slot="icon" name="code-compare"></wa-icon>
-                    Download diff
+                    {{ $t("Download diff") }}
                 </wa-dropdown-item>
                 <wa-divider></wa-divider>
             </template>
@@ -249,17 +251,17 @@ watch([() => props.x, () => props.y], () => {
             <template v-if="!createOnly">
                 <wa-dropdown-item value="copy-name">
                     <wa-icon slot="icon" name="copy"></wa-icon>
-                    <div>Copy name</div>
+                    <div>{{ $t("Copy name") }}</div>
                     <div class="copy-preview">{{ nodeName }}</div>
                 </wa-dropdown-item>
                 <wa-dropdown-item value="copy-relative-path">
                     <wa-icon slot="icon" name="copy"></wa-icon>
-                    <div>Copy relative path</div>
+                    <div>{{ $t("Copy relative path") }}</div>
                     <div class="copy-preview">{{ relativePath }}</div>
                 </wa-dropdown-item>
                 <wa-dropdown-item value="copy-full-path">
                     <wa-icon slot="icon" name="copy"></wa-icon>
-                    <div>Copy full path</div>
+                    <div>{{ $t("Copy full path") }}</div>
                     <div class="copy-preview">{{ fullPath }}</div>
                 </wa-dropdown-item>
             </template>

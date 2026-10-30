@@ -4,6 +4,8 @@
 // composable consumed by CodeEditor.vue and DiffEditor.vue.
 
 import { watch } from 'vue'
+import { locale } from '../i18n/index.js'
+import { editorPhrases } from '../i18n/editor.js'
 import { Compartment, EditorState } from '@codemirror/state'
 import { EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter, dropCursor, rectangularSelection, crosshairCursor } from '@codemirror/view'
 import { foldGutter, indentOnInput, bracketMatching, indentUnit } from '@codemirror/language'
@@ -378,6 +380,7 @@ export function useCodeMirrorExtensions(options, { initialTheme = false, initial
     const lineNumbersCompartment = new Compartment()
     const highlightActiveLineCompartment = new Compartment()
     const indentUnitCompartment = new Compartment()
+    const localeCompartment = new Compartment()
 
     // ── Accessors ─────────────────────────────────────────────────────────────
     const isReadOnly = () => !!options.readOnly?.value
@@ -388,6 +391,7 @@ export function useCodeMirrorExtensions(options, { initialTheme = false, initial
     // renders correctly on first paint, without waiting for useSettingsWatcher.
     const extensions = [
         ...STATIC_EXTENSIONS,
+        localeCompartment.of(EditorState.phrases.of(editorPhrases())),
         languageCompartment.of([]),  // populated async after view creation
         themeCompartment.of(createThemeExtension(initialTheme === 'dark' || initialTheme === true)),
         fontSizeCompartment.of(createFontSizeExtension(initialFontSize)),
@@ -420,6 +424,13 @@ export function useCodeMirrorExtensions(options, { initialTheme = false, initial
         }
 
         switch (option) {
+            case 'locale': {
+                const searchWasOpen = searchPanelOpen(view.state)
+                if (searchWasOpen) closeSearchPanel(view)
+                dispatch(localeCompartment, EditorState.phrases.of(editorPhrases()))
+                if (searchWasOpen) openSearchPanel(view)
+                break
+            }
             case 'language':
                 dispatch(languageCompartment, value ?? [])
                 break
@@ -492,6 +503,10 @@ export function useSettingsWatcher(getView, cmExtensions, overrides = {}) {
     // But if settings.js ever imports from this file, we'd get a cycle.
     // Using async import() here ensures no module-level static edge.
     const stops = []
+    stops.push(watch(locale, () => {
+        const view = getView()
+        if (view) cmExtensions.reconfigure(view, 'locale')
+    }))
     let cancelled = false
     ;(async () => {
         const { useSettingsStore } = await import('../stores/settings')

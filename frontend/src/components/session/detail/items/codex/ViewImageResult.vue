@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../../../../i18n/index.js'
+
 /**
  * Codex ``view_image`` tool-result renderer.
  *
@@ -30,7 +32,7 @@ const props = defineProps({
     // basename, falling back to a generic label.
     name: {
         type: String,
-        default: 'Image',
+        get default() { return "Image" },
     },
 })
 

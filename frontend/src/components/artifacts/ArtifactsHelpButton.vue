@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // ArtifactsHelpButton.vue — a "What are artifacts?" button that opens the
 // shared help dialog on the `what-are-artifacts` page. Opened without the
 // "Don't show this again" switch (it's an on-demand reference, not a
@@ -16,6 +18,6 @@ function open() {
 <template>
     <wa-button appearance="outlined" variant="brand" size="small" @click="open">
         <wa-icon slot="start" name="circle-question"></wa-icon>
-        What are artifacts?
+        {{ $t("What are artifacts?") }}
     </wa-button>
 </template>

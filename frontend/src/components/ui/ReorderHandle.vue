@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 import { nextTick, onBeforeUnmount, ref } from 'vue'
 import { startListReorder } from '../../utils/listReorder'
 
@@ -16,7 +18,7 @@ let cancel = () => {}
 
 function reorder(from, to) {
     emit('reorder', from, to)
-    announcement.value = `Moved to position ${to + 1} of ${props.count}.`
+    announcement.value = $t("Moved to position {p0} of {p1}.", { p0: (to + 1), p1: (props.count) })
 }
 
 function pointerdown(event) {
@@ -52,8 +54,8 @@ onBeforeUnmount(() => cancel())
             class="reorder-handle"
             :class="{ active }"
             :disabled="disabled ?? count < 2"
-            :aria-label="`Reorder item ${index + 1} of ${count}. Drag or use Up, Down, Home, and End keys.`"
-            title="Drag to reorder"
+            :aria-label="$t(&quot;Reorder item {p0} of {p1}. Drag or use Up, Down, Home, and End keys.&quot;, { p0: (index + 1), p1: (count) })"
+            :title="$t(&quot;Drag to reorder&quot;)"
             @pointerdown="pointerdown"
             @keydown="keydown"
             @click.prevent

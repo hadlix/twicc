@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../i18n/index.js'
+
 import { computed, ref, watch, nextTick, onMounted, onBeforeUnmount, provide, inject, unref } from 'vue'
 import VirtualScroller from '../components/virtual-scroller/VirtualScroller.vue'
 import SessionItem from '../components/session/detail/SessionItem.vue'
@@ -258,7 +260,7 @@ const {
 <template>
     <div class="session-items-list share-items-list panel-card" :aria-busy="reveal.hidden.value ? 'true' : null">
         <wa-callout v-if="preparationPending" variant="neutral" class="share-banner">
-            This shared session is being prepared. Refresh this page later.
+            {{ $t("This shared session is being prepared. Refresh this page later.") }}
         </wa-callout>
         <VirtualScroller
             v-else

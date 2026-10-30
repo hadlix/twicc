@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../../../i18n/index.js'
+
 /**
  * Shared "Session compacted" item, used by both Claude Code and Codex.
  *
@@ -41,7 +43,7 @@ const props = defineProps({
 })
 
 const hasContent = computed(() => typeof props.content === 'string' && props.content.trim().length > 0)
-const placeholder = computed(() => `Context summary not provided by ${getProviderLabel(props.provider)}`)
+const placeholder = computed(() => $t("Context summary not provided by {p0}", { p0: (getProviderLabel(props.provider)) }))
 
 const detailsRef = ref(null)
 
@@ -82,7 +84,7 @@ function onAfterHide() {
 <template>
     <wa-details ref="detailsRef" :open="isOpen" :style="instantOpen ? { '--show-duration': '0ms', '--hide-duration': '0ms' } : null" class="item-details compact-summary-content" icon-placement="start" @wa-show="onShow" @wa-hide="onHide" @wa-after-hide="onAfterHide">
         <span slot="summary" class="items-details-summary">
-            <strong class="items-details-summary-name">Session compacted</strong>
+            <strong class="items-details-summary-name">{{ $t("Session compacted") }}</strong>
         </span>
         <div v-if="isOpen || isClosing()" class="compact-summary-body">
             <MarkdownContent v-if="hasContent" :source="content" />

@@ -1,3 +1,5 @@
+
+import { t as $t } from '../i18n/index.js'
 // In-page element picker, shared by two run contexts:
 // - the browser companion (browser-companion/companion.js) runs it INSIDE the
 //   user's own page and drives it over postMessage from the Browser pane;
@@ -183,7 +185,7 @@ export function createElementPicker({ win, doc, onState }) {
     // best-effort by nature — webfont glyphs and cross-origin images may not
     // survive the round-trip.
     async function capture() {
-        if (!current) throw new Error('no element selected')
+        if (!current) throw new Error($t("no element selected"))
         return await domToPng(current)
     }
 

@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // Chevron-down menu in the terminal tab bar: "Attach terminal from".
 // Lists, grouped by ancestor scope (worktree → project → workspace(s) → global),
 // the terminals of the parent levels that can be attached into this panel.
@@ -50,14 +52,14 @@ function onSelect(event) {
             class="attach-terminal-trigger reduced-height"
             appearance="plain"
             size="small"
-            title="Attach terminal from…"
-            aria-label="Attach terminal from a parent level"
+            :title="$t(&quot;Attach terminal from…&quot;)"
+            :aria-label="$t(&quot;Attach terminal from a parent level&quot;)"
         >
             <wa-icon name="link"></wa-icon>
             <wa-icon name="chevron-down"></wa-icon>
         </wa-button>
 
-        <wa-dropdown-item disabled class="attach-terminal-header">Attach terminal from</wa-dropdown-item>
+        <wa-dropdown-item disabled class="attach-terminal-header">{{ $t("Attach terminal from") }}</wa-dropdown-item>
 
         <template v-if="hasItems">
             <template v-for="section in sections" :key="section.scope">
@@ -79,7 +81,7 @@ function onSelect(event) {
 
         <template v-else>
             <wa-divider></wa-divider>
-            <wa-dropdown-item disabled>No terminals to attach</wa-dropdown-item>
+            <wa-dropdown-item disabled>{{ $t("No terminals to attach") }}</wa-dropdown-item>
         </template>
     </wa-dropdown>
 </template>

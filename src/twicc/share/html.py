@@ -132,10 +132,25 @@ footer { margin-top: 2rem; color: var(--muted); font-size: .8rem; }
 """.encode()
 
 
-def share_unavailable_response() -> HttpResponse:
+def share_unavailable_response(request=None) -> HttpResponse:
     """Friendly 404 page for an unavailable share (design's "minimal 404 page"),
     replacing Django's bare error. Status stays 404; the body is a real page."""
-    resp = HttpResponse(_UNAVAILABLE_PAGE, status=404, content_type="text/html; charset=utf-8")
+    page = _UNAVAILABLE_PAGE
+    if request is not None:
+        from twicc.auth.labels import auth_labels
+
+        if auth_labels(request)["ui_language"] == "fr":
+            page = page.decode().replace('lang="en"', 'lang="fr"')
+            for source, translated in {
+                "TwiCC - Share unavailable": "TwiCC - Partage indisponible",
+                "This share is no longer available": "Ce partage n’est plus disponible",
+                "The link may have expired or is no longer shared.": "Le lien a peut-être expiré ou n’est plus partagé.",
+                "See your shared links": "Voir vos liens partagés",
+                "Shared with TwiCC": "Partagé avec TwiCC",
+            }.items():
+                page = page.replace(source, translated)
+            page = page.encode()
+    resp = HttpResponse(page, status=404, content_type="text/html; charset=utf-8")
     resp["X-Content-Type-Options"] = "nosniff"
     add_never_cache_headers(resp)
     return apply_share_headers(resp)

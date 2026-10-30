@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // Provider × model × effort matrix. Data is assembled provider-agnostically in
 // useSessionAgentSettings.matrixBlocks: rows are a provider's models, columns
 // the shared effort ladder, each cell picks provider + model + effort in one
@@ -127,7 +129,7 @@ const cellTips = computed(() => {
                 const hasData = cell.score != null && !!cell.benchmark
                 tips.push({
                     id: cellId(block.provider, r.model, cell.effort),
-                    title: `Benchmark data for ${modelLabel} × ${effortLabel(cell.effort)}`,
+                    get title() { return $t("Benchmark data for {p0} × {p1}", { p0: (modelLabel), p1: (effortLabel(cell.effort)) }) },
                     details: hasData ? formatBenchmarkDetails(cell.benchmark.row, cell.benchmark.scored, taskStore.taskType) : null,
                 })
             }
@@ -383,7 +385,7 @@ onBeforeUnmount(() => {
                         :class="{ selected: cell.selected, unavailable: !cell.enabled, 'top-solid': cell.borderStyle === 'solid', 'top-dashed': cell.borderStyle === 'dashed', 'score-high': cell.enabled && cell.score != null && cell.score > 80 }"
                         :style="{ gridColumn: cell.col, gridRow: r.row, '--score-alpha': cell.enabled && cell.score != null ? cell.score / 100 : 0 }"
                         :disabled="!cell.enabled"
-                        :aria-label="`${block.label} · ${r.name} ${r.version} · ${cell.effort}${cell.enabled ? ` · score ${cell.score ?? 'unknown'}` : ''}`"
+                        :aria-label="`${block.label} · ${r.name} ${r.version} · ${cell.effort}${cell.enabled ? $t(&quot; · score {p0}&quot;, { p0: (cell.score ?? 'unknown') }) : ''}`"
                         :aria-pressed="cell.selected"
                         @click="onCellClick(block.provider, r.model, cell)"
                     >
@@ -405,11 +407,11 @@ onBeforeUnmount(() => {
                 class="matrix-old-toggle"
                 @click="showOldModels = !showOldModels"
             >
-                {{ showOldModels ? 'Hide older models' : 'Show older models' }}
+                {{ showOldModels ? $t("Hide older models") : $t("Show older models") }}
             </button>
             <span class="matrix-legend">
-                <span v-if="hasDefaultCell" class="matrix-legend-item"><span class="matrix-default-dot"></span> default</span>
-                <span class="matrix-legend-item"><wa-icon class="matrix-legend-check" name="check"></wa-icon> selected</span>
+                <span v-if="hasDefaultCell" class="matrix-legend-item"><span class="matrix-default-dot"></span> {{ $t("default") }}</span>
+                <span class="matrix-legend-item"><wa-icon class="matrix-legend-check" name="check"></wa-icon> {{ $t("selected") }}</span>
             </span>
         </div>
 
@@ -434,9 +436,9 @@ onBeforeUnmount(() => {
                     </div>
                     <!-- The panel never takes the pointer, so no link here: point
                          at the help link above the matrix instead. -->
-                    <div class="cell-tip-help">More on these numbers: “What are those numbers?” above the matrix.</div>
+                    <div class="cell-tip-help">{{ $t("More on these numbers: “What are those numbers?” above the matrix.") }}</div>
                 </template>
-                <div v-else class="cell-tip-empty">Artificial Analysis provides no usable data for this model &times; effort.</div>
+                <div v-else class="cell-tip-empty">{{ $t("Artificial Analysis provides no usable data for this model × effort.") }}</div>
             </div>
         </HoverInfoPanel>
     </div>

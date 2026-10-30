@@ -1,3 +1,5 @@
+
+import { t as $t } from '../i18n/index.js'
 // Cross-provider agent settings presets store.
 //
 // Shape: { [provider]: { presets: [...] } }. The on-disk format is
@@ -105,7 +107,7 @@ export const useAgentSettingsPresetsStore = defineStore('agentSettingsPresets', 
         const list = getPresets(provider)
         if (index < 0 || index >= list.length) return
         const source = list[index]
-        const baseName = `${source.name} (copy)`
+        const baseName = $t("{p0} (copy)", { p0: (source.name) })
         let candidate = baseName
         let n = 2
         while (findIndexByName(provider, candidate) !== -1) {

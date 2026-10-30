@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 /**
  * ProjectSelectOptions — Renders wa-option elements for a list of projects,
  * split into named projects (with ProjectBadge) and unnamed projects
@@ -114,7 +116,7 @@ const flatTree = computed(() => {
         <!-- Divider + "Other projects" header between priority and remaining projects -->
         <template v-if="prioritySplit.prioritized.length && (namedProjects.length || flatTree.length)">
             <wa-divider></wa-divider>
-            <wa-option v-if="priorityLabel" disabled class="section-header-option">Other projects</wa-option>
+            <wa-option v-if="priorityLabel" disabled class="section-header-option">{{ $t("Other projects") }}</wa-option>
         </template>
     </template>
 

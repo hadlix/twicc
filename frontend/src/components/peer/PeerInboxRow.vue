@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 /**
  * PeerInboxRow — one message row of the peer inbox, in labelled lines.
  *
@@ -58,7 +60,7 @@ const peerLabel = computed(() => peersStore.peerLabel(props.message.peer_id))
  *  ate the width the peer name needs on a phone; the wording survives as the
  *  icon's label and tooltip. */
 const directionLabel = computed(() =>
-    isInbound.value ? `Received from ${peerLabel.value}` : `Sent to ${peerLabel.value}`
+    isInbound.value ? $t("Received from {p0}", { p0: (peerLabel.value) }) : $t("Sent to {p0}", { p0: (peerLabel.value) })
 )
 
 // A pending inbound message is mail waiting to be opened; a resolved one is
@@ -97,8 +99,8 @@ const routes = computed(() => {
         lines.push({
             key: 'author',
             label: isInbound.value
-                ? `Written directly by ${peerLabel.value}'s user`
-                : 'Written directly by you',
+                ? $t("Written directly by {p0}'s user", { p0: (peerLabel.value) })
+                : $t("Written directly by you"),
             title: '',
             display: '',
             projectId: null,
@@ -108,7 +110,7 @@ const routes = computed(() => {
     if (reply?.title) {
         lines.push({
             key: 'reply',
-            label: reply.direction === 'out' ? 'In reply to your' : 'In reply to their',
+            label: reply.direction === 'out' ? $t("In reply to your") : $t("In reply to their"),
             title: reply.title,
             display: shortTitle(reply.title),
             projectId: null,
@@ -128,7 +130,7 @@ const routes = computed(() => {
     if (routing?.sessionId && !routing.fromConversation) {
         lines.push({
             key: 'local',
-            label: isInbound.value ? 'Delivered to session' : 'Sent from session',
+            label: isInbound.value ? $t("Delivered to session") : $t("Sent from session"),
             title: routing.sessionTitle,
             display: peerRoutingSessionTitle(routing),
             projectId: routing.projectId,
@@ -138,23 +140,23 @@ const routes = computed(() => {
         // message is about, by the nearest thread row that has one.
         lines.push({
             key: 'session',
-            label: 'Session',
+            get label() { return $t("Session") },
             title: routing.sessionTitle,
             display: peerRoutingSessionTitle(routing),
             projectId: routing.projectId,
-            hint: 'from the conversation',
+            get hint() { return $t("from the conversation") },
         })
     } else if (routing?.projectId) {
         // A bare project: attached by hand, or inherited from a thread row
         // that only has one. The badge alone on its line.
         lines.push({
             key: 'project',
-            label: 'In project',
+            get label() { return $t("In project") },
             title: '',
             display: '',
             projectId: routing.projectId,
             projectOnly: true,
-            hint: routing.fromConversation ? 'from the conversation' : '',
+            hint: routing.fromConversation ? $t("from the conversation") : '',
         })
     }
     return lines
@@ -204,7 +206,7 @@ const timestampSeconds = computed(() =>
             <span class="pir__fill"></span>
             <span v-if="attachments" class="pir__attachments">
                 <wa-icon name="paperclip" auto-width></wa-icon>
-                {{ attachments.count }}<template v-if="attachments.purged"> (purged)</template>
+                {{ attachments.count }}<template v-if="attachments.purged"> {{ $t("(purged)") }}</template>
             </span>
             <wa-tag v-if="showStatus" :variant="statusVariant" size="small">{{ message.status }}</wa-tag>
             <span v-if="date" class="pir__time">
@@ -228,7 +230,7 @@ const timestampSeconds = computed(() =>
             <span class="pir__route-label">{{ route.label }}</span>
             <span v-if="route.display" class="pir__route-title" :title="route.title">“{{ route.display }}”</span>
             <template v-if="route.projectId">
-                <span v-if="!route.projectOnly" class="pir__route-label">in</span>
+                <span v-if="!route.projectOnly" class="pir__route-label">{{ $t("in") }}</span>
                 <ProjectBadge :project-id="route.projectId" class="pir__route-project" />
                 <span v-if="route.hint" class="pir__route-label">{{ route.hint }}</span>
             </template>

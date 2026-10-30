@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 /**
  * McpManager - external MCP connections and pending approval requests.
  *
@@ -58,9 +60,9 @@ const notifications = new Map()
 const active = computed(() => store.connections.filter(connection => !connection.revoked))
 const revoked = computed(() => store.connections.filter(connection => connection.revoked))
 const groups = computed(() => [
-    { title: 'Pending requests', kind: 'request', rows: store.pendingRequests },
-    { title: 'Active', kind: 'connection', rows: active.value },
-    { title: 'Revoked', kind: 'connection', rows: revoked.value },
+    { get title() { return $t("Pending requests") }, kind: 'request', rows: store.pendingRequests },
+    { get title() { return $t("Active") }, kind: 'connection', rows: active.value },
+    { get title() { return $t("Revoked") }, kind: 'connection', rows: revoked.value },
 ].filter(group => group.rows.length))
 const current = computed(() => (selected.value?.kind === 'request'
     ? store.pendingRequests.find(row => row.id === selected.value.id)
@@ -71,8 +73,8 @@ const current = computed(() => (selected.value?.kind === 'request'
 const configLoaded = computed(() => 'mcpBaseUrl' in store.config)
 const disabledReason = computed(() => {
     if (!configLoaded.value) return ''
-    if (!store.config.mcpBaseUrl) return 'External MCP is disabled — set your MCP address in Settings › External MCP first.'
-    if (!store.config.externalMcpEnabled) return 'External MCP is turned off — enable it in Settings › External MCP to accept new connections.'
+    if (!store.config.mcpBaseUrl) return $t("External MCP is disabled — set your MCP address in Settings › External MCP first.")
+    if (!store.config.externalMcpEnabled) return $t("External MCP is turned off — enable it in Settings › External MCP to accept new connections.")
     return ''
 })
 
@@ -151,7 +153,7 @@ watch(() => store.pendingRequests, requests => {
     }
     for (const request of requests) {
         if (!notifications.has(request.id)) notifications.set(request.id, toast.custom(McpToast, {
-            title: 'MCP connection request', duration: Infinity, persistent: true,
+            get title() { return $t("MCP connection request") }, duration: Infinity, persistent: true,
             props: { requestId: request.id, clientName: request.client_name },
         }))
     }
@@ -163,7 +165,7 @@ watch(() => store.config.externalMcpEnabled && store.protection.paused ? store.p
     incident => {
         securityNotification?.clear()
         securityNotification = incident ? toast.custom(McpSecurityToast, {
-            title: 'Suspected OAuth abuse', duration: Infinity, persistent: true,
+            get title() { return $t("Suspected OAuth abuse") }, duration: Infinity, persistent: true,
         }) : null
     })
 
@@ -187,20 +189,20 @@ onBeforeUnmount(() => {
 
 <template>
     <wa-dialog
-        :open="listOpen" label="MCP connections"
+        :open="listOpen" :label="$t(&quot;MCP connections&quot;)"
         style="--width: min(760px, calc(100vw - 2rem))"
         @wa-hide.self="listOpen = false"
     >
         <div slot="label" class="mcp-dialog-title">
-            <span>MCP connections</span>
-            <HelpFeatureLink help-key="external-mcp" label="What is external MCP?" />
+            <span>{{ $t("MCP connections") }}</span>
+            <HelpFeatureLink help-key="external-mcp" :label="$t(&quot;What is external MCP?&quot;)" />
         </div>
 
         <wa-callout v-if="disabledReason" variant="warning" size="small" class="mcp-block">
             {{ disabledReason }}
         </wa-callout>
         <p v-else-if="store.config.mcpBaseUrl" class="mcp-own-address">
-            Your MCP address: <code>{{ store.config.mcpBaseUrl }}/mcp</code>
+            {{ $t("Your MCP address:") }} <code>{{ store.config.mcpBaseUrl }}/mcp</code>
         </p>
 
         <McpProtection />
@@ -214,12 +216,12 @@ onBeforeUnmount(() => {
             <div v-for="entry in group.rows" :key="entry.id" class="mcp-connection">
                 <div class="mcp-connection__main">
                     <span class="mcp-connection__name">
-                        {{ entry.name || entry.client_name || 'External MCP client' }}
+                        {{ entry.name || entry.client_name || $t("External MCP client") }}
                     </span>
                     <wa-tag :variant="tagVariant(group, entry)" size="small">{{ tagLabel(group, entry) }}</wa-tag>
                     <span
                         class="mcp-connection__time"
-                        :title="group.kind === 'request' || !entry.last_used_at ? 'Created' : 'Last used'"
+                        :title="group.kind === 'request' || !entry.last_used_at ? $t(&quot;Created&quot;) : $t(&quot;Last used&quot;)"
                     >
                         <wa-relative-time
                             v-if="useRelativeTime"
@@ -230,41 +232,40 @@ onBeforeUnmount(() => {
                     </span>
                 </div>
                 <div class="mcp-connection__client">
-                    {{ group.kind === 'request' ? 'Awaiting your approval' : entry.client_name || 'External MCP client' }}
+                    {{ group.kind === 'request' ? $t("Awaiting your approval") : entry.client_name || $t("External MCP client") }}
                 </div>
                 <div class="mcp-connection__actions">
                     <wa-button
                         size="small" appearance="plain"
                         :variant="group.kind === 'request' ? 'brand' : 'neutral'"
                         @click="select(group.kind, entry.id)"
-                    >{{ group.kind === 'request' ? 'Review' : 'Details' }}</wa-button>
+                    >{{ group.kind === 'request' ? $t("Review") : $t("Details") }}</wa-button>
                     <wa-button
                         v-if="group.kind === 'connection' && !entry.revoked"
                         size="small" variant="danger" appearance="plain"
                         :disabled="busy[entry.id]"
                         @click="confirmingRevoke = entry.id"
-                    >Revoke</wa-button>
+                    >{{ $t("Revoke") }}</wa-button>
                 </div>
                 <wa-callout v-if="confirmingRevoke === entry.id" variant="warning" size="small">
                     <div class="mcp-confirm-body">
                         <span>
-                            Revokes this connection immediately and rejects its next request.
-                            It does not cancel an operation already running.
+                            {{ $t("Revokes this connection immediately and rejects its next request. It does not cancel an operation already running.") }}
                         </span>
                         <span class="mcp-confirm__actions">
                             <wa-button size="small" variant="danger" :disabled="busy[entry.id]" @click="revoke(entry.id)">
-                                Revoke
+                                {{ $t("Revoke") }}
                             </wa-button>
-                            <wa-button size="small" appearance="outlined" @click="confirmingRevoke = null">Keep</wa-button>
+                            <wa-button size="small" appearance="outlined" @click="confirmingRevoke = null">{{ $t("Keep") }}</wa-button>
                         </span>
                     </div>
                 </wa-callout>
             </div>
         </template>
 
-        <p v-if="!groups.length" class="mcp-empty">No MCP connections yet.</p>
+        <p v-if="!groups.length" class="mcp-empty">{{ $t("No MCP connections yet.") }}</p>
 
-        <wa-button slot="footer" @click="listOpen = false">Close</wa-button>
+        <wa-button slot="footer" @click="listOpen = false">{{ $t("Close") }}</wa-button>
     </wa-dialog>
 
     <McpConnectionDialog

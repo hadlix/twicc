@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../../../../i18n/index.js'
+
 import { computed, inject, watchEffect } from 'vue'
 import { useDataStore } from '../../../../../stores/data'
 import { getParsedContent, hasContent } from '../../../../../utils/parsedContent'
@@ -334,7 +336,7 @@ const showFileHeader = computed(() => fileEntries.value.length > 1)
     <div class="apply-patch-content">
         <div v-if="fileEntries.length === 0" class="apply-patch-empty">
             <wa-icon name="circle-info"></wa-icon>
-            Patch envelope not parseable yet.
+            {{ $t("Patch envelope not parseable yet.") }}
         </div>
         <ApplyPatchFileEntry
             v-for="(entry, idx) in fileEntries"

@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../../../../i18n/index.js'
+
 import { computed, inject } from 'vue'
 import ToolDiffViewer from '../claude_code/ToolDiffViewer.vue'
 import AppTooltip from '../../../../ui/AppTooltip.vue'
@@ -108,12 +110,12 @@ function openInFilesTab() {
                 >
                     <wa-icon name="folder-open"></wa-icon>
                 </wa-button>
-                <AppTooltip :for="viewInFilesButtonId">View in Files tab</AppTooltip>
+                <AppTooltip :for="viewInFilesButtonId">{{ $t("View in Files tab") }}</AppTooltip>
             </template>
         </div>
         <div v-if="diffMode === 'pending-delete'" class="apply-patch-pending">
             <wa-icon name="trash"></wa-icon>
-            File deletion — content not yet loaded.
+            {{ $t("File deletion — content not yet loaded.") }}
         </div>
         <div v-else class="apply-patch-file-body">
             <ToolDiffViewer

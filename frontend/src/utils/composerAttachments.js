@@ -1,3 +1,5 @@
+
+import { t as $t } from '../i18n/index.js'
 // frontend/src/utils/composerAttachments.js
 // Composer attachments (spec 2026-10-03 §9.1, §9.2): every file added to the
 // composer is uploaded to the server staging store, and the draft keeps only a
@@ -365,16 +367,16 @@ export function legacyFailedCount(failed, sessionId, legacyIds) {
 export function attachmentBadge({ count, chipStates = [], legacyFailed = 0, ready = true }) {
     const failedChips = chipStates.filter(state => state === ATTACHMENT_STATE.FAILED || state === ATTACHMENT_STATE.MISSING).length
     const attention = failedChips + legacyFailed
-    const parts = [`${count} file${count > 1 ? 's' : ''} attached`]
-    if (failedChips) parts.push(`${failedChips} need${failedChips > 1 ? '' : 's'} attention`)
+    const parts = [$t("{p0} file{p1} attached", { p0: (count), p1: (count > 1 ? 's' : '') })]
+    if (failedChips) parts.push($t("{p0} need{p1} attention", { p0: (failedChips), p1: (failedChips > 1 ? '' : 's') }))
     if (legacyFailed) {
         parts.push(legacyFailed > 1
-            ? `${legacyFailed} older attachments could not be converted — remove them`
-            : '1 older attachment could not be converted — remove it')
+            ? $t("{p0} older attachments could not be converted — remove them", { p0: (legacyFailed) })
+            : $t("1 older attachment could not be converted — remove it"))
     }
     if (!attention) {
         if (chipStates.includes(ATTACHMENT_STATE.UPLOADING)) parts.push('uploading')
-        else if (!ready) parts.push('preparing older attachments')
+        else if (!ready) parts.push($t("preparing older attachments"))
     }
     return { label: parts.join(' · '), attention, variant: attention ? 'danger' : 'primary' }
 }
@@ -468,13 +470,13 @@ function chipStatusText(state, retryable, pauseReason) {
         case ATTACHMENT_STATE.READY:
             return ''
         case ATTACHMENT_STATE.FAILED:
-            return retryable ? 'Upload failed' : 'Upload interrupted, attach the file again'
+            return retryable ? $t("Upload failed") : $t("Upload interrupted, attach the file again")
         case ATTACHMENT_STATE.MISSING:
-            return 'File no longer available'
+            return $t("File no longer available")
         default:
-            if (pauseReason === 'error') return 'Upload paused'
-            if (pauseReason === 'network') return 'Waiting for the connection'
-            return 'Uploading'
+            if (pauseReason === 'error') return $t("Upload paused")
+            if (pauseReason === 'network') return $t("Waiting for the connection")
+            return $t("Uploading")
     }
 }
 
@@ -549,7 +551,7 @@ export function legacyMediaStripItem(media, { failed = false } = {}) {
         state: failed ? ATTACHMENT_STATE.FAILED : '',
         progress: 0,
         retryable: false,
-        statusText: failed ? 'Could not be converted, remove it' : 'Preparing',
+        statusText: failed ? $t("Could not be converted, remove it") : $t("Preparing"),
         src: null,
     }
     if (kind === 'image' && media?.data) item.src = `data:${media.mimeType || 'image/png'};base64,${media.data}`
@@ -649,10 +651,10 @@ function jsonPost(fetchFn, url, body) {
 export async function statusRefs(refs, fetchFn) {
     if (!refs.length) return []
     const res = await jsonPost(fetchFn, `${API_ROOT}/status/`, { refs })
-    if (!res.ok) throw new Error(`Attachment status failed (${res.status})`)
+    if (!res.ok) throw new Error($t("Attachment status failed ({p0})", { p0: (res.status) }))
     const data = await res.json()
     if (!Array.isArray(data?.statuses) || data.statuses.length !== refs.length) {
-        throw new Error('Unexpected attachment status answer')
+        throw new Error($t("Unexpected attachment status answer"))
     }
     return data.statuses
 }

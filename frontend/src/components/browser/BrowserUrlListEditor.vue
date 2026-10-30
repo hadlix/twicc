@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 import ReorderHandle from '../ui/ReorderHandle.vue'
 // Editable list of saved Browser-pane URL entries ({ url, label?, default? }),
 // shared by ProjectEditDialog and WorkspaceManageDialog. The component keeps
@@ -56,8 +58,8 @@ function getEntries() {
         const raw = row.url.trim()
         if (!raw) continue
         const url = normalizeBrowserUrl(raw)
-        if (!url) return { error: `Browser URL must be a valid http(s) URL: "${raw}"` }
-        if (seen.has(url)) return { error: `Duplicate browser URL: ${url}` }
+        if (!url) return { get error() { return $t("Browser URL must be a valid http(s) URL: \"{p0}\"", { p0: (raw) }) } }
+        if (seen.has(url)) return { get error() { return $t("Duplicate browser URL: {p0}", { p0: (url) }) } }
         seen.add(url)
         const entry = { url }
         const label = row.label.trim()
@@ -80,14 +82,14 @@ defineExpose({ getEntries, reset })
                 class="browser-url-default"
                 :name="radioName"
                 :checked="row.isDefault"
-                title="Home default"
+                :title="$t(&quot;Home default&quot;)"
                 @change="setDefault(index)"
             />
             <wa-input
                 class="browser-url-url"
                 size="small"
                 autocomplete="off"
-                placeholder="e.g. http://localhost:3000"
+                :placeholder="$t(&quot;e.g. http://localhost:3000&quot;)"
                 :value="row.url"
                 @input="row.url = $event.target.value"
             />
@@ -96,19 +98,19 @@ defineExpose({ getEntries, reset })
                 size="small"
                 autocomplete="off"
                 maxlength="100"
-                placeholder="Label (optional)"
+                :placeholder="$t(&quot;Label (optional)&quot;)"
                 :value="row.label"
                 @input="row.label = $event.target.value"
             />
             <span class="browser-url-actions">
-                <button type="button" class="browser-url-action browser-url-action--danger" title="Remove" @click="removeRow(index)">
+                <button type="button" class="browser-url-action browser-url-action--danger" :title="$t(&quot;Remove&quot;)" @click="removeRow(index)">
                     <wa-icon name="trash"></wa-icon>
                 </button>
             </span>
         </div>
         <wa-button size="small" appearance="outlined" class="browser-url-add" @click="addRow">
             <wa-icon slot="start" name="plus"></wa-icon>
-            Add URL
+            {{ $t("Add URL") }}
         </wa-button>
     </div>
 </template>

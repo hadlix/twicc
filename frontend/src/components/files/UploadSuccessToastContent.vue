@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 /**
  * UploadSuccessToastContent — rich content for the "Uploaded <name>" toast.
  *
@@ -28,9 +30,9 @@ const props = defineProps({
 async function copyPath() {
     try {
         await navigator.clipboard.writeText(props.path)
-        toast.success('Path copied to clipboard', { duration: 2000 })
+        toast.success($t("Path copied to clipboard"), { duration: 2000 })
     } catch {
-        toast.error('Could not copy the path', { duration: 2000 })
+        toast.error($t("Could not copy the path"), { duration: 2000 })
     }
 }
 </script>
@@ -41,7 +43,7 @@ async function copyPath() {
         <div class="upload-toast-actions">
             <wa-button size="small" variant="brand" appearance="outlined" @click="copyPath">
                 <wa-icon slot="start" name="copy"></wa-icon>
-                Copy path
+                {{ $t("Copy path") }}
             </wa-button>
         </div>
     </div>

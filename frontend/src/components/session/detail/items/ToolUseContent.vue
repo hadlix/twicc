@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../../../i18n/index.js'
+
 import { computed, reactive, ref, inject, provide, watch, watchEffect, nextTick, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useCodeCommentsStore } from '../../../../stores/codeComments'
@@ -188,7 +190,7 @@ const {
         const url = `${baseUrl}/items/${props.lineNum}/tool-results/${props.toolId}/`
         const response = await apiFetch(url, { signal })
         if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`)
+            throw new Error($t("HTTP {p0}", { p0: (response.status) }))
         }
         return (await response.json()).results
     },
@@ -953,11 +955,11 @@ startResultFetch()
                 <strong v-else class="items-details-summary-name">{{ formatToolNameForHeader(name, headerLabel) }}</strong>
                 <!-- Control card: its agent's name replaces the provider summary. -->
                 <template v-if="controlAgentName">
-                    <span class="items-details-summary-separator"> — </span>
+                    <span class="items-details-summary-separator"> {{ $t("—") }} </span>
                     <span class="items-details-summary-description">{{ controlAgentName }}</span>
                 </template>
                 <template v-else-if="summaryRendering">
-                    <span class="items-details-summary-separator"> — </span>
+                    <span class="items-details-summary-separator"> {{ $t("—") }} </span>
                     <component :is="summaryRendering.component" v-bind="summaryRendering.props" />
                     <CodeCommentsIndicator :count="toolCommentsCount" :show-tooltip="false" class="tool-comments-indicator" />
                 </template>
@@ -978,7 +980,7 @@ startResultFetch()
                          and a View Agent click would just be a no-op. -->
                     <template v-else-if="agentId">
                         <AppTooltip v-if="isAgentRunning && agentRunStartedAt" :for="viewAgentButtonId">
-                            Agent running for <ProcessDuration :state-changed-at="agentRunStartedAt" />
+                            {{ $t("Agent running for") }} <ProcessDuration :state-changed-at="agentRunStartedAt" />
                         </AppTooltip>
                         <wa-button
                             :id="viewAgentButtonId"
@@ -988,7 +990,7 @@ startResultFetch()
                             @click.stop="navigateToSubagent"
                         >
                             <wa-icon v-if="isAgentRunning" slot="start" name="robot" class="robot-working" :style="{ color: PROCESS_STATE_COLORS[PROCESS_STATE.ASSISTANT_TURN] }"></wa-icon>
-                            View Agent
+                            {{ $t("View Agent") }}
                             <CodeCommentsIndicator slot="end" :count="agentCommentsCount" :show-tooltip="false" class="agent-comments-indicator" />
                         </wa-button>
                         <wa-button
@@ -1002,9 +1004,9 @@ startResultFetch()
                             :disabled="stoppingAgent"
                             @click.stop="handleStopAgent"
                         >
-                            <wa-icon name="ban" label="Stop Agent"></wa-icon>
+                            <wa-icon name="ban" :label="$t(&quot;Stop Agent&quot;)"></wa-icon>
                         </wa-button>
-                        <AppTooltip v-if="showStopAgent" :for="`stop-agent-${props.toolId}`">Stop this agent</AppTooltip>
+                        <AppTooltip v-if="showStopAgent" :for="`stop-agent-${props.toolId}`">{{ $t("Stop this agent") }}</AppTooltip>
                     </template>
                 </template>
                 <!-- View Workflow indicator for the Workflow tool_use (regular sessions only) -->
@@ -1017,14 +1019,14 @@ startResultFetch()
                         @click.stop="navigateToWorkflow"
                     >
                         <wa-icon slot="start" name="sitemap"></wa-icon>
-                        View Workflow
+                        {{ $t("View Workflow") }}
                     </wa-button>
-                    <AppTooltip :for="viewWorkflowButtonId">Open this workflow run</AppTooltip>
+                    <AppTooltip :for="viewWorkflowButtonId">{{ $t("Open this workflow run") }}</AppTooltip>
                 </template>
                 <!-- Tool running spinner (Bash, WebFetch, MCP, etc.) -->
                 <template v-if="isToolRunning">
                     <AppTooltip v-if="toolStartedAt" :for="toolSpinnerId">
-                        Running for <ProcessDuration :state-changed-at="toolStartedAt" />
+                        {{ $t("Running for") }} <ProcessDuration :state-changed-at="toolStartedAt" />
                     </AppTooltip>
                     <wa-spinner :id="toolSpinnerId" class="tool-running-spinner"></wa-spinner>
                 </template>
@@ -1047,7 +1049,7 @@ startResultFetch()
                     >
                         <wa-icon name="folder-open"></wa-icon>
                     </wa-button>
-                    <AppTooltip :for="viewInFilesButtonId">View in Files tab</AppTooltip>
+                    <AppTooltip :for="viewInFilesButtonId">{{ $t("View in Files tab") }}</AppTooltip>
                 </template>
             </div>
         </div>
@@ -1061,7 +1063,7 @@ startResultFetch()
                 <JsonHumanView :value="displayInput" :overrides="inputOverrides" />
             </div>
             <div v-else class="tool-no-input">
-                No input parameters
+                {{ $t("No input parameters") }}
             </div>
             <!-- Tool error message (shown directly, replaces the Result details unless Bash/Unknown) -->
             <wa-callout v-if="isToolError" variant="danger" class="tool-error-message">
@@ -1076,17 +1078,17 @@ startResultFetch()
                 <div v-if="rendersResultInline" class="tool-result-inline">
                     <div v-if="resultState === 'loading'" class="tool-result-loading">
                         <wa-spinner></wa-spinner>
-                        <span>Loading result...</span>
+                        <span>{{ $t("Loading result...") }}</span>
                     </div>
                     <div v-else-if="resultState === 'error'" class="tool-result-error">
-                        Error loading result: {{ resultError }}
+                        {{ $t("Error loading result:") }} {{ $t(resultError) }}
                     </div>
                     <div v-else-if="resultState === 'loaded' && !displayResult && showsPending" class="tool-result-polling">
                         <wa-spinner></wa-spinner>
-                        <span>Result not yet available. Checking again shortly...</span>
+                        <span>{{ $t("Result not yet available. Checking again shortly...") }}</span>
                     </div>
                     <div v-else-if="resultState === 'loaded' && !displayResult" class="tool-result-empty">
-                        No result available
+                        {{ $t("No result available") }}
                     </div>
                     <div v-else-if="resultState === 'loaded' && displayResult" class="tool-result-data">
                         <component
@@ -1100,24 +1102,24 @@ startResultFetch()
                             :overrides="resultOverrides"
                         />
                     </div>
-                    <div v-if="refreshNote" class="tool-result-refresh-note">Could not refresh: {{ resultError }}</div>
+                    <div v-if="refreshNote" class="tool-result-refresh-note">{{ $t("Could not refresh:") }} {{ $t(resultError) }}</div>
                 </div>
                 <wa-details v-else ref="resultDetailsRef" :open="isResultOpen" :style="instantOpen ? { '--show-duration': '0ms', '--hide-duration': '0ms' } : null" class="tool-result" @wa-show="onResultOpen" @wa-hide="onResultClose">
-                    <span slot="summary">Result</span>
+                    <span slot="summary">{{ $t("Result") }}</span>
                     <div class="tool-result-content">
                         <div v-if="resultState === 'loading'" class="tool-result-loading">
                             <wa-spinner></wa-spinner>
-                            <span>Loading result...</span>
+                            <span>{{ $t("Loading result...") }}</span>
                         </div>
                         <div v-else-if="resultState === 'error'" class="tool-result-error">
-                            Error loading result: {{ resultError }}
+                            {{ $t("Error loading result:") }} {{ $t(resultError) }}
                         </div>
                         <div v-else-if="resultState === 'loaded' && !displayResult && showsPending" class="tool-result-polling">
                             <wa-spinner></wa-spinner>
-                            <span>Result not yet available. Checking again shortly...</span>
+                            <span>{{ $t("Result not yet available. Checking again shortly...") }}</span>
                         </div>
                         <div v-else-if="resultState === 'loaded' && !displayResult" class="tool-result-empty">
-                            No result available
+                            {{ $t("No result available") }}
                         </div>
                         <div v-else-if="resultState === 'loaded' && displayResult" class="tool-result-data">
                             <div v-if="resultRendering" :class="{ 'tool-result-dedicated': !resultRendering.uncapped }">
@@ -1132,7 +1134,7 @@ startResultFetch()
                                 :overrides="resultOverrides"
                             />
                         </div>
-                        <div v-if="refreshNote" class="tool-result-refresh-note">Could not refresh: {{ resultError }}</div>
+                        <div v-if="refreshNote" class="tool-result-refresh-note">{{ $t("Could not refresh:") }} {{ $t(resultError) }}</div>
                     </div>
                 </wa-details>
             </template>

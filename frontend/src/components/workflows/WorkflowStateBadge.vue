@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // Shared "state" indicator (icon + label) for a workflow run, a phase, or an
 // agent. kind ∈ 'running' | 'completed' | 'interrupted' | 'pending'. 'interrupted'
 // = a terminal non-success (e.g. a killed run / its frozen agents); there's no
@@ -9,7 +11,7 @@ defineProps({
     kind: { type: String, required: true },
     label: { type: String, default: null },
 })
-const LABELS = { running: 'Running', completed: 'Completed', interrupted: 'Interrupted', pending: 'Pending' }
+const LABELS = { get running() { return $t("Running") }, get completed() { return $t("Completed") }, get interrupted() { return $t("Interrupted") }, get pending() { return $t("Pending") } }
 </script>
 
 <template>

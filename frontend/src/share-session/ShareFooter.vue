@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../i18n/index.js'
+
 // The "Shared with TwiCC" footer of every public share page (session, document, HTML artifact): the logo,
 // large enough for the full robot, and the whole sentence form ONE link. The same height as the session
 // page's header (3rem). `solid` paints the page surface behind it (the document and artifact pages); without
@@ -14,7 +16,7 @@ defineProps({
 <template>
     <footer class="share-footer" :class="{ 'share-footer--solid': solid }">
         <a class="share-footer-link" href="https://github.com/twidi/twicc" target="_blank" rel="noopener noreferrer">
-            <BrandLogo :size="32" /> <span>Shared with <u>TwiCC</u></span>
+            <BrandLogo :size="32" /> <span>{{ $t("Shared with") }} <u>{{ $t("TwiCC") }}</u></span>
         </a>
         <slot />
     </footer>

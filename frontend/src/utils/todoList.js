@@ -1,3 +1,5 @@
+
+import { t as $t } from '../i18n/index.js'
 /**
  * Utilities for TodoWrite tool data.
  */
@@ -69,7 +71,7 @@ export function getTodoDescription(todos) {
     if (!todos || (Array.isArray(todos) && todos.length === 0)) return null
 
     if (!isValidTodos(todos)) {
-        return [{ text: 'Invalid todo list', invalid: true }]
+        return [{ get text() { return $t("Invalid todo list") }, invalid: true }]
     }
 
     const total = todos.length
@@ -78,7 +80,7 @@ export function getTodoDescription(todos) {
     // Case 1: all completed
     if (completedCount === total) {
         return [
-            { text: total === 1 ? 'Task completed' : `All ${total} tasks completed`, status: 'completed' },
+            { text: total === 1 ? $t("Task completed") : $t("All {p0} tasks completed", { p0: (total) }), status: 'completed' },
         ]
     }
 
@@ -103,8 +105,8 @@ export function getTodoDescription(todos) {
     // Case 4: all pending
     const firstPending = todos[0]
     return [
-        { text: total === 1 ? '1 task' : `${total} tasks` },
-        { text: `next: ${getLabel(firstPending)}`, status: 'pending' },
+        { text: total === 1 ? $t("1 task") : $t("{p0} tasks", { p0: (total) }) },
+        { get text() { return $t("next: {p0}", { p0: (getLabel(firstPending)) }) }, status: 'pending' },
     ]
 }
 

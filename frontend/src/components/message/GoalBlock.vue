@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // Footer bar surfacing the session's current goal (the last entry of the
 // ``Session.goals`` lifecycle history — see the backend ``providers/goals.py``
 // docstring for the shape). Sits at the very top of the session-footer stack,
@@ -114,7 +116,7 @@ defineExpose({ open, collapse, requestFocus })
 // Normalised display state: a manual /goal clear wins (the reducer only sets
 // `cleared` on a goal that never completed), then completion, else active.
 function entryStatusLabel(entry) {
-    return entry?.cleared ? 'Stopped' : entry?.state === 'completed' ? 'Completed' : 'Active'
+    return entry?.cleared ? $t("Stopped") : entry?.state === 'completed' ? $t("Completed") : $t("Active")
 }
 function entryStatusVariant(entry) {
     return entry?.cleared ? 'neutral' : entry?.state === 'completed' ? 'success' : 'brand'
@@ -156,7 +158,7 @@ const earlierObjectives = computed(() => earlierObjectivesOf(goal.value))
 // current statement, so the bar always names what it is at a glance.
 const barLabel = computed(() => {
     const line = firstLineOf(currentObjective.value)
-    return line ? `Goal: ${line}` : 'Goal'
+    return line ? $t("Goal: {p0}", { p0: (line) }) : $t("Goal")
 })
 
 // ── Dates (open header) ──────────────────────────────────────────────────────
@@ -165,8 +167,8 @@ const createdAtMs = computed(() => (goal.value?.created_at ? Date.parse(goal.val
 const updatedAgo = computed(() => (updatedAtMs.value ? formatRelative(updatedAtMs.value) : null))
 const datesTooltip = computed(() => {
     const parts = []
-    if (createdAtMs.value) parts.push(`Set ${formatFullDateTime(createdAtMs.value)}`)
-    if (updatedAtMs.value) parts.push(`Updated ${formatFullDateTime(updatedAtMs.value)}`)
+    if (createdAtMs.value) parts.push($t("Set {p0}", { p0: (formatFullDateTime(createdAtMs.value)) }))
+    if (updatedAtMs.value) parts.push($t("Updated {p0}", { p0: (formatFullDateTime(updatedAtMs.value)) }))
     return parts.join(' — ')
 })
 
@@ -179,7 +181,7 @@ async function dismiss() {
     try {
         await store.dismissSessionGoal(props.projectId, props.sessionId, createdAt)
     } catch (error) {
-        toast.error(error.message || 'Failed to dismiss the goal')
+        toast.error(error.message || $t("Failed to dismiss the goal"))
     }
 }
 
@@ -208,7 +210,7 @@ function sendGoalCommand(text) {
         request_id: requestId,
     }
     if (!sendWsMessage(payload)) {
-        toast.error('Not connected — please retry in a moment')
+        toast.error($t("Not connected — please retry in a moment"))
         return false
     }
     // Optimistic user bubble + failure tracking, like any composer send.
@@ -290,14 +292,14 @@ const datesId = useId()
                 >
                     <wa-icon name="xmark"></wa-icon>
                 </wa-button>
-                <AppTooltip v-if="isClosed" :for="dismissBarId">Dismiss this goal</AppTooltip>
+                <AppTooltip v-if="isClosed" :for="dismissBarId">{{ $t("Dismiss this goal") }}</AppTooltip>
             </template>
         </CollapsedBar>
         <!-- Open state: header + read-only panel. -->
         <template v-else>
             <div class="goal-header" :class="`goal-header--${statusVariant}`">
                 <wa-icon name="bullseye" class="goal-header-icon"></wa-icon>
-                <span class="goal-header-title">Goal</span>
+                <span class="goal-header-title">{{ $t("Goal") }}</span>
                 <span class="goal-status-badge" :class="`goal-status-badge--${statusVariant}`">{{ statusLabel }}</span>
                 <span v-if="rawStateNuance" class="goal-status-badge goal-status-badge--nuance">{{ rawStateNuance }}</span>
                 <span v-if="updatedAgo" class="goal-dates" :id="datesId">{{ updatedAgo }}</span>
@@ -313,9 +315,9 @@ const datesId = useId()
                     :disabled="sendingLocked"
                     @click="stopGoal"
                 >
-                    <wa-icon name="ban" label="Stop the goal"></wa-icon>
+                    <wa-icon name="ban" :label="$t(&quot;Stop the goal&quot;)"></wa-icon>
                 </wa-button>
-                <AppTooltip v-if="!isClosed" :for="stopGoalId">Stop the goal (sends /goal clear)</AppTooltip>
+                <AppTooltip v-if="!isClosed" :for="stopGoalId">{{ $t("Stop the goal (sends /goal clear)") }}</AppTooltip>
                 <wa-button
                     variant="neutral"
                     appearance="plain"
@@ -326,7 +328,7 @@ const datesId = useId()
                 >
                     <wa-icon name="window-minimize" variant="classic"></wa-icon>
                 </wa-button>
-                <AppTooltip :for="minimizeToggleId">Minimize</AppTooltip>
+                <AppTooltip :for="minimizeToggleId">{{ $t("Minimize") }}</AppTooltip>
                 <wa-button
                     variant="neutral"
                     appearance="plain"
@@ -337,7 +339,7 @@ const datesId = useId()
                 >
                     <wa-icon :name="isMaximized ? 'compress' : 'expand'" variant="classic"></wa-icon>
                 </wa-button>
-                <AppTooltip :for="maximizeToggleId">{{ isMaximized ? 'Restore' : 'Maximize' }}</AppTooltip>
+                <AppTooltip :for="maximizeToggleId">{{ isMaximized ? $t("Restore") : $t("Maximize") }}</AppTooltip>
                 <wa-button
                     v-if="isClosed"
                     variant="neutral"
@@ -349,7 +351,7 @@ const datesId = useId()
                 >
                     <wa-icon name="xmark"></wa-icon>
                 </wa-button>
-                <AppTooltip v-if="isClosed" :for="dismissHeaderId">Dismiss this goal</AppTooltip>
+                <AppTooltip v-if="isClosed" :for="dismissHeaderId">{{ $t("Dismiss this goal") }}</AppTooltip>
             </div>
             <div ref="bodyRef" class="goal-body" tabindex="-1">
                 <!-- Current statement of the current goal. -->
@@ -358,7 +360,7 @@ const datesId = useId()
                      first, folded so the panel opens on just the live statement. -->
                 <wa-details v-if="earlierObjectives.length" class="goal-details" icon-placement="start">
                     <span slot="summary" class="goal-details-summary">
-                        Earlier statements ({{ earlierObjectives.length }})
+                        {{ $t("Earlier statements (") }}{{ earlierObjectives.length }})
                     </span>
                     <div v-for="(objective, index) in earlierObjectives" :key="index" class="goal-earlier-statement">
                         <MarkdownContent :source="objective" :show-toolbar="false" />
@@ -366,7 +368,7 @@ const datesId = useId()
                 </wa-details>
                 <!-- Closed goals that preceded the current one, newest first. -->
                 <template v-if="previousGoals.length">
-                    <div class="goal-section-heading">Previous goals</div>
+                    <div class="goal-section-heading">{{ $t("Previous goals") }}</div>
                     <wa-details
                         v-for="(entry, index) in previousGoals"
                         :key="entry.created_at ?? index"
@@ -380,7 +382,7 @@ const datesId = useId()
                         </span>
                         <MarkdownContent :source="lastObjectiveOf(entry)" :show-toolbar="false" />
                         <template v-if="earlierObjectivesOf(entry).length">
-                            <div class="goal-section-heading goal-section-heading--nested">Earlier statements</div>
+                            <div class="goal-section-heading goal-section-heading--nested">{{ $t("Earlier statements") }}</div>
                             <div v-for="(objective, objIndex) in earlierObjectivesOf(entry)" :key="objIndex" class="goal-earlier-statement">
                                 <MarkdownContent :source="objective" :show-toolbar="false" />
                             </div>
@@ -398,7 +400,7 @@ const datesId = useId()
                     size="small"
                     rows="1"
                     resize="auto"
-                    :placeholder="isClosed ? 'Set a new goal…' : 'Update the goal…'"
+                    :placeholder="isClosed ? $t(&quot;Set a new goal…&quot;) : $t(&quot;Update the goal…&quot;)"
                     :value.prop="updateText"
                     @input="updateText = $event.target.value"
                     @keydown="onUpdateKeydown"
@@ -413,7 +415,7 @@ const datesId = useId()
                 >
                     <wa-icon name="paper-plane"></wa-icon>
                 </wa-button>
-                <AppTooltip :for="submitUpdateId">{{ isClosed ? 'Set a new goal' : 'Update the goal' }} (sends /goal …)</AppTooltip>
+                <AppTooltip :for="submitUpdateId">{{ isClosed ? $t("Set a new goal") : $t("Update the goal") }} {{ $t("(sends /goal …)") }}</AppTooltip>
             </form>
         </template>
     </div>

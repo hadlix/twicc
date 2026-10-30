@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../i18n/index.js'
+
 import { ref, reactive, provide, onMounted, onUnmounted, computed, watch } from 'vue'
 import ShareItemsList from './ShareItemsList.vue'
 import FrameHost from '../components/frames/FrameHost.vue'
@@ -35,7 +37,7 @@ const ready = computed(() => meta.ready !== false)
 store.setSession({
     id: meta.session_id, provider: meta.provider, project_id: 'share',
     type: meta.inline_artifacts_supported === true ? 'session' : 'subagent',
-    title: meta.title || 'Shared session',
+    title: meta.title || $t("Shared session"),
     last_line: meta.last_line, git_directory: null, cwd: null, artifacts_dir: null,
     created_at: meta.created_at, last_updated_at: meta.last_updated_at,
     last_started_at: meta.last_started_at, last_stopped_at: meta.last_stopped_at,
@@ -318,33 +320,33 @@ onUnmounted(() => {
         <header class="share-header glass-sticky">
             <div class="share-title">
                 <ProviderIcon v-if="providerIcon" :provider="meta.provider" />
-                <strong>{{ meta.title || 'Shared session' }}</strong>
+                <strong>{{ meta.title || $t("Shared session") }}</strong>
             </div>
             <wa-button id="share-menu-trigger" size="small" appearance="plain" class="share-menu-button">
-                <wa-icon name="bars" label="View options"></wa-icon>
+                <wa-icon name="bars" :label="$t(&quot;View options&quot;)"></wa-icon>
             </wa-button>
             <wa-popover for="share-menu-trigger" placement="bottom-end" class="share-menu">
                 <div class="share-menu-content">
-                    <label class="share-menu-field">Detail level
+                    <label class="share-menu-field">{{ $t("Detail level") }}
                         <wa-select size="small" :value="settings.displayMode"
                                    @change.stop="settings.setDisplayMode($event.target.value)">
                             <wa-option v-for="m in displayModes" :key="m" :value="m">{{ capitalize(m) }}</wa-option>
                         </wa-select>
                     </label>
                     <wa-switch size="small" :checked="settings.areMessageTimestampsShown"
-                               @change.stop="settings.setMessageTimestampsShown($event.target.checked)">Show timestamps</wa-switch>
+                               @change.stop="settings.setMessageTimestampsShown($event.target.checked)">{{ $t("Show timestamps") }}</wa-switch>
                     <!-- Above: per-share view options. Below: the viewer's own -->
                     <!-- persisted preferences (carry across every share). -->
                     <wa-divider></wa-divider>
-                    <label class="share-menu-field">Color scheme
+                    <label class="share-menu-field">{{ $t("Color scheme") }}
                         <wa-select size="small" :value="settings._colorScheme"
                                    @change.stop="settings.setColorScheme($event.target.value)">
-                            <wa-option value="system">System</wa-option>
-                            <wa-option value="light">Light</wa-option>
-                            <wa-option value="dark">Dark</wa-option>
+                            <wa-option value="system">{{ $t("System") }}</wa-option>
+                            <wa-option value="light">{{ $t("Light") }}</wa-option>
+                            <wa-option value="dark">{{ $t("Dark") }}</wa-option>
                         </wa-select>
                     </label>
-                    <label class="share-menu-field">Font size ({{ settings.getFontSize }}px)
+                    <label class="share-menu-field">{{ $t("Font size (") }}{{ settings.getFontSize }}{{ $t("px)") }}
                         <wa-slider size="small" :min.prop="12" :max.prop="32" :step.prop="1"
                                    :value.prop="settings.getFontSize"
                                    @input.stop="settings.setFontSize($event.target.value)"></wa-slider>
@@ -354,11 +356,11 @@ onUnmounted(() => {
         </header>
 
         <wa-callout v-if="revoked" variant="warning" class="share-banner">
-            This share is no longer available.
+            {{ $t("This share is no longer available.") }}
         </wa-callout>
 
         <wa-callout v-else-if="!ready" variant="neutral" class="share-banner">
-            This shared session is being prepared. Refresh this page later.
+            {{ $t("This shared session is being prepared. Refresh this page later.") }}
         </wa-callout>
 
         <ShareItemsList

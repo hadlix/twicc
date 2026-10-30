@@ -13,7 +13,7 @@ const norm = (s) => s.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s+/g, ' ').trim
 const footer = read('share-session/ShareFooter.vue')
 
 test('1. one link around the logo (32px: the full robot) and the whole sentence', () => {
-    assert.ok(footer.includes('<BrandLogo :size="32" /> <span>Shared with <u>TwiCC</u></span>'))
+    assert.ok(footer.includes('<BrandLogo :size="32" /> <span>{{ $t("Shared with") }} <u>{{ $t("TwiCC") }}</u></span>'))
     assert.ok(footer.includes('<a class="share-footer-link" href="https://github.com/twidi/twicc" target="_blank" rel="noopener noreferrer">'))
     assert.ok(footer.includes('<slot />'))
 })

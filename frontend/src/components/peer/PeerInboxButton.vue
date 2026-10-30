@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 /**
  * PeerInboxButton — badge entry point to the peer inbox.
  *
@@ -44,7 +46,7 @@ function openInbox() {
             <wa-icon name="envelope"></wa-icon>
             <PeerInboxBadge :count="count" />
         </wa-button>
-        <AppTooltip :for="buttonId">Peer inbox</AppTooltip>
+        <AppTooltip :for="buttonId">{{ $t("Peer inbox") }}</AppTooltip>
     </template>
 </template>
 

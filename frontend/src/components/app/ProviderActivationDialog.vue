@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 import { ref, computed, watch, onBeforeUnmount } from 'vue'
 import { useSettingsStore } from '../../stores/settings'
 import { useDataStore } from '../../stores/data'
@@ -108,11 +110,9 @@ function handleHide(event) {
         without-header
         @wa-hide="handleHide"
     >
-        <h2 class="dialog-title">Choose your providers</h2>
+        <h2 class="dialog-title">{{ $t("Choose your providers") }}</h2>
         <p>
-            TwiCC supports multiple AI coding providers. Pick the ones you want
-            to enable and choose a default for new sessions. You can change
-            these anytime from <strong>Settings &rarr; Providers</strong>.
+            {{ $t("TwiCC supports multiple AI coding providers. Pick the ones you want to enable and choose a default for new sessions. You can change these anytime from") }} <strong>{{ $t("Settings → Providers") }}</strong>.
         </p>
         <div class="provider-choices">
             <wa-switch
@@ -127,10 +127,10 @@ function handleHide(event) {
             </wa-switch>
         </div>
         <div class="default-provider-group">
-            <label class="default-provider-label">Default provider for new sessions</label>
+            <label class="default-provider-label">{{ $t("Default provider for new sessions") }}</label>
             <wa-select
                 :value.prop="defaultChoice"
-                placeholder="Select a default provider…"
+                :placeholder="$t(&quot;Select a default provider…&quot;)"
                 :disabled="enabledProviderOptions.length === 0"
                 @change="(e) => defaultChoice = e.target.value"
             >
@@ -150,7 +150,7 @@ function handleHide(event) {
                 </wa-option>
             </wa-select>
             <p class="default-provider-hint">
-                You can always pick a different provider when creating a new session.
+                {{ $t("You can always pick a different provider when creating a new session.") }}
             </p>
         </div>
         <wa-button
@@ -159,7 +159,7 @@ function handleHide(event) {
             :disabled="!canSave"
             @click="save"
         >
-            Save
+            {{ $t("Save") }}
         </wa-button>
     </wa-dialog>
 </template>

@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../i18n/index.js'
+
 // Footer color-scheme switcher for the share viewers that have no options menu
 // (the doc viewer and the HTML-artifact shell). Cycles system → light → dark,
 // persisting through the same viewer-prefs blob the session menu writes, so a
@@ -8,7 +10,7 @@ import { useSettingsStore } from '../stores/settings'
 
 const ORDER = ['system', 'light', 'dark']
 const ICON = { system: 'circle-half-stroke', light: 'sun', dark: 'moon' }
-const LABEL = { system: 'Theme: system', light: 'Theme: light', dark: 'Theme: dark' }
+const LABEL = { get system() { return $t("Theme: system") }, get light() { return $t("Theme: light") }, get dark() { return $t("Theme: dark") } }
 
 // Drive the scheme through the store (not applyShareColorScheme directly): the
 // store action updates the reactive _colorScheme AND applies it to the DOM, so

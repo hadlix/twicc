@@ -1,3 +1,5 @@
+
+import { t as $t } from '../i18n/index.js'
 /**
  * useCommandRegistry composable — Singleton registry for command palette commands.
  *
@@ -48,17 +50,17 @@ import { getRegisteredProviders, getProviderHelpers } from '../providers'
 export const CATEGORIES = computed(() => {
     const providerCategories = getRegisteredProviders().map(provider => {
         const label = getProviderHelpers(provider).constructor.label ?? provider
-        return { key: `provider:${provider}`, label: `${label} Defaults` }
+        return { key: `provider:${provider}`, get label() { return $t("{p0} Defaults", { p0: (label) }) } }
     })
     return [
-        { key: 'navigation', label: 'Navigation' },
-        { key: 'session',    label: 'Session' },
-        { key: 'layout',     label: 'Layout' },
-        { key: 'creation',   label: 'Creation' },
-        { key: 'display',    label: 'Display' },
-        { key: 'terminal',   label: 'Terminal' },
+        { key: 'navigation', get label() { return $t("Navigation") } },
+        { key: 'session',    get label() { return $t("Session") } },
+        { key: 'layout',     get label() { return $t("Layout") } },
+        { key: 'creation',   get label() { return $t("Creation") } },
+        { key: 'display',    get label() { return $t("Display") } },
+        { key: 'terminal',   get label() { return $t("Terminal") } },
         ...providerCategories,
-        { key: 'ui',         label: 'UI' },
+        { key: 'ui',         get label() { return $t("UI") } },
     ]
 })
 

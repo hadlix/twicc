@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { t as $t } from '../../../../../i18n/index.js'
+
 import { useGitContext } from '../../composables/useGitContext'
 import pencilIcon from '../../assets/pencil.svg'
 import plusIcon from '../../assets/plus.svg'
@@ -26,7 +28,7 @@ const { indexStatus } = useGitContext()
       </span>
 
       <div class="iconWrapper">
-        <img :src="pencilIcon" class="pencil" alt="modified">
+        <img :src="pencilIcon" class="pencil" :alt="$t(&quot;modified&quot;)">
       </div>
     </div>
 
@@ -39,7 +41,7 @@ const { indexStatus } = useGitContext()
       </span>
 
       <div class="iconWrapper">
-        <img :src="plusIcon" class="plus" alt="added">
+        <img :src="plusIcon" class="plus" :alt="$t(&quot;added&quot;)">
       </div>
     </div>
 
@@ -52,7 +54,7 @@ const { indexStatus } = useGitContext()
       </span>
 
       <div class="iconWrapper">
-        <img :src="minusIcon" class="minus" alt="deleted">
+        <img :src="minusIcon" class="minus" :alt="$t(&quot;deleted&quot;)">
       </div>
     </div>
   </div>

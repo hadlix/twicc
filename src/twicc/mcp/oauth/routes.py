@@ -122,6 +122,26 @@ catch{document.getElementById('status').textContent='Waiting for TwiCC. Retrying
 </script></html>"""
 
 
+def localized_wait_page(request):
+    """Translate only fixed page copy; OAuth state and continuation data stay intact."""
+    from twicc.auth.labels import auth_labels
+
+    if auth_labels(request)["ui_language"] != "fr":
+        return WAIT_PAGE
+    page = WAIT_PAGE.replace('lang="en"', 'lang="fr"')
+    for source, translated in {
+        "Authorize TwiCC MCP": "Autoriser le MCP TwiCC",
+        "Open your TwiCC instance on any device. Review the pending MCP request and enter this code:":
+            "Ouvrez votre instance TwiCC sur un appareil, examinez la demande MCP en attente et saisissez ce code :",
+        "Waiting for your decision. Keep this page open.": "En attente de votre décision. Gardez cette page ouverte.",
+        "'Expired'": "'Expiré'",
+        "This request expired. Start a new connection.": "Cette demande a expiré. Démarrez une nouvelle connexion.",
+        "Waiting for TwiCC. Retrying…": "En attente de TwiCC. Nouvelle tentative…",
+    }.items():
+        page = page.replace(source, translated)
+    return page
+
+
 async def handle(request):
     path, method = request.url.path, request.method
     if path == RESOURCE_METADATA and method == "GET":
@@ -148,7 +168,7 @@ async def handle(request):
         )
     if path == "/mcp/oauth/wait" and method == "GET":
         return HTMLResponse(
-            WAIT_PAGE,
+            localized_wait_page(request),
             headers={
                 "Content-Security-Policy": "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'"
             },

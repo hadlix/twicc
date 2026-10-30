@@ -1,3 +1,5 @@
+
+import { t as $t } from '../i18n/index.js'
 const MESSAGE_HISTORY_LIMIT = 200
 const MESSAGE_PEER_STATES = new Set(['active', 'broken', 'revoked'])
 
@@ -22,7 +24,7 @@ export function peerInboxView(messages, filtersActive) {
         history,
         emptyMessage: received.length || history.length
             ? null
-            : filtersActive ? 'No messages match your filters.' : 'No peer messages yet.',
+            : filtersActive ? $t("No messages match your filters.") : $t("No peer messages yet."),
     }
 }
 

@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // TerminalCombosDialog.vue - Dialog for managing custom key combos
 import GroupedListEditor from '../ui/GroupedListEditor.vue'
 import { isSnippetGroup, getGroupItems, flattenGroupedEntries } from '../../utils/snippetGroups'
@@ -29,25 +31,25 @@ const warningMessage = ref('')
 
 // ── Key picker constants ─────────────────────────────────────────────
 const KEY_DISPLAY_MAP = {
-    Escape: 'ESC',
-    Tab: 'TAB',
-    Enter: 'ENTER',
+    get Escape() { return $t("ESC") },
+    get Tab() { return $t("TAB") },
+    get Enter() { return $t("ENTER") },
     ArrowLeft: '←',
     ArrowUp: '↑',
     ArrowDown: '↓',
     ArrowRight: '→',
-    Home: 'HOME',
-    End: 'END',
-    PageUp: 'PGUP',
-    PageDown: 'PGDN',
-    Delete: 'DEL',
-    Insert: 'INS',
+    get Home() { return $t("HOME") },
+    get End() { return $t("END") },
+    get PageUp() { return $t("PGUP") },
+    get PageDown() { return $t("PGDN") },
+    get Delete() { return $t("DEL") },
+    get Insert() { return $t("INS") },
 }
 
 const PICKER_KEYS = [
     // Row 1: from Essentials
     [
-        { label: 'ESC', key: 'Escape' }, { label: 'TAB', key: 'Tab' }, { label: 'ENTER', key: 'Enter', wide: true },
+        { get label() { return $t("ESC") }, key: 'Escape' }, { get label() { return $t("TAB") }, key: 'Tab' }, { get label() { return $t("ENTER") }, key: 'Enter', wide: true },
         { label: '←', key: 'ArrowLeft' }, { label: '↑', key: 'ArrowUp' },
         { label: '↓', key: 'ArrowDown' }, { label: '→', key: 'ArrowRight' },
         { label: '-', key: '-' }, { label: '/', key: '/' },
@@ -55,9 +57,9 @@ const PICKER_KEYS = [
     ],
     // Row 2: from More
     [
-        { label: 'HOME', key: 'Home', wide: true }, { label: 'END', key: 'End', wide: true },
-        { label: 'PGUP', key: 'PageUp', wide: true }, { label: 'PGDN', key: 'PageDown', wide: true },
-        { label: 'DEL', key: 'Delete' }, { label: 'INS', key: 'Insert' },
+        { get label() { return $t("HOME") }, key: 'Home', wide: true }, { get label() { return $t("END") }, key: 'End', wide: true },
+        { get label() { return $t("PGUP") }, key: 'PageUp', wide: true }, { get label() { return $t("PGDN") }, key: 'PageDown', wide: true },
+        { get label() { return $t("DEL") }, key: "Delete" }, { get label() { return $t("INS") }, key: 'Insert' },
         { label: '\\', key: '\\' }, { label: '_', key: '_' },
         { label: '*', key: '*' }, { label: '&', key: '&' },
         { label: '.', key: '.' }, { label: '+', key: '+' },
@@ -70,10 +72,10 @@ const MODIFIERS = ['ctrl', 'alt', 'shift']
 
 // ── Computed ─────────────────────────────────────────────────────────
 const dialogLabel = computed(() => {
-    if (groupMode.value && view.value === 'form') return 'Add Group'
-    if (view.value === 'list') return 'Manage Combos'
-    if (editIndex.value !== null) return 'Edit Combo'
-    return 'Add Combo'
+    if (groupMode.value && view.value === 'form') return $t("Add Group")
+    if (view.value === 'list') return $t("Manage Combos")
+    if (editIndex.value !== null) return $t("Edit Combo")
+    return $t("Add Combo")
 })
 
 // ── Key display helper ───────────────────────────────────────────────
@@ -207,11 +209,11 @@ function handleSave() {
     if (groupMode.value) {
         const label = formData.value.label.trim()
         if (!label) {
-            errorMessage.value = 'Group name is required.'
+            errorMessage.value = $t("Group name is required.")
             return
         }
         if (!terminalConfigStore.addComboGroup(label)) {
-            errorMessage.value = 'This item or group changed. Reopen the item and try again.'
+            errorMessage.value = $t("This item or group changed. Reopen the item and try again.")
             return
         }
         cancelForm()
@@ -220,24 +222,24 @@ function handleSave() {
     if (editIndex.value !== null) {
         const source = getGroupItems(terminalConfigStore.combos, editSourceGroupId.value)?.[editIndex.value]
         if (!source || JSON.stringify(source) !== editSourceSnapshot.value) {
-            errorMessage.value = 'This item or group changed. Reopen the item and try again.'
+            errorMessage.value = $t("This item or group changed. Reopen the item and try again.")
             return
         }
     }
     if (formData.value.groupId && !selectableGroups.value.some(group => group.id === formData.value.groupId)) {
-        errorMessage.value = 'The selected group no longer exists. Select another group.'
+        errorMessage.value = $t("The selected group no longer exists. Select another group.")
         return
     }
 
     if (!formData.value.steps || formData.value.steps.length === 0) {
-        errorMessage.value = 'At least one step is required.'
+        errorMessage.value = $t("At least one step is required.")
         return
     }
 
     // Every step must have a key
     const emptyStep = formData.value.steps.findIndex(s => !s.key)
     if (emptyStep >= 0) {
-        errorMessage.value = `Step ${emptyStep + 1} must have a key selected.`
+        errorMessage.value = $t("Step {p0} must have a key selected.", { p0: (emptyStep + 1) })
         return
     }
 
@@ -259,7 +261,7 @@ function handleSave() {
         return stepsMatch(combo.steps, cleanedData.steps)
     })
     if (isDuplicate && !warningMessage.value) {
-        warningMessage.value = 'A combo with identical steps already exists. Submit again to save anyway.'
+        warningMessage.value = $t("A combo with identical steps already exists. Submit again to save anyway.")
         return
     }
 
@@ -268,7 +270,7 @@ function handleSave() {
         ? terminalConfigStore.updateCombo(editIndex.value, cleanedData, editSourceGroupId.value, formData.value.groupId)
         : terminalConfigStore.addCombo(cleanedData, formData.value.groupId)
     if (!saved) {
-        errorMessage.value = 'This item or group changed. Reopen the item and try again.'
+        errorMessage.value = $t("This item or group changed. Reopen the item and try again.")
         return
     }
 
@@ -321,7 +323,7 @@ defineExpose({ open, close })
         <!-- ═══ LIST VIEW ═══ -->
         <div v-if="view === 'list'" class="dialog-content">
             <div v-if="terminalConfigStore.combos.length === 0" class="empty-message">
-                No custom combos yet. Add one to get started.
+                {{ $t("No custom combos yet. Add one to get started.") }}
             </div>
 
             <GroupedListEditor
@@ -349,20 +351,20 @@ defineExpose({ open, close })
         <form v-else :id="formId" class="dialog-content" @submit.prevent="handleSave">
             <!-- Label field -->
             <div class="form-group">
-                <label class="form-label">{{ groupMode ? 'Group name' : 'Label' }}</label>
+                <label class="form-label">{{ groupMode ? $t("Group name") : $t("Label") }}</label>
                 <wa-input
                     ref="labelInputRef"
                     :value="formData.label"
                     @input="formData.label = $event.target.value"
-                    :placeholder="groupMode ? 'e.g. tmux' : 'e.g. &quot;tmux:new&quot;'"
+                    :placeholder="groupMode ? $t(&quot;e.g. tmux&quot;) : $t(&quot;e.g. \&quot;tmux:new\&quot;&quot;)"
                     size="small"
                 />
-                <div v-if="!groupMode" class="form-hint">Optional — replaces notation on button</div>
+                <div v-if="!groupMode" class="form-hint">{{ $t("Optional — replaces notation on button") }}</div>
             </div>
 
             <!-- Steps -->
             <div v-if="!groupMode" class="form-group">
-                <label v-if="formData.steps.length > 1" class="form-label">Steps</label>
+                <label v-if="formData.steps.length > 1" class="form-label">{{ $t("Steps") }}</label>
 
                 <div
                     v-for="(step, stepIndex) in formData.steps"
@@ -377,12 +379,12 @@ defineExpose({ open, close })
                     <div class="step-card">
                         <!-- Step header (only when 2+ steps) -->
                         <div v-if="formData.steps.length > 1" class="step-header">
-                            <span class="step-title">Step {{ stepIndex + 1 }}</span>
+                            <span class="step-title">{{ $t("Step") }} {{ stepIndex + 1 }}</span>
                             <button
                                 type="button"
                                 class="step-remove-btn"
                                 @click="removeStep(stepIndex)"
-                                title="Remove step"
+                                :title="$t(&quot;Remove step&quot;)"
                             ><wa-icon name="xmark" /></button>
                         </div>
 
@@ -406,7 +408,7 @@ defineExpose({ open, close })
                                 type="text"
                                 maxlength="1"
                                 :value="step.key ? displayKeyLabel(step.key) : ''"
-                                :placeholder="'Pick below or click and press a key...'"
+                                :placeholder="$t(&quot;Pick below or click and press a key...&quot;)"
                                 autocomplete="off"
                                 autocorrect="off"
                                 autocapitalize="off"
@@ -433,13 +435,13 @@ defineExpose({ open, close })
                 </div>
 
                 <!-- Add step button -->
-                <button ref="addStepBtnRef" type="button" class="add-step-btn" @click="addStep">+ Add step</button>
+                <button ref="addStepBtnRef" type="button" class="add-step-btn" @click="addStep">{{ $t("+ Add step") }}</button>
             </div>
 
             <div v-if="!groupMode" class="form-group">
-                <label class="form-label">Group</label>
+                <label class="form-label">{{ $t("Group") }}</label>
                 <wa-select :value="formData.groupId || ''" @change="formData.groupId = $event.target.value || null" size="small">
-                    <wa-option value="">None</wa-option>
+                    <wa-option value="">{{ $t("None") }}</wa-option>
                     <wa-option v-for="group in selectableGroups" :key="group.id" :value="group.id">{{ group.label }}</wa-option>
                 </wa-select>
             </div>
@@ -451,7 +453,7 @@ defineExpose({ open, close })
 
             <!-- Error -->
             <wa-callout v-if="errorMessage" variant="danger" size="small">
-                {{ errorMessage }}
+                {{ $t(errorMessage) }}
             </wa-callout>
         </form>
 
@@ -459,23 +461,23 @@ defineExpose({ open, close })
         <div slot="footer" class="dialog-footer">
             <template v-if="view === 'list'">
                 <wa-button variant="neutral" appearance="outlined" @click="close">
-                    Close
+                    {{ $t("Close") }}
                 </wa-button>
                 <wa-button variant="neutral" appearance="outlined" @click="openGroupForm">
                     <wa-icon slot="start" name="folder-plus"></wa-icon>
-                    Add group
+                    {{ $t("Add group") }}
                 </wa-button>
                 <wa-button variant="brand" @click="openAddForm()">
                     <wa-icon slot="start" name="plus"></wa-icon>
-                    Add combo
+                    {{ $t("Add combo") }}
                 </wa-button>
             </template>
             <template v-else>
                 <wa-button variant="neutral" appearance="outlined" @click="cancelForm">
-                    Cancel
+                    {{ $t("Cancel") }}
                 </wa-button>
                 <wa-button ref="saveButtonRef" type="submit" variant="brand">
-                    Save
+                    {{ $t("Save") }}
                 </wa-button>
             </template>
         </div>

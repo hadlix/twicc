@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // Renders a standalone Mermaid source to an SVG and makes it pan/zoom-able
 // in place — the same direct, in-panel interaction as a rendered image in the
 // Files / Artifacts file viewer (NOT the markdown lightbox dialog). Reuses the
@@ -42,7 +44,7 @@ async function render() {
     } catch (e) {
         if (mySeq !== renderSeq) return
         svg.value = ''
-        error.value = e?.message || 'Failed to render diagram'
+        error.value = e?.message || $t("Failed to render diagram")
     }
 }
 
@@ -51,7 +53,7 @@ watch([() => props.code, theme], render, { immediate: true })
 
 <template>
     <div class="mermaid-pz-container">
-        <div v-if="error" class="mermaid-error">{{ error }}</div>
+        <div v-if="error" class="mermaid-error">{{ $t(error) }}</div>
         <!-- v-show (not v-if) so the panzoom target element stays mounted across
              re-renders; usePanZoom binds to it once. -->
         <div

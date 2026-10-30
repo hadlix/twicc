@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // Read-only view of a session's latest task/todo/plan snapshot, rendered with
 // the SAME provider-agnostic component as the conversation timeline
 // (TodoContent). The data lives on Session.tasks — normalised across providers
@@ -29,18 +31,18 @@ const progress = computed(() => countTasks(tasks.value?.items))
     <div class="task-pane">
         <div v-if="!tasks" class="task-state">
             <wa-icon name="square-check"></wa-icon>
-            <span>No tasks</span>
+            <span>{{ $t("No tasks") }}</span>
         </div>
         <template v-else>
             <div v-if="progress.total > 0" class="task-progress">
-                <span class="task-progress-label">{{ progress.done }} of {{ progress.total }} done</span>
+                <span class="task-progress-label">{{ progress.done }} {{ $t("of") }} {{ progress.total }} {{ $t("done") }}</span>
                 <div
                     class="task-progress-track"
                     role="progressbar"
                     :aria-valuemin="0"
                     :aria-valuemax="progress.total"
                     :aria-valuenow="progress.done"
-                    aria-label="Tasks done"
+                    :aria-label="$t(&quot;Tasks done&quot;)"
                 >
                     <div class="task-progress-fill" :style="{ width: progress.percent + '%' }"></div>
                 </div>

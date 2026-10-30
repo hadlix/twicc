@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 import { computed, inject, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
 import { useSettingsStore } from '../../stores/settings'
@@ -154,7 +156,7 @@ const snippetsForProject = computed(() => {
         return {
             ...snippet,
             _disabled: true,
-            _disabledReason: `Not available: ${unavailable.map(p => p.label).join(', ')}`,
+            get _disabledReason() { return $t("Not available: {p0}", { p0: (unavailable.map(p => p.label).join(', ')) }) },
         }
     })
 })
@@ -217,14 +219,14 @@ const ancestorScopes = computed(() => {
         if (ctx.startsWith('s:') && proj?.worktree_of) {
             // Session inside a git worktree: the worktree project itself, then
             // its main repository as "Project".
-            scopes.push({ scope: 'worktree', label: 'Worktree', contextKey: `p:${ownProjectId}`, projectId: ownProjectId })
-            scopes.push({ scope: 'project', label: 'Project', contextKey: `p:${mainRepoId}`, projectId: mainRepoId })
+            scopes.push({ scope: 'worktree', get label() { return $t("Worktree") }, contextKey: `p:${ownProjectId}`, projectId: ownProjectId })
+            scopes.push({ scope: 'project', get label() { return $t("Project") }, contextKey: `p:${mainRepoId}`, projectId: mainRepoId })
         } else if (ctx.startsWith('s:')) {
             // Session inside a plain project.
-            scopes.push({ scope: 'project', label: 'Project', contextKey: `p:${ownProjectId}`, projectId: ownProjectId })
+            scopes.push({ scope: 'project', get label() { return $t("Project") }, contextKey: `p:${ownProjectId}`, projectId: ownProjectId })
         } else if (proj?.worktree_of) {
             // Worktree-project panel: only its main repository sits above it.
-            scopes.push({ scope: 'project', label: 'Project', contextKey: `p:${mainRepoId}`, projectId: mainRepoId })
+            scopes.push({ scope: 'project', get label() { return $t("Project") }, contextKey: `p:${mainRepoId}`, projectId: mainRepoId })
         }
 
         // Workspaces containing the (main-repo) project — one section each.
@@ -233,7 +235,7 @@ const ancestorScopes = computed(() => {
         for (const ws of workspaces) {
             scopes.push({
                 scope: `workspace:${ws.id}`,
-                label: multiple ? `Workspace (${ws.name})` : 'Workspace',
+                label: multiple ? $t("Workspace ({p0})", { p0: (ws.name) }) : $t("Workspace"),
                 contextKey: `w:${ws.id}`,
                 wsId: ws.id,
                 cwd: workspacesStore.getTerminalCwd(ws.id),
@@ -242,7 +244,7 @@ const ancestorScopes = computed(() => {
     }
 
     // Global is the ancestor of every non-global panel.
-    scopes.push({ scope: 'global', label: 'Global', contextKey: 'global' })
+    scopes.push({ scope: 'global', get label() { return $t("Global") }, contextKey: 'global' })
     return scopes
 })
 
@@ -290,7 +292,7 @@ const seenOwnKeys = new Set()
 const INVALID_ROUTE_TERM_INDEX = -1
 
 // --- Terminal tab management ---
-const terminals = ref([{ index: 0, label: 'Main' }])
+const terminals = ref([{ index: 0, get label() { return $t("Main") } }])
 const activeIndex = ref(0)
 const nextIndex = ref(1) // monotonically increasing counter
 
@@ -350,10 +352,10 @@ const activeApi = computed(() => poolStore.getApi(activeKey.value))
 const isActiveMain = computed(() => activeAttachedKey.value === null && activeIndex.value === 0)
 const unavailableRouteMessage = computed(() => {
     const v = unavailableRouteTermIndex.value
-    if (v === INVALID_ROUTE_TERM_INDEX) return 'Requested terminal is not available.'
+    if (v === INVALID_ROUTE_TERM_INDEX) return $t("Requested terminal is not available.")
     // String value = an attached parent terminal's pool key (internal format).
-    if (typeof v === 'string') return 'The attached terminal is no longer available.'
-    return `Terminal \`${v}\` is no longer available.`
+    if (typeof v === 'string') return $t("The attached terminal is no longer available.")
+    return $t("Terminal `{p0}` is no longer available.", { p0: (v) })
 })
 
 // Flattened toolbar state from the active terminal's API.
@@ -377,7 +379,7 @@ function activateOwnTab(index) {
 
 function createTerminal() {
     const index = nextIndex.value++
-    terminals.value.push({ index, label: `Term ${index + 1}` })
+    terminals.value.push({ index, get label() { return $t("Term {p0}", { p0: (index + 1) }) } })
     activateOwnTab(index)
 }
 
@@ -460,7 +462,7 @@ function onTerminalTabShow(event) {
 
 /** Default label for a terminal index (used when no custom label is set). */
 function defaultLabel(index) {
-    return index === 0 ? 'Main' : `Term ${index + 1}`
+    return index === 0 ? $t("Main") : $t("Term {p0}", { p0: (index + 1) })
 }
 
 /** Open the rename dialog for a terminal tab. */
@@ -1505,7 +1507,7 @@ defineExpose({ activeIndex })
                     <AppTooltip
                         v-if="tb.canScrollUp || tb.paneAlternate"
                         for="terminal-scroll-top-button"
-                    >Scroll to top</AppTooltip>
+                    >{{ $t("Scroll to top") }}</AppTooltip>
 
                     <wa-button
                         v-if="tb.canScrollDown || tb.paneAlternate"
@@ -1522,20 +1524,20 @@ defineExpose({ activeIndex })
                     <AppTooltip
                         v-if="tb.canScrollDown || tb.paneAlternate"
                         for="terminal-scroll-bottom-button"
-                    >Scroll to bottom</AppTooltip>
+                    >{{ $t("Scroll to bottom") }}</AppTooltip>
 
                     <!-- Mobile-only: scroll/select mode toggle -->
                     <div v-if="settingsStore.isTouchDevice" class="touch-mode-group">
                         <span
                             class="touch-mode-label"
                             @click="handleTouchModeToggle"
-                        >Scroll</span>
+                        >{{ $t("Scroll") }}</span>
                         <wa-switch
                             size="small"
                             class="touch-mode-switch"
                             :checked="tb.touchMode === 'select'"
                             @change="handleTouchModeChange"
-                        >Select</wa-switch>
+                        >{{ $t("Select") }}</wa-switch>
                     </div>
 
                     <!-- Comment button (only when a message input is available) -->
@@ -1551,7 +1553,7 @@ defineExpose({ activeIndex })
                     >
                         <wa-icon name="comment" variant="regular"></wa-icon>
                     </wa-button>
-                    <AppTooltip v-if="tb.hasSelection && insertTextAtCursor" for="terminal-comment-button">Comment on selection</AppTooltip>
+                    <AppTooltip v-if="tb.hasSelection && insertTextAtCursor" for="terminal-comment-button">{{ $t("Comment on selection") }}</AppTooltip>
 
                     <!-- Copy button (all devices) -->
                     <wa-button
@@ -1565,7 +1567,7 @@ defineExpose({ activeIndex })
                     >
                         <wa-icon name="copy" variant="regular"></wa-icon>
                     </wa-button>
-                    <AppTooltip v-if="tb.hasSelection" for="terminal-copy-button">Copy selection</AppTooltip>
+                    <AppTooltip v-if="tb.hasSelection" for="terminal-copy-button">{{ $t("Copy selection") }}</AppTooltip>
 
                     <!-- Paste button -->
                     <wa-button
@@ -1578,7 +1580,7 @@ defineExpose({ activeIndex })
                     >
                         <wa-icon name="paste" variant="regular"></wa-icon>
                     </wa-button>
-                    <AppTooltip for="terminal-paste-button">Paste from clipboard</AppTooltip>
+                    <AppTooltip for="terminal-paste-button">{{ $t("Paste from clipboard") }}</AppTooltip>
                 </template>
 
                 <wa-divider v-if="tb.isConnected && !isActiveForcedAttached" orientation="vertical"></wa-divider>
@@ -1593,9 +1595,9 @@ defineExpose({ activeIndex })
                         :class="['autoattach-button', 'reduced-height', { 'autoattach-button--active': activeOwnAutoAttach }]"
                         @click="toggleAutoAttach"
                     >
-                        <wa-icon name="thumbtack" :label="activeOwnAutoAttach ? 'Disable auto-attach in children' : 'Auto-attach in children'"></wa-icon>
+                        <wa-icon name="thumbtack" :label="activeOwnAutoAttach ? $t(&quot;Disable auto-attach in children&quot;) : $t(&quot;Auto-attach in children&quot;)"></wa-icon>
                     </wa-button>
-                    <AppTooltip for="terminal-autoattach-button">{{ activeOwnAutoAttach ? 'Auto-attached in children — click to stop' : 'Auto-attach this terminal in children' }}</AppTooltip>
+                    <AppTooltip for="terminal-autoattach-button">{{ activeOwnAutoAttach ? $t("Auto-attached in children — click to stop") : $t("Auto-attach this terminal in children") }}</AppTooltip>
                 </template>
 
                 <!-- Rename button — own tabs only (attached tabs are renamed at their own level) -->
@@ -1610,7 +1612,7 @@ defineExpose({ activeIndex })
                     >
                         <wa-icon name="pen-to-square" variant="regular"></wa-icon>
                     </wa-button>
-                    <AppTooltip for="terminal-rename-button">Rename tab</AppTooltip>
+                    <AppTooltip for="terminal-rename-button">{{ $t("Rename tab") }}</AppTooltip>
                 </template>
 
                 <!-- Detach button — for a MANUALLY attached parent terminal (never kills its
@@ -1624,9 +1626,9 @@ defineExpose({ activeIndex })
                         class="disconnect-button reduced-height"
                         @click="handleDetach"
                     >
-                        <wa-icon name="link-slash" label="Detach terminal"></wa-icon>
+                        <wa-icon name="link-slash" :label="$t(&quot;Detach terminal&quot;)"></wa-icon>
                     </wa-button>
-                    <AppTooltip for="terminal-detach-button">Detach terminal</AppTooltip>
+                    <AppTooltip for="terminal-detach-button">{{ $t("Detach terminal") }}</AppTooltip>
                 </template>
 
                 <!-- Disconnect / Kill button — own tabs only. Never for an attached
@@ -1641,9 +1643,9 @@ defineExpose({ activeIndex })
                         class="disconnect-button reduced-height"
                         @click="handleKillOrDisconnect"
                     >
-                        <wa-icon name="ban" :label="isActiveMain ? 'Disconnect' : 'Kill terminal'"></wa-icon>
+                        <wa-icon name="ban" :label="isActiveMain ? $t(&quot;Disconnect&quot;) : $t(&quot;Kill terminal&quot;)"></wa-icon>
                     </wa-button>
-                    <AppTooltip for="terminal-disconnect-button">{{ isActiveMain ? 'Disconnect' : 'Kill terminal' }}</AppTooltip>
+                    <AppTooltip for="terminal-disconnect-button">{{ isActiveMain ? $t("Disconnect") : $t("Kill terminal") }}</AppTooltip>
                 </template>
             </div>
         </div>

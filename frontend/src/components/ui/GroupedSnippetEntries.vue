@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 import { onBeforeUnmount, onDeactivated, ref, useId, watch } from 'vue'
 import { isSnippetGroup } from '../../utils/snippetGroups'
 import { jsonValuesEqual } from '../../utils/jsonValuesEqual.js'
@@ -70,7 +72,7 @@ defineExpose({ close })
                         :item-id="`${instanceId}-${index}-${itemIndex}`"
                         :close="close"
                     />
-                    <span v-if="!entry.items.length" class="empty-group">No items in this group</span>
+                    <span v-if="!entry.items.length" class="empty-group">{{ $t("No items in this group") }}</span>
                 </div>
             </wa-popover>
         </template>

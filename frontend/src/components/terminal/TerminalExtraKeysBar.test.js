@@ -1,3 +1,4 @@
+import { t as $t } from '../../i18n/index.js'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
@@ -15,7 +16,7 @@ function fixture() {
         handleComboPointerDown, handleComboClick, handleSnippetPointerDown, handleSnippetClick,
         groupedCombos, groupedSnippets,
     } })`, {
-        defineProps: () => ({ isTouchDevice: true }),
+        $t, defineProps: () => ({ isTouchDevice: true }),
         defineEmits: () => (...args) => emitted.push(args),
         ref: value => ({ value }),
         computed: callback => ({ get value() { return callback() } }),

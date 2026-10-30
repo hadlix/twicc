@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 /**
  * GitStatusBadge — the per-file git status flag used across the Git tab.
  *
@@ -32,13 +34,13 @@ const STATUS_MAP = {
 
 /** Human label for the unmerged (conflict) two-letter porcelain codes. */
 const CONFLICT_LABELS = {
-    DD: 'both deleted',
-    AU: 'added by us',
-    UD: 'deleted by them',
-    UA: 'added by them',
-    DU: 'deleted by us',
-    AA: 'both added',
-    UU: 'both modified',
+    get DD() { return $t("both deleted") },
+    get AU() { return $t("added by us") },
+    get UD() { return $t("deleted by them") },
+    get UA() { return $t("added by them") },
+    get DU() { return $t("deleted by us") },
+    get AA() { return $t("both added") },
+    get UU() { return $t("both modified") },
 }
 
 /** One slot of the staged|unstaged code: a type-coloured letter, or a dim placeholder. */
@@ -71,7 +73,7 @@ const badge = computed(() => {
         return {
             conflict: true,
             parts: [{ ch: code[0] }, { ch: code[1] }],
-            tooltip: 'Conflict — ' + (CONFLICT_LABELS[code] || 'unmerged'),
+            tooltip: $t("Conflict — ") + (CONFLICT_LABELS[code] || 'unmerged'),
         }
     }
 
@@ -83,13 +85,13 @@ const badge = computed(() => {
     if (unstaged === 'untracked' && !staged) {
         return {
             parts: [{ ch: '?', cls: 'git-badge-untracked' }, { ch: '?', cls: 'git-badge-untracked' }],
-            tooltip: 'Untracked',
+            get tooltip() { return $t("Untracked") },
         }
     }
 
     const tip = []
-    if (staged) tip.push(`Staged: ${staged}`)
-    if (unstaged) tip.push(`Unstaged: ${unstaged}`)
+    if (staged) tip.push($t("Staged: {p0}", { p0: (staged) }))
+    if (unstaged) tip.push($t("Unstaged: {p0}", { p0: (unstaged) }))
     return { parts: [badgeSlot(staged), badgeSlot(unstaged)], tooltip: tip.join(' · ') }
 })
 

@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useDataStore } from '../../stores/data'
@@ -144,7 +146,7 @@ function activate(item) {
 </script>
 
 <template>
-    <nav aria-label="Main navigation" class="sidebar-rail">
+    <nav :aria-label="$t(&quot;Main navigation&quot;)" class="sidebar-rail">
         <div class="panel-card">
             <template v-for="item in top" :key="item.id">
                 <button

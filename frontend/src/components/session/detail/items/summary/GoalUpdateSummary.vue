@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../../../../i18n/index.js'
+
 import { computed } from 'vue'
 // Summary line for Codex's ``update_goal`` tool. The changed fields are
 // the keys of the call arguments (Codex only sends what it mutates). We
@@ -34,7 +36,7 @@ const statusIcon = computed(() => {
 <template>
     <span class="items-details-summary-description goal-update-summary">
         <span v-if="status" class="goal-update-part">
-            Status: {{ status }}<wa-icon
+            {{ $t("Status:") }} {{ status }}<wa-icon
                 v-if="statusIcon"
                 :name="statusIcon.name"
                 class="goal-update-status-icon"
@@ -43,7 +45,7 @@ const statusIcon = computed(() => {
         </span>
         <span v-if="status && changedKeys.length" class="goal-update-sep">+</span>
         <span v-if="changedKeys.length" class="goal-update-part">
-            {{ status ? 'Other changes:' : 'Changes:' }} {{ changedKeys.join(', ') }}
+            {{ status ? $t("Other changes:") : $t("Changes:") }} {{ changedKeys.join(', ') }}
         </span>
     </span>
 </template>

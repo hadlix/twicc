@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // Compact upload status shown next to the Files / Artifacts tab label (spec §6.11): an upload icon
 // and the aggregate percentage, with the count first when several uploads run (`2 · 43%`). Renders
 // nothing without a status. Shared by the center tab strip, the dock tab bars, the gutter chips
@@ -19,7 +21,7 @@ defineProps({
         class="upload-tab-status"
         :class="{ stalled: status.allStalled }"
     >
-        <wa-icon name="upload" class="upload-tab-icon" label="Uploads"></wa-icon>
+        <wa-icon name="upload" class="upload-tab-icon" :label="$t(&quot;Uploads&quot;)"></wa-icon>
         <span v-if="status.count > 1" class="upload-tab-count">{{ status.count }} ·</span>
         <span class="upload-tab-percent">{{ status.percent }}%</span>
     </span>

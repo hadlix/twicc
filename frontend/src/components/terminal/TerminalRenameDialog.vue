@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // TerminalRenameDialog.vue - Dialog for renaming a terminal tab
 import { ref, nextTick, useId } from 'vue'
 
@@ -81,14 +83,14 @@ defineExpose({ open, close })
 <template>
     <wa-dialog
         ref="dialogRef"
-        label="Rename terminal tab"
+        :label="$t(&quot;Rename terminal tab&quot;)"
         class="terminal-rename-dialog"
         @wa-show="syncFormState"
         @wa-after-show="focusInput"
     >
         <form :id="formId" class="dialog-content" @submit.prevent="handleSave">
             <div class="form-group">
-                <label class="form-label">Label</label>
+                <label class="form-label">{{ $t("Label") }}</label>
                 <wa-input
                     ref="inputRef"
                     :value.prop="localLabel"
@@ -97,17 +99,17 @@ defineExpose({ open, close })
                     :maxlength="LABEL_MAX_LENGTH"
                 ></wa-input>
                 <div class="form-hint">
-                    Max {{ LABEL_MAX_LENGTH }} characters. Leave empty to reset to default.
+                    {{ $t("Max") }} {{ LABEL_MAX_LENGTH }} {{ $t("characters. Leave empty to reset to default.") }}
                 </div>
             </div>
         </form>
 
         <div slot="footer" class="dialog-footer">
             <wa-button variant="neutral" appearance="outlined" @click="close">
-                Cancel
+                {{ $t("Cancel") }}
             </wa-button>
             <wa-button ref="saveButtonRef" type="submit" variant="brand">
-                Save
+                {{ $t("Save") }}
             </wa-button>
         </div>
     </wa-dialog>

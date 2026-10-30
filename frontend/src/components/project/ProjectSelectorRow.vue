@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // ProjectSelectorRow.vue — one project entry in the sidebar project selector
 // dropdown. Single source of truth for a project line: the selection check, the
 // project badge (color dot + name) and the end-of-line state indicators
@@ -85,7 +87,7 @@ function onRowMenuSelect(event) {
             <span class="row-menu" @click.stop>
                 <wa-dropdown placement="bottom-end" @wa-select.stop="onRowMenuSelect">
                     <wa-button slot="trigger" appearance="plain" size="small" class="row-menu-trigger">
-                        <wa-icon name="ellipsis-v" label="Project actions"></wa-icon>
+                        <wa-icon name="ellipsis-v" :label="$t(&quot;Project actions&quot;)"></wa-icon>
                     </wa-button>
                     <!-- Kept visible on a stale project, in a disabled look but
                          still live (see `.fake-disabled`): removing it made users
@@ -93,20 +95,20 @@ function onRowMenuSelect(event) {
                          explains the reason instead. -->
                     <wa-dropdown-item value="new-session" :class="{ 'fake-disabled': isStale }">
                         <wa-icon slot="icon" name="plus"></wa-icon>
-                        New session
+                        {{ $t("New session") }}
                     </wa-dropdown-item>
                     <wa-divider></wa-divider>
                     <wa-dropdown-item value="edit">
                         <wa-icon slot="icon" name="pencil"></wa-icon>
-                        Edit
+                        {{ $t("Edit") }}
                     </wa-dropdown-item>
                     <wa-dropdown-item v-if="!isArchived" value="archive">
                         <wa-icon slot="icon" name="box-archive"></wa-icon>
-                        Archive
+                        {{ $t("Archive") }}
                     </wa-dropdown-item>
                     <wa-dropdown-item v-else value="unarchive">
                         <wa-icon slot="icon" name="box-open"></wa-icon>
-                        Unarchive
+                        {{ $t("Unarchive") }}
                     </wa-dropdown-item>
                 </wa-dropdown>
             </span>

@@ -1,3 +1,6 @@
+import { getFormatLocale } from '../i18n/index.js'
+
+import { t as $t } from '../i18n/index.js'
 /**
  * Format a Unix timestamp using locale-aware formatting
  * @param {number} timestamp - Unix timestamp in seconds
@@ -13,7 +16,7 @@ export function formatDate(timestamp, { smart = false } = {}) {
 
     const date = new Date(timestamp * 1000)
     const now = new Date()
-    const locale = navigator.language
+    const locale = getFormatLocale()
 
     // Time formatting (always the same)
     const timeStr = date.toLocaleTimeString(locale, {
@@ -100,7 +103,7 @@ export function formatDayKey(timestampMs) {
  */
 export function formatDaySeparatorLabel(timestampMs) {
     if (!timestampMs || !Number.isFinite(timestampMs)) return '-'
-    return new Date(timestampMs).toLocaleDateString(navigator.language, {
+    return new Date(timestampMs).toLocaleDateString(getFormatLocale(), {
         weekday: 'long',
         year: 'numeric',
         month: 'long',
@@ -169,9 +172,9 @@ export function formatDuration(seconds) {
 export function formatRelative(timestampMs) {
     if (!timestampMs) return '-'
     const deltaSec = Math.max(0, Math.floor((Date.now() - timestampMs) / 1000))
-    if (deltaSec < 60) return 'just now'
-    if (deltaSec < 3600) return `${Math.floor(deltaSec / 60)}m ago`
-    if (deltaSec < 86400) return `${Math.floor(deltaSec / 3600)}h ago`
-    if (deltaSec < 7 * 86400) return `${Math.floor(deltaSec / 86400)}d ago`
+    if (deltaSec < 60) return $t("just now")
+    if (deltaSec < 3600) return $t("{p0}m ago", { p0: (Math.floor(deltaSec / 60)) })
+    if (deltaSec < 86400) return $t("{p0}h ago", { p0: (Math.floor(deltaSec / 3600)) })
+    if (deltaSec < 7 * 86400) return $t("{p0}d ago", { p0: (Math.floor(deltaSec / 86400)) })
     return formatDate(Math.floor(timestampMs / 1000), { smart: true })
 }

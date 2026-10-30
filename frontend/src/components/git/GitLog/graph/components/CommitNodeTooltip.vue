@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { t as $t } from '../../../../../i18n/index.js'
+
 import { computed, type CSSProperties } from 'vue'
 import { useTheme } from '../../composables/useTheme'
 import type { Commit } from '../../types'
@@ -28,11 +30,11 @@ const tooltipVars = computed<CSSProperties>(() => ({
 }))
 
 const parentsText = computed(() =>
-  props.commit.parents.length > 0 ? props.commit.parents.join(', ') : 'None',
+  props.commit.parents.length > 0 ? props.commit.parents.join(', ') : $t("None"),
 )
 
 const childrenText = computed(() =>
-  props.commit.children.length > 0 ? props.commit.children.join(', ') : 'None',
+  props.commit.children.length > 0 ? props.commit.children.join(', ') : $t("None"),
 )
 </script>
 
@@ -42,23 +44,23 @@ const childrenText = computed(() =>
     class="tooltip"
   >
     <div>
-      <p class="label">Hash:</p>
+      <p class="label">{{ $t("Hash:") }}</p>
       <p class="text">{{ commit.hash }}</p>
     </div>
 
     <div>
-      <p class="label">Parents:</p>
+      <p class="label">{{ $t("Parents:") }}</p>
       <p class="text">{{ parentsText }}</p>
     </div>
 
     <div>
-      <p class="label">Children:</p>
+      <p class="label">{{ $t("Children:") }}</p>
       <p class="text">{{ childrenText }}</p>
     </div>
 
     <div>
-      <p class="label">Branch Tip:</p>
-      <p class="text">{{ commit.isBranchTip ? 'Yes' : 'No' }}</p>
+      <p class="label">{{ $t("Branch Tip:") }}</p>
+      <p class="text">{{ commit.isBranchTip ? $t("Yes") : $t("No") }}</p>
     </div>
   </div>
 </template>

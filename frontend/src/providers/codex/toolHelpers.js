@@ -1,3 +1,5 @@
+
+import { t as $t } from '../../i18n/index.js'
 /**
  * Tool-rendering helpers for Codex sessions.
  *
@@ -747,11 +749,11 @@ function resolveParsedCommand(name, input) {
 }
 
 const HEADER_LABELS_BY_VARIANT = {
-    read: 'Read',
-    list_files: 'List files',
+    get read() { return $t("Read") },
+    get list_files() { return $t("List files") },
     // ``Grep`` reads better than ``Search`` for shell users: it
     // mirrors what the underlying tools (rg / grep / git grep) are.
-    search: 'Grep',
+    get search() { return $t("Grep") },
 }
 
 // Priority used by ``pickPrimary``: more specific variants win.
@@ -1090,13 +1092,13 @@ export class CodexToolHelpers extends BaseToolHelpers {
         if (name === 'apply_patch') return 'editing'
         if (name === 'web_search_call' || name === 'web__run') return 'searching'
         if (name === VIEW_IMAGE_TOOL_NAME) return 'viewing'
-        if (name === IMAGE_GEN_TOOL_NAME) return 'generating an image'
+        if (name === IMAGE_GEN_TOOL_NAME) return $t("generating an image")
         if (name.startsWith(MCP_TOOL_NAME_PREFIX)) {
             const server = name.split('__')[1] || 'mcp'
             return `mcping (${server})`
         }
         // Unknown tool: never null, an empty phrase would read "Codex is".
-        return `using ${humanizeToolSegment(name.split('__').pop()).toLowerCase()}`.trim()
+        return $t("using {p0}", { p0: (humanizeToolSegment(name.split('__').pop()).toLowerCase()) }).trim()
     }
 
     getHeaderLabel(name, input, options) {
@@ -1108,18 +1110,18 @@ export class CodexToolHelpers extends BaseToolHelpers {
         // ``apply_patch`` is the model's verb, not the user-facing
         // operation. Mirror Claude Code's ``Edit`` header so users see
         // the same word regardless of provider.
-        if (name === 'apply_patch') return 'Edit'
+        if (name === 'apply_patch') return $t("Edit")
         // Same idea for ``update_plan`` → ``Todo``: the tool plays the
         // role of Claude Code's ``TodoWrite``, so users see the same
         // header word across providers.
-        if (name === 'update_plan') return 'Todo'
-        if (name === 'request_user_input_async') return 'Request user input'
+        if (name === 'update_plan') return $t("Todo")
+        if (name === 'request_user_input_async') return $t("Request user input")
         // ``clock.sleep`` (namespaced function call, name ``clock__sleep``):
         // the "Clock" namespace adds nothing, so the title is just "Sleep"
         // plus the requested duration, so the card reads without being opened.
         if (name === 'clock__sleep') {
             const duration = formatDurationMsCompact(input?.duration_ms)
-            return duration ? `Sleep for ${duration}` : 'Sleep'
+            return duration ? $t("Sleep for {p0}", { p0: (duration) }) : 'Sleep'
         }
         // ``web_search_call`` splits into two user-facing surfaces
         // depending on the action variant: a web search for ``search``
@@ -1131,13 +1133,13 @@ export class CodexToolHelpers extends BaseToolHelpers {
         // override would surface the raw ``Web search call`` and lose the
         // search-vs-fetch distinction (which lives in ``input.type``).
         if (name === 'web_search_call') {
-            return input?.type === 'search' ? 'Web search' : 'Web fetch'
+            return input?.type === 'search' ? $t("Web search") : $t("Web fetch")
         }
         if (name === 'web__run') {
             const web = describeWebRun(input)
-            if (web?.kind === 'search') return 'Web search'
-            if (web?.kind === 'fetch') return 'Web fetch'
-            return web ? 'Web' : null
+            if (web?.kind === 'search') return $t("Web search")
+            if (web?.kind === 'fetch') return $t("Web fetch")
+            return web ? $t("Web") : null
         }
         // ``exec`` is Codex's ``code_mode`` tool — runs a JavaScript
         // snippet as a sandboxed code cell. When the script wraps a
@@ -1150,17 +1152,17 @@ export class CodexToolHelpers extends BaseToolHelpers {
             if (nested?.name === 'exec_command') {
                 // Delegate to the direct exec_command path — the nested
                 // arg has the exact same shape ({cmd, workdir, …}).
-                return this.getHeaderLabel('exec_command', nested.arg, options) ?? 'Shell'
+                return this.getHeaderLabel('exec_command', nested.arg, options) ?? $t("Shell")
             }
-            if (nested?.name === 'apply_patch') return 'Edit'
-            if (nested?.name === VIEW_IMAGE_TOOL_NAME) return 'Image'
-            if (nested?.name === IMAGE_GEN_TOOL_NAME) return 'Image generation'
-            if (nested?.name === 'update_plan') return 'Todo'
+            if (nested?.name === 'apply_patch') return $t("Edit")
+            if (nested?.name === VIEW_IMAGE_TOOL_NAME) return $t("Image")
+            if (nested?.name === IMAGE_GEN_TOOL_NAME) return $t("Image generation")
+            if (nested?.name === 'update_plan') return $t("Todo")
             if (nested?.name === 'web__run') {
                 const web = describeWebRun(nested.arg)
-                if (web?.kind === 'search') return 'Web search'
-                if (web?.kind === 'fetch') return 'Web fetch'
-                return 'Web'
+                if (web?.kind === 'search') return $t("Web search")
+                if (web?.kind === 'fetch') return $t("Web fetch")
+                return $t("Web")
             }
             if (nested?.name?.startsWith(MCP_TOOL_NAME_PREFIX)) {
                 // Same words a direct MCP call would show: direct calls
@@ -1169,16 +1171,16 @@ export class CodexToolHelpers extends BaseToolHelpers {
                 // shell's fallback would format ``exec`` instead).
                 return formatToolNameForHeader(nested.name)
             }
-            return 'Run code'
+            return $t("Run code")
         }
         // ``view_image`` loads a local image for the model — show the
         // clean "Image" header instead of the raw ``view_image`` name.
-        if (name === VIEW_IMAGE_TOOL_NAME) return 'Image'
+        if (name === VIEW_IMAGE_TOOL_NAME) return $t("Image")
         // GPT-5.6 hosted image generation: the raw namespaced name would
         // format as "Image gen : Imagegen". The generated picture itself is
         // a separate ``image`` item (``ImageGeneration.vue``); this card is
         // the call that produced it.
-        if (name === IMAGE_GEN_TOOL_NAME) return 'Image generation'
+        if (name === IMAGE_GEN_TOOL_NAME) return $t("Image generation")
         // Only SEMANTIC remaps live here (Edit, Todo, WebSearch, Image,
         // Run code) — where the header word differs from the tool's raw
         // name. Pure snake_case → clean-label cases (``create_goal``,
@@ -1193,7 +1195,7 @@ export class CodexToolHelpers extends BaseToolHelpers {
         if (!parsed) return null
         const primary = pickPrimary(mergeStages(parsed))
         if (!primary) return null
-        return HEADER_LABELS_BY_VARIANT[primary.type] ?? 'Shell'
+        return HEADER_LABELS_BY_VARIANT[primary.type] ?? $t("Shell")
     }
 
     getSummaryRendering(name, input, baseDir, options) {
@@ -1536,9 +1538,9 @@ export class CodexToolHelpers extends BaseToolHelpers {
                     message = status.errored
                 }
             } else if (status === 'shutdown') {
-                statusLabel = 'Subagent was shut down before producing a final message.'
+                statusLabel = $t("Subagent was shut down before producing a final message.")
             } else if (status === 'not_found') {
-                statusLabel = 'Subagent reference was not found.'
+                statusLabel = $t("Subagent reference was not found.")
             }
             if (!message && !statusLabel) return null
             return {
@@ -1553,7 +1555,7 @@ export class CodexToolHelpers extends BaseToolHelpers {
             const images = extractInputImageUrls(result)
             if (images.length === 0) return null
             // Title for the preview dialog — the input path basename.
-            let imageName = 'Image'
+            let imageName = $t("Image")
             const path = input?.path
             if (typeof path === 'string' && path) {
                 const idx = path.lastIndexOf('/')
@@ -1578,7 +1580,7 @@ export class CodexToolHelpers extends BaseToolHelpers {
             if (images.length === 0) return null
             return {
                 component: ViewImageResult,
-                props: { images, name: 'Generated image' },
+                props: { images, name: "Generated image" },
                 uncapped: true, // the image caps itself at 75vh
             }
         }
@@ -1920,7 +1922,7 @@ export class CodexToolHelpers extends BaseToolHelpers {
         if (!isSpawnAgentTool(name)) return null
         const rawType = typeof input?.agent_type === 'string' ? input.agent_type.trim() : ''
         if (!rawType || rawType === 'default') {
-            return { name: 'Agent', namespace: null }
+            return { name: "Agent", namespace: null }
         }
         return { name: capitalize(rawType), namespace: null }
     }

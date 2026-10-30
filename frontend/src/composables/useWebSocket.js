@@ -1,3 +1,5 @@
+
+import { t as $t } from '../i18n/index.js'
 import { handleAgentEvent } from '../utils/agentLinkIndex'
 import { isLaunchedEphemeral } from '../utils/ephemeralSessions'
 // frontend/src/composables/useWebSocket.js
@@ -660,7 +662,7 @@ export function sendValidateUsageDumpPath(filePath) {
         const sent = sendWsMessage({ type: 'validate_usage_dump_path', file_path: filePath })
         if (!sent) {
             __hmrState.usageDumpPathValidateResolve = null
-            resolve({ valid: false, message: 'Not connected' })
+            resolve({ valid: false, get message() { return $t("Not connected") } })
         }
     })
 }
@@ -679,7 +681,7 @@ export function sendValidateUsageFile(provider, filePath) {
         const sent = sendWsMessage({ type: 'validate_usage_file', provider, file_path: filePath })
         if (!sent) {
             __hmrState.usageFileValidateResolvers.delete(provider)
-            resolve({ valid: false, message: 'Not connected' })
+            resolve({ valid: false, get message() { return $t("Not connected") } })
         }
     })
 }
@@ -695,7 +697,7 @@ export function sendValidateTmuxConfigPath(filePath) {
         const sent = sendWsMessage({ type: 'validate_tmux_config_path', file_path: filePath })
         if (!sent) {
             __hmrState.tmuxConfigPathValidateResolve = null
-            resolve({ valid: false, message: 'Not connected' })
+            resolve({ valid: false, get message() { return $t("Not connected") } })
         }
     })
 }
@@ -753,7 +755,7 @@ function buildNotificationBody(msg) {
     const projectName = msg.project_parent_name
         ? `${truncateTitle(msg.project_parent_name, 40)} › ${truncateTitle(msg.project_name, 40)}`
         : truncateTitle(msg.project_name, 50)
-    return `Project: ${projectName}\nSession: ${sessionTitle}`
+    return $t("Project: {p0}\nSession: {p1}", { p0: (projectName), p1: (sessionTitle) })
 }
 
 /**
@@ -808,7 +810,7 @@ function notifyProcessStateChange(msg, previousState, route) {
         ephemeral,
     })
     if (ephemeral && !localSession) return
-    if (localSession) msg = { ...msg, session_title: localSession.title || 'Ephemeral session' }
+    if (localSession) msg = { ...msg, session_title: localSession.title || $t("Ephemeral session") }
     const isViewingSession = route?.params?.sessionId === sessionId
     const effects = getProcessStateNotificationEffects(msg, previousState, {
         isViewingSession,
@@ -858,8 +860,8 @@ function notifyProcessStateChange(msg, previousState, route) {
         // Use the freshest (last-arrived) request to title the toast.
         const latest = msg.pending_requests[effects.newPendingCount - 1]
         const pendingTitle = latest?.request_type === 'ask_user_question'
-            ? `🖐️ ${providerLabel} has a question for you`
-            : `🖐️ ${providerLabel} needs your approval`
+            ? $t("🖐️ {p0} has a question for you", { p0: (providerLabel) })
+            : $t("🖐️ {p0} needs your approval", { p0: (providerLabel) })
         // dismissOnVisit only: reaching the session is enough to drop the toast,
         // even with the request still unanswered. Not dismissOnRead — a pending
         // request is not unread content, so that criterion would close the toast
@@ -874,7 +876,7 @@ function notifyProcessStateChange(msg, previousState, route) {
     // Browser notification
     if (effects.sendPendingRequestBrowser) {
         sendBrowserNotification(
-            `${providerLabel} needs your attention`,
+            $t("{p0} needs your attention", { p0: (providerLabel) }),
             buildNotificationBody(msg),
         )
     }
@@ -885,18 +887,18 @@ function notifyProcessStateChange(msg, previousState, route) {
         if (msg.kill_reason === 'error') {
             toast.session(sessionId, {
                 type: 'error',
-                title: `${providerLabel} terminated due to error`,
-                errorMessage: msg.error || 'Unknown error',
+                get title() { return $t("{p0} terminated due to error", { p0: (providerLabel) }) },
+                errorMessage: msg.error || $t("Unknown error"),
             })
         } else if (msg.kill_reason === 'timeout_starting') {
             toast.session(sessionId, {
                 type: 'error',
-                title: `${providerLabel} stopped: failed to start within 1 minute`,
+                get title() { return $t("{p0} stopped: failed to start within 1 minute", { p0: (providerLabel) }) },
             })
         } else if (msg.kill_reason === 'timeout_assistant_turn') {
             toast.session(sessionId, {
                 type: 'warning',
-                title: `${providerLabel} stopped: no activity for 3 hours`,
+                get title() { return $t("{p0} stopped: no activity for 3 hours", { p0: (providerLabel) }) },
             })
         }
         // No per-session toast for kill_reason === 'auth_required':
@@ -911,7 +913,7 @@ function notifyProcessStateChange(msg, previousState, route) {
         if (['error', 'startup-failed', 'timeout_starting'].includes(msg.kill_reason)) {
             useDataStore().failPendingSendsForSession(sessionId, {
                 code: 'agent_died',
-                message: 'The agent stopped before confirming your message was received.',
+                get message() { return $t("The agent stopped before confirming your message was received.") },
             })
         }
     }
@@ -926,14 +928,14 @@ function createUpdateToast(version, onDismiss) {
     const upgradeHint = getUpdateInstructionsHtml()
     return toast.custom({
         type: 'info',
-        title: `TwiCC v${version} is available`,
+        get title() { return $t("TwiCC v{p0} is available", { p0: (version) }) },
         duration: Infinity,
         onManualClear: onDismiss,
         html: `
             <div style="display: flex; flex-direction: column; gap: 0.4rem; margin-top: 0.25rem;">
                 <span>${upgradeHint}</span>
                 <div style="display: flex; justify-content: flex-end; margin-top: 0.25rem;">
-                    <wa-button size="small" variant="brand" onclick="window.dispatchEvent(new CustomEvent('open-changelog'));">View changes</wa-button>
+                    <wa-button size="small" variant="brand" onclick="window.dispatchEvent(new CustomEvent('open-changelog'));">${$t("View changes")}</wa-button>
                 </div>
             </div>
         `,
@@ -964,11 +966,11 @@ function formatExtraUsageStartedDetail(extra) {
             ? formatExtraUsageAmount(extra.monthly_limit, extra.decimal_places)
             : extra.monthly_limit
         return limit != null
-            ? `${used} of ${limit} ${unit} used.`
-            : `${used} ${unit} used.`
+            ? $t("{p0} of {p1} {p2} used.", { p0: (used), p1: (limit), p2: (unit) })
+            : $t("{p0} {p1} used.", { p0: (used), p1: (unit) })
     }
     if (extra.remaining_credits != null) {
-        return `${Math.round(extra.remaining_credits)} credits remaining.`
+        return $t("{p0} credits remaining.", { p0: (Math.round(extra.remaining_credits)) })
     }
     return ''
 }
@@ -1366,7 +1368,7 @@ export function useWebSocket() {
                         const peerName = peersStore.peerLabel(msg.peer.id)
                         toast.custom(PeerToastContent, {
                             type: 'warning',
-                            title: `"${peerName}" accepted your request — complete the code verification to activate`,
+                            get title() { return $t("\"{p0}\" accepted your request — complete the code verification to activate", { p0: (peerName) }) },
                             duration: 15000,
                             props: { mode: 'request', peer: msg.peer },
                         })
@@ -1385,7 +1387,7 @@ export function useWebSocket() {
                     usePeersStore().upsertPeer(msg.peer)
                     toast.custom(PeerToastContent, {
                         type: 'info',
-                        title: 'Peer request',
+                        get title() { return $t("Peer request") },
                         duration: 15000,
                         props: { mode: 'request', peer: msg.peer },
                     })
@@ -1393,7 +1395,7 @@ export function useWebSocket() {
                     // human waits on you, and the pairing cannot advance until
                     // you read your code to them.
                     notifyPeerEvent(
-                        `Peer request from ${msg.peer?.name || msg.peer?.remote_display_name || 'an instance'}`,
+                        $t("Peer request from {p0}", { p0: (msg.peer?.name || msg.peer?.remote_display_name || 'an instance') }),
                         msg.peer?.base_url || '',
                         () => window.dispatchEvent(new CustomEvent('twicc:open-peers-manager')),
                     )
@@ -1408,7 +1410,7 @@ export function useWebSocket() {
                     // two users verify, and a name alone can name the wrong
                     // instance. The body holds it, the title names the peer.
                     toast.info(msg.peer?.base_url || '', {
-                        title: `"${peersStore.peerLabel(msg.peer?.id)}" accepted your peer request`,
+                        get title() { return $t("\"{p0}\" accepted your peer request", { p0: (peersStore.peerLabel(msg.peer?.id)) }) },
                     })
                 })
                 break
@@ -1428,7 +1430,7 @@ export function useWebSocket() {
                     // the toast's buttons are local-only anyway (open the
                     // review dialog, or just close), so a stale copy elsewhere
                     // costs nothing.
-                    const heading = `${msg.message?.reply_to_ref ? 'Reply' : 'Message'} from ${peerName}`
+                    const heading = $t("{p0} from {p1}", { p0: (msg.message?.reply_to_ref ? 'Reply' : 'Message'), p1: (peerName) })
                     toast.custom(PeerToastContent, {
                         type: 'info',
                         title: heading,
@@ -1474,8 +1476,8 @@ export function useWebSocket() {
                         toast.custom(PeerToastContent, {
                             type: 'info',
                             title: msg.message.status === 'done'
-                                ? `"${peerName}" marked your message${quoted} as done`
-                                : `Your message${quoted} to "${peerName}" was ${msg.message.status}`,
+                                ? $t("\"{p0}\" marked your message{p1} as done", { p0: (peerName), p1: (quoted) })
+                                : $t("Your message{p0} to \"{p1}\" was {p2}", { p0: (quoted), p1: (peerName), p2: (msg.message.status) }),
                             props: { mode: 'status', message: msg.message },
                         })
                     }
@@ -1652,15 +1654,15 @@ export function useWebSocket() {
                 // Show error toast for invalid session title
                 toast.session(msg.session_id, {
                     type: 'error',
-                    title: 'Invalid title',
-                    errorMessage: msg.error || 'Unknown error',
+                    get title() { return $t("Invalid title") },
+                    errorMessage: msg.error || $t("Unknown error"),
                 })
                 // The whole send was aborted with the title — restore the
                 // message into the composer too.
                 if (msg.request_id) {
                     store.failInflightSend(msg.request_id, {
                         code: 'invalid_title',
-                        message: `Invalid session title: ${msg.error || 'unknown error'}`,
+                        get message() { return $t("Invalid session title: {p0}", { p0: (msg.error || 'unknown error') }) },
                     })
                 }
                 break
@@ -1695,13 +1697,13 @@ export function useWebSocket() {
                     ? `<wa-icon family="brands" name="${iconName}" style="margin-inline-end: 0.4em;${iconColor ? ` color: ${iconColor};` : ''}"></wa-icon>`
                     : ''
                 const detail = formatExtraUsageStartedDetail(msg.extra_usage)
-                const sentence = `${label} is currently drawing from your extra usage credit, billed on top of your plan.`
+                const sentence = $t("{p0} is currently drawing from your extra usage credit, billed on top of your plan.", { p0: (label) })
                 toast.custom({
                     type: 'warning',
                     duration: 60000,
                     html: `
                         <div style="display: flex; flex-direction: column; gap: 0.2rem;">
-                            <span style="font-weight: 600; display: inline-flex; align-items: center;">${iconHtml}${label} — Extra usage started</span>
+                            <span style="font-weight: 600; display: inline-flex; align-items: center;">${iconHtml}${label} — ${$t("Extra usage started")}</span>
                             <span>${sentence}</span>
                             ${detail ? `<span>${detail}</span>` : ''}
                         </div>
@@ -1710,7 +1712,7 @@ export function useWebSocket() {
                 playNotificationSound(settings.notifExtraUsageStartSound)
                 if (settings.notifExtraUsageStartBrowser) {
                     sendBrowserNotification(
-                        `${label} — Extra usage started`,
+                        $t("{p0} — Extra usage started", { p0: (label) }),
                         detail ? `${sentence}\n${detail}` : sentence,
                     )
                 }
@@ -1934,9 +1936,9 @@ export function useWebSocket() {
                 }
                 if (msg.code === 'provider_disabled') {
                     const providerLabel = getProviderLabel(msg.provider) || msg.provider
-                    toast.error(`Cannot send to ${providerLabel}: it is disabled. Enable it from Settings → Providers.`)
+                    toast.error($t("Cannot send to {p0}: it is disabled. Enable it from Settings → Providers.", { p0: (providerLabel) }))
                 } else if (msg.code === 'invalid_synced_settings') {
-                    toast.error(msg.message || 'A settings value is invalid.')
+                    toast.error(msg.message || $t("A settings value is invalid."))
                 } else {
                     console.warn('[ws] Server error message:', msg)
                 }

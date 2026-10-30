@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 /**
  * ProjectMissingDirectoryDialog - why "New session" does not work here.
  *
@@ -57,30 +59,29 @@ defineExpose({ open })
 </script>
 
 <template>
-    <wa-dialog ref="dialogRef" label="Directory not found" class="missing-directory-dialog">
+    <wa-dialog ref="dialogRef" :label="$t(&quot;Directory not found&quot;)" class="missing-directory-dialog">
         <div class="missing-directory-body">
             <div class="missing-directory-project">
                 <ProjectBadge v-if="projectId" :project-id="projectId" />
             </div>
             <ProjectDirectoryPath v-if="projectId && project?.directory" :project-id="projectId" class="missing-directory-path" />
             <p class="missing-directory-text">
-                This project's directory is no longer available on disk, so no session can start in it.
-                Restore the folder, then re-check — TwiCC does not detect it coming back on its own.
+                {{ $t("This project's directory is no longer available on disk, so no session can start in it. Restore the folder, then re-check — TwiCC does not detect it coming back on its own.") }}
             </p>
             <wa-callout v-if="recheckOutcome === 'confirmed'" variant="warning" size="small">
-                Still not found on disk.
+                {{ $t("Still not found on disk.") }}
             </wa-callout>
             <wa-callout v-else-if="recheckOutcome === 'error'" variant="danger" size="small">
-                The re-check failed. Please try again.
+                {{ $t("The re-check failed. Please try again.") }}
             </wa-callout>
         </div>
         <div slot="footer" class="dialog-footer">
             <wa-button variant="neutral" appearance="outlined" :disabled="recheckBusy" @click="close">
-                Close
+                {{ $t("Close") }}
             </wa-button>
             <wa-button variant="brand" :loading="recheckBusy" :disabled="recheckBusy" @click="handleRecheck">
                 <wa-icon slot="start" name="arrow-rotate-right"></wa-icon>
-                Re-check
+                {{ $t("Re-check") }}
             </wa-button>
         </div>
     </wa-dialog>

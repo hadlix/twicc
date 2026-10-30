@@ -1,0 +1,9 @@
+# Keep scripts and source fixtures consistent when sharing this checkout with WSL.
+* text=auto
+*.js text eol=lf
+*.json text eol=lf
+*.vue text eol=lf
+*.css text eol=lf
+*.html text eol=lf
+*.md text eol=lf
+*.py text eol=lf

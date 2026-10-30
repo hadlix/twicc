@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // One-time notice for the anonymous usage telemetry feature. Auto-opens once
 // for users who haven't seen it yet (telemetryNoticeSeen === false), only
 // when telemetry is actually on. Modeled on HybridAnnouncementDialog.vue:
@@ -95,25 +97,23 @@ function onAfterHide(event) {
     <wa-dialog
         ref="dialogRef"
         class="telemetry-notice-dialog"
-        label="Anonymous usage statistics"
+        :label="$t(&quot;Anonymous usage statistics&quot;)"
         style="--width: min(32rem, calc(100vw - 2rem))"
         @wa-after-hide="onAfterHide"
     >
-        <p>TwiCC collects anonymous usage statistics — counters only, never content.</p>
+        <p>{{ $t("TwiCC collects anonymous usage statistics — counters only, never content.") }}</p>
         <p>
-            This helps TwiCC's author understand how the project is used — thank you for leaving it
-            enabled. The telemetry code is
-            <a href="https://github.com/twidi/twicc" target="_blank" rel="noopener noreferrer">open source</a>,
-            so you can verify it does nothing more than advertised.
+            {{ $t("This helps TwiCC's author understand how the project is used — thank you for leaving it enabled. The telemetry code is") }}
+            <a href="https://github.com/twidi/twicc" target="_blank" rel="noopener noreferrer">{{ $t("open source") }}</a>{{ $t(", so you can verify it does nothing more than advertised.") }}
         </p>
         <p>
-            See exactly what is sent on the
-            <a href="https://twicc-telemetry.twidi.com/" target="_blank" rel="noopener noreferrer">transparency page</a>.
+            {{ $t("See exactly what is sent on the") }}
+            <a href="https://twicc-telemetry.twidi.com/" target="_blank" rel="noopener noreferrer">{{ $t("transparency page") }}</a>.
         </p>
-        <p>You can disable it any time in Settings &rarr; General.</p>
+        <p>{{ $t("You can disable it any time in Settings → General.") }}</p>
 
-        <wa-button slot="footer" appearance="outlined" @click="onOpenSettings">Open settings</wa-button>
-        <wa-button slot="footer" variant="brand" @click="onGotIt">Got it</wa-button>
+        <wa-button slot="footer" appearance="outlined" @click="onOpenSettings">{{ $t("Open settings") }}</wa-button>
+        <wa-button slot="footer" variant="brand" @click="onGotIt">{{ $t("Got it") }}</wa-button>
     </wa-dialog>
 </template>
 

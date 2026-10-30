@@ -1,3 +1,5 @@
+
+import { t as $t } from '../i18n/index.js'
 import { markRaw } from 'vue'
 
 /**
@@ -17,7 +19,7 @@ export function getParsedContent(item) {
     try {
         item._parsedContent = markRaw(JSON.parse(item.content))
     } catch {
-        item._parsedContent = markRaw({ error: 'Invalid JSON', raw: item.content })
+        item._parsedContent = markRaw({ get error() { return $t("Invalid JSON") }, raw: item.content })
     }
     return item._parsedContent
 }

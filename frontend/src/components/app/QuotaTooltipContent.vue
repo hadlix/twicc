@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 /**
  * QuotaTooltipContent - body of the 5h / 7d quota tooltips (the glass surface itself comes
  * from AppTooltip). Verdict first (on track / quota ends at HH:MM), then the usage and time
@@ -39,7 +41,7 @@ const burnRate = computed(() => props.quota.burnRate)
 // "at 13:55 on Saturday" / "at 13:55" / "on Saturday 12 October" — for sentences.
 function sentenceMoment(when) {
     const { time, day } = formatQuotaMoment(when)
-    return [time && `at ${time}`, day && `on ${day}`].filter(Boolean).join(' ')
+    return [time && $t("at {p0}", { p0: time }), day && $t("on {p0}", { p0: day })].filter(Boolean).join(' ')
 }
 // "Saturday 13:55" / "13:55" / "Saturday 12 October" — compact, for the header.
 function compactMoment(when) {
@@ -50,60 +52,60 @@ function compactMoment(when) {
 // Same wording as the sidebar: "1 h 13 min", "45 min", "2 d 3 h".
 function formatSpan(ms) {
     const minutes = Math.max(1, Math.round(ms / 60000))
-    if (minutes < 60) return `${minutes} min`
+    if (minutes < 60) return $t("{p0} min", { p0: (minutes) })
     const hours = Math.floor(minutes / 60)
     if (hours < 48) {
         const rest = minutes % 60
-        return rest ? `${hours} h ${String(rest).padStart(2, '0')} min` : `${hours} h`
+        return rest ? $t("{p0} h {p1} min", { p0: (hours), p1: (String(rest).padStart(2, '0')) }) : `${hours} h`
     }
     const days = Math.floor(hours / 24)
     const restHours = hours % 24
-    return restHours ? `${days} d ${restHours} h` : `${days} d`
+    return restHours ? $t("{p0} d {p1} h", { p0: days, p1: restHours }) : $t("{p0} d", { p0: days })
 }
 
 const verdict = computed(() => {
     if (!hasReset.value) {
-        return { icon: 'circle-info', title: 'Period not started yet', sub: 'No usage recorded in this period.' }
+        return { icon: 'circle-info', get title() { return $t("Period not started yet") }, get sub() { return $t("No usage recorded in this period.") } }
     }
     if (exhausted.value) {
-        return { icon: 'triangle-exclamation', title: 'Quota exhausted', sub: `Back ${sentenceMoment(props.quota.resetsAt)}` }
+        return { icon: 'triangle-exclamation', get title() { return $t("Quota exhausted") }, get sub() { return $t("Back {p0}", { p0: (sentenceMoment(props.quota.resetsAt)) }) } }
     }
     if (cutoffAt.value) {
         const gapMs = new Date(props.quota.resetsAt) - new Date(cutoffAt.value)
         return {
             icon: 'triangle-exclamation',
-            title: `Quota runs out ${sentenceMoment(cutoffAt.value)}`,
-            sub: gapMs > 0 ? `Then ${formatSpan(gapMs)} without quota, until the reset` : 'At the current pace',
+            get title() { return $t("Quota runs out {p0}", { p0: (sentenceMoment(cutoffAt.value)) }) },
+            sub: gapMs > 0 ? $t("Then {p0} without quota, until the reset", { p0: (formatSpan(gapMs)) }) : $t("At the current pace"),
         }
     }
-    const left = `Up to ${Math.max(0, 100 - (props.quota.utilization ?? 0)).toFixed(0)}% of quota left to use in ${formatSpan(new Date(props.quota.resetsAt) - Date.now())}`
+    const left = $t("Up to {p0}% of quota left to use in {p1}", { p0: (Math.max(0, 100 - (props.quota.utilization ?? 0)).toFixed(0)), p1: (formatSpan(new Date(props.quota.resetsAt) - Date.now())) })
     if (burnRate.value != null && burnRate.value >= 1) {
-        return { icon: 'circle-check', title: 'Right on the limit', sub: left }
+        return { icon: 'circle-check', get title() { return $t("Right on the limit") }, sub: left }
     }
-    return { icon: 'circle-check', title: 'On track', sub: left }
+    return { icon: 'circle-check', get title() { return $t("On track") }, sub: left }
 })
 
 // Pace figures: burn rate + the recent windows that carry a real measure (not a fallback).
 const paceItems = computed(() => {
     const items = []
     if (burnRate.value != null) {
-        items.push({ key: 'burn', label: 'Burn rate', value: `${(burnRate.value * 100).toFixed(0)}%`, hot: burnRate.value >= 1 })
+        items.push({ key: 'burn', get label() { return $t("Burn rate") }, value: `${(burnRate.value * 100).toFixed(0)}%`, hot: burnRate.value >= 1 })
     }
     const long = props.quota.recentLong
     const short = props.quota.recentShort
     const longLabel = long?.rate != null && !long.isFallback ? formatRecentDelta(long.deltaMs, props.roundToHour) : null
-    if (longLabel) items.push({ key: 'long', label: `Last ${longLabel}`, value: `${(long.rate * 100).toFixed(0)}%` })
+    if (longLabel) items.push({ key: 'long', get label() { return $t("Last {p0}", { p0: (longLabel) }) }, value: `${(long.rate * 100).toFixed(0)}%` })
     const shortLabel = short?.rate != null && !short.isFallback ? formatRecentDelta(short.deltaMs, props.roundToHour) : null
-    if (shortLabel && shortLabel !== longLabel) items.push({ key: 'short', label: `Last ${shortLabel}`, value: `${(short.rate * 100).toFixed(0)}%` })
+    if (shortLabel && shortLabel !== longLabel) items.push({ key: 'short', get label() { return $t("Last {p0}", { p0: (shortLabel) }) }, value: `${(short.rate * 100).toFixed(0)}%` })
     return items
 })
 
 const costItems = computed(() => {
     const cost = props.cost
     if (!props.showCosts || !cost || cost.spent == null) return []
-    const items = [{ key: 'spent', label: 'Spent', value: cost.spent }]
-    if (cost.estimatedPeriod != null) items.push({ key: 'period', label: `Est. ${props.periodShort}`, value: cost.estimatedPeriod })
-    if (cost.estimatedMonthly != null) items.push({ key: 'month', label: 'Est. 30 days', value: cost.estimatedMonthly })
+    const items = [{ key: 'spent', get label() { return $t("Spent") }, value: cost.spent }]
+    if (cost.estimatedPeriod != null) items.push({ key: 'period', get label() { return $t("Est. {p0}", { p0: (props.periodShort) }) }, value: cost.estimatedPeriod })
+    if (cost.estimatedMonthly != null) items.push({ key: 'month', get label() { return $t("Est. 30 days") }, value: cost.estimatedMonthly })
     return items
 })
 
@@ -123,7 +125,7 @@ const timeWidth = computed(() => `${Math.max(0, Math.min(props.quota.timePct ?? 
                     type="button"
                     class="quota-tip-control"
                     :disabled="!canCycleProvider"
-                    :title="canCycleProvider ? 'Click to switch to the next provider' : undefined"
+                    :title="canCycleProvider ? $t(&quot;Click to switch to the next provider&quot;) : undefined"
                     @click="emit('cycle-provider')"
                 >
                     <ProviderIcon class="quota-tip-provider-icon" :provider="provider" />
@@ -135,14 +137,14 @@ const timeWidth = computed(() => `${Math.max(0, Math.min(props.quota.timePct ?? 
                     type="button"
                     class="quota-tip-control quota-tip-period"
                     :disabled="!canCyclePeriod"
-                    :title="canCyclePeriod ? 'Click to switch between 5 hours and 7 days' : undefined"
+                    :title="canCyclePeriod ? $t(&quot;Click to switch between 5 hours and 7 days&quot;) : undefined"
                     @click="emit('cycle-period')"
                 >
                     <span>{{ periodLabel }}</span>
                     <wa-icon v-if="canCyclePeriod" class="quota-tip-switch" name="repeat"></wa-icon>
                 </button>
             </div>
-            <span v-if="hasReset" class="quota-tip-reset" :title="formatResetTimePrecise(quota.resetsAt)">Resets {{ compactMoment(quota.resetsAt) }}</span>
+            <span v-if="hasReset" class="quota-tip-reset" :title="formatResetTimePrecise(quota.resetsAt)">{{ $t("Resets") }} {{ compactMoment(quota.resetsAt) }}</span>
         </div>
 
         <div class="quota-tip-verdict">
@@ -154,12 +156,12 @@ const timeWidth = computed(() => `${Math.max(0, Math.min(props.quota.timePct ?? 
         </div>
 
         <div class="quota-tip-bars">
-            <span class="quota-tip-bar-label">Usage</span>
+            <span class="quota-tip-bar-label">{{ $t("Usage") }}</span>
             <div class="quota-tip-lane">
                 <div class="quota-tip-fill" :style="{ width: usageWidth }"><span class="quota-tip-figure" :class="{ 'quota-tip-figure-dark': isWarning }">{{ usageFigure }}</span></div>
             </div>
             <template v-if="quota.timePct != null">
-                <span class="quota-tip-bar-label">Time</span>
+                <span class="quota-tip-bar-label">{{ $t("Time") }}</span>
                 <div class="quota-tip-lane">
                     <div class="quota-tip-time" :style="{ width: timeWidth }"><span class="quota-tip-figure quota-tip-figure-time">{{ timeFigure }}</span></div>
                     <template v-if="cost && cost.cutoffPct != null">
@@ -186,13 +188,13 @@ const timeWidth = computed(() => `${Math.max(0, Math.min(props.quota.timePct ?? 
             </div>
             <div v-if="cost.capped" class="quota-tip-note">
                 <wa-icon name="triangle-exclamation"></wa-icon>
-                <span>Capped: burn rate is above 100%. The 30-day estimate uses the capped value.</span>
+                <span>{{ $t("Capped: burn rate is above 100%. The 30-day estimate uses the capped value.") }}</span>
             </div>
         </div>
 
         <div class="quota-tip-buttons">
             <wa-button v-if="externalLink" size="small" variant="brand" appearance="outlined" :href="externalLink.url" target="_blank" rel="noopener"><wa-icon slot="start" name="up-right-from-square"></wa-icon>{{ externalLink.label }}</wa-button>
-            <wa-button size="small" variant="brand" appearance="outlined" @click="emit('open-graph')"><wa-icon slot="start" name="chart-line"></wa-icon>View graph</wa-button>
+            <wa-button size="small" variant="brand" appearance="outlined" @click="emit('open-graph')"><wa-icon slot="start" name="chart-line"></wa-icon>{{ $t("View graph") }}</wa-button>
         </div>
     </div>
 </template>

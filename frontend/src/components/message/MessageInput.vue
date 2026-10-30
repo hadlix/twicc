@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // MessageInput.vue - Text input + send/apply controls for a session.
 // Per-session agent settings (model, effort, …) live in the
 // ``useSessionAgentSettings`` composable; the trigger summary and the
@@ -71,7 +73,7 @@ const props = defineProps({
     },
     sendingLockedReason: {
         type: String,
-        default: 'Answer the pending request to send'
+        get default() { return $t("Answer the pending request to send") }
     },
     sendingLockedPresentation: {
         type: String,
@@ -171,7 +173,7 @@ async function dismissAsyncQuestion(itemId) {
     try {
         await store.dismissAsyncQuestion(props.projectId, props.sessionId, itemId)
     } catch {
-        toast.error('Failed to dismiss questions. Your answers remain in your draft.')
+        toast.error($t("Failed to dismiss questions. Your answers remain in your draft."))
     }
 }
 
@@ -232,10 +234,10 @@ const isHybridStaged = computed(() => !isHybridCommitted.value && store.isHybrid
 const hybridPending = computed(() => (isDraft.value && isHybrid.value) || isHybridStaged.value)
 
 const hybridTooltipLabel = computed(() => {
-    if (isHybridCommitted.value) return 'Hybrid mode (permanent) — open the terminal (Alt+Shift+T)'
-    if (isDraft.value && isHybrid.value) return 'Hybrid mode on for this draft — click to turn off'
-    if (isHybridStaged.value) return 'Hybrid switch staged — applies on send; click to cancel'
-    return 'Turn on hybrid mode'
+    if (isHybridCommitted.value) return $t("Hybrid mode (permanent) — open the terminal (Alt+Shift+T)")
+    if (isDraft.value && isHybrid.value) return $t("Hybrid mode on for this draft — click to turn off")
+    if (isHybridStaged.value) return $t("Hybrid switch staged — applies on send; click to cancel")
+    return $t("Turn on hybrid mode")
 })
 
 // ── Hybrid dialog (single dialog, three variants) ───────────────────────────
@@ -260,22 +262,22 @@ const hybridDialogHasSwitch = computed(() =>
 const hybridDialogDetailsOpen = computed(() => hybridDialogHasSwitch.value)
 const hybridDialogForcedChoice = computed(() => hybridDialogHasSwitch.value)
 const hybridDialogTitle = computed(() => {
-    if (hybridDialogVariant.value === 'draft-enable') return 'Start this session in hybrid mode?'
-    return 'Switch this session to hybrid mode?'
+    if (hybridDialogVariant.value === 'draft-enable') return $t("Start this session in hybrid mode?")
+    return $t("Switch this session to hybrid mode?")
 })
 const hybridDialogIntro = computed(() => {
     switch (hybridDialogVariant.value) {
         case 'draft-enable':
             // Draft = reversible until sent, so no "cannot be undone" now — only
             // a heads-up that the choice locks in once the session starts.
-            return 'This draft will start in hybrid mode. You can turn it back off until you send the first message — after that it\'s permanent.'
+            return $t("This draft will start in hybrid mode. You can turn it back off until you send the first message — after that it's permanent.")
         default: // sdk-explainer / sdk-confirm
-            return 'This session switches to hybrid mode on your next message — and can\'t be undone afterwards.'
+            return $t("This session switches to hybrid mode on your next message — and can't be undone afterwards.")
     }
 })
 // A draft "starts" hybrid; an existing SDK session "switches" — match the title.
 const hybridConfirmLabel = computed(() =>
-    hybridDialogVariant.value === 'draft-enable' ? 'Start in hybrid mode' : 'Switch to hybrid mode'
+    hybridDialogVariant.value === 'draft-enable' ? $t("Start in hybrid mode") : $t("Switch to hybrid mode")
 )
 
 function openHybridDialog(variant) {
@@ -485,7 +487,7 @@ watch(attachmentCount, (newCount, oldCount) => {
     if (newCount > oldCount) {
         const added = newCount - oldCount
         clearTimeout(attachTooltipTimer)
-        attachTooltipText.value = `${added} file${added > 1 ? 's' : ''} attached`
+        attachTooltipText.value = $t("{p0} file{p1} attached", { p0: (added), p1: (added > 1 ? 's' : '') })
         showAttachTooltip.value = true
         attachTooltipTimer = setTimeout(() => {
             showAttachTooltip.value = false
@@ -544,9 +546,9 @@ const attachmentsBlockSend = computed(() =>
 )
 const buttonLabel = computed(() => {
     const state = processState.value?.state
-    if (state === 'starting') return 'Starting...'
-    if (isSettingsOnlyButton.value) return 'Apply settings'
-    return 'Send'
+    if (state === 'starting') return $t("Starting...")
+    if (isSettingsOnlyButton.value) return $t("Apply settings")
+    return $t("Send")
 })
 
 // Button icon changes based on mode
@@ -575,32 +577,32 @@ const placeholderText = computed(() => {
     const state = processState.value?.state
 
     if (state === 'starting') {
-        return `Starting ${providerLabel.value} process...`
+        return $t("Starting {p0} process...", { p0: (providerLabel.value) })
     }
 
     if (state === 'assistant_turn') {
-        const base = `You can send a message now. ${providerLabel.value} will receive it as soon as possible (while working or after).`
+        const base = $t("You can send a message now. {p0} will receive it as soon as possible (while working or after).", { p0: (providerLabel.value) })
         const note = helpers?.getPlaceholderAssistantTurnNote()
         return note ? `${base} ${note}` : base
     }
 
     const chars = helpers?.getCommandActivationChars() ?? []
     const historyHint = !isDraft.value
-        ? (settingsStore.isTouchDevice ? '! = message history' : '! and Up/PageUp = message history')
+        ? (settingsStore.isTouchDevice ? $t("! = message history") : $t("! and Up/PageUp = message history"))
         : null
 
     const atStartItems = []
-    if (chars.length > 0) atStartItems.push(`${formatCharList(chars)} = commands`)
+    if (chars.length > 0) atStartItems.push($t("{p0} = commands", { p0: (formatCharList(chars)) }))
     if (historyHint) atStartItems.push(historyHint)
 
     const segments = []
-    if (atStartItems.length > 0) segments.push(`At start: ${atStartItems.join(', ')}`)
-    segments.push('Anywhere: @ = file paths')
+    if (atStartItems.length > 0) segments.push($t("At start: {p0}", { p0: (atStartItems.join(', ')) }))
+    segments.push($t("Anywhere: @ = file paths"))
 
-    let text = `Shortcuts: ${segments.join('; ')}`
+    let text = $t("Shortcuts: {p0}", { p0: (segments.join('; ')) })
     if (!settingsStore.isTouchDevice) {
-        const keys = settingsStore.isMac ? '⌘↵ or Ctrl↵' : 'Ctrl↵ or Meta↵'
-        text += `, ${keys} to send`
+        const keys = settingsStore.isMac ? $t("⌘↵ or Ctrl↵") : $t("Ctrl↵ or Meta↵")
+        text += $t(", {p0} to send", { p0: (keys) })
     }
     return text
 })
@@ -780,7 +782,7 @@ function adjustTextareaHeight() {
 const collapsedLabel = computed(() => {
     const parts = []
     if (readyAsyncQuestionCount.value > 0) {
-        parts.push(`${readyAsyncQuestionCount.value} question${readyAsyncQuestionCount.value === 1 ? '' : 's'} ready`)
+        parts.push($t("{p0} question{p1} ready", { p0: (readyAsyncQuestionCount.value), p1: (readyAsyncQuestionCount.value === 1 ? '' : 's') }))
     }
     if (parts.length) return `${parts.join(' · ')} · ${collapsedMessageLabel.value}`
     return collapsedMessageLabel.value
@@ -788,14 +790,14 @@ const collapsedLabel = computed(() => {
 const collapsedMessageLabel = computed(() => {
     const hasText = messageText.value.trim().length > 0
     const count = attachmentCount.value
-    const filesPart = count > 0 ? `${count} file${count > 1 ? 's' : ''} attached` : ''
-    if (hasText && filesPart) return `Your message is waiting · ${filesPart}`
-    if (hasText) return 'Your message is waiting'
+    const filesPart = count > 0 ? $t("{p0} file{p1} attached", { p0: (count), p1: (count > 1 ? 's' : '') }) : ''
+    if (hasText && filesPart) return $t("Your message is waiting · {p0}", { p0: (filesPart) })
+    if (hasText) return $t("Your message is waiting")
     if (filesPart) return filesPart
     // While sending is locked by a pending request, the bar is the entry point to
     // prepare the next message, so name it for that intent.
-    if (props.sendingLocked) return 'Prepare a message'
-    return 'Message input'
+    if (props.sendingLocked) return $t("Prepare a message")
+    return $t("Message input")
 })
 
 // Leading icon mirrors the label state.
@@ -1516,8 +1518,8 @@ async function addFile(file) {
         // Notify server that user is actively preparing a message
         notifyUserDraftUpdated(props.sessionId)
     } catch (error) {
-        toast.error(error.message || 'Failed to add the file', {
-            title: 'Cannot attach file'
+        toast.error(error.message || $t("Failed to add the file"), {
+            get title() { return $t("Cannot attach file") }
         })
     }
 }
@@ -1583,7 +1585,7 @@ const selectionCommentSendController = createSelectionCommentSendController({
     attemptSend: attemptSelectionCommentSend,
     onPendingChange: pending => { selectionCommentSendPending.value = pending },
     onScreenshotChange: id => { selectionScreenshotId.value = id },
-    notifyUploadWait: () => toast.info('Screenshot upload in progress. Your message will send when the upload completes.'),
+    notifyUploadWait: () => toast.info($t("Screenshot upload in progress. Your message will send when the upload completes.")),
 })
 const selectionScreenshotState = computed(() => {
     const id = selectionScreenshotId.value
@@ -1610,7 +1612,7 @@ function startSelectionCommentSend(text, options) {
 async function attemptSelectionCommentSend() {
     if (sendInProgress.value || props.sendingLocked || isDisabled.value || attachmentsBlockSend.value
         || !asyncQuestionSendClassification.value.canSend) {
-        toast.warning('Cannot send right now. Your message is in the composer. Send it when sending becomes available.')
+        toast.warning($t("Cannot send right now. Your message is in the composer. Send it when sending becomes available."))
         return
     }
     await handleSend()
@@ -1641,7 +1643,7 @@ async function handleSend() {
         const text = rawText.trim()
         const classification = asyncQuestionSendClassification.value
         if (classification.commandBlocked) {
-            toast.warning('Use a normal message or clear your question answers before sending a command.')
+            toast.warning($t("Use a normal message or clear your question answers before sending a command."))
             return
         }
         // Attachments alone make a real message, so they take precedence over the
@@ -1779,7 +1781,7 @@ async function handleSend() {
                 })
             } catch (error) {
                 console.warn('Failed to save the question send:', error?.name || 'Error')
-                toast.error('Failed to save the question send. Your message remains available for recovery.')
+                toast.error($t("Failed to save the question send. Your message remains available for recovery."))
                 return
             }
         } else {
@@ -1798,7 +1800,7 @@ async function handleSend() {
             })
             // The frame did not leave (socket closed or failing): the text and the attachments are
             // still in the composer. The question path restores its own draft on a failed dispatch.
-            if (!success) toast.error('Message not sent: the connection is unavailable. Your message is still in the composer.')
+            if (!success) toast.error($t("Message not sent: the connection is unavailable. Your message is still in the composer."))
         }
 
         if (success) {
@@ -2011,7 +2013,7 @@ const snippetsForProject = computed(() => {
         return {
             ...snippet,
             _disabled: true,
-            _disabledReason: `Not available: ${unavailable.map(p => p.label).join(', ')}`,
+            get _disabledReason() { return $t("Not available: {p0}", { p0: (unavailable.map(p => p.label).join(', ')) }) },
         }
     })
 })
@@ -2044,7 +2046,7 @@ function handleSnippetLongPress(snippet) {
 }
 
 function handleSnippetDisabledPress(snippet) {
-    toast(snippet._disabledReason || 'Some placeholders are not available', { variant: 'warning' })
+    toast(snippet._disabledReason || $t("Some placeholders are not available"), { variant: 'warning' })
 }
 
 function openMessageSnippetsDialog() {
@@ -2126,7 +2128,7 @@ defineExpose({ startSelectionCommentSend, selectionCommentSendPending, selection
         >
             <wa-icon name="chevron-down" variant="classic"></wa-icon>
         </wa-button>
-        <AppTooltip v-if="isTall && !collapsed" :for="collapseButtonId">Collapse the message input</AppTooltip>
+        <AppTooltip v-if="isTall && !collapsed" :for="collapseButtonId">{{ $t("Collapse the message input") }}</AppTooltip>
 
         <div v-if="commentsWithContentCount > 0" class="code-comments-bar">
             <wa-button
@@ -2136,8 +2138,8 @@ defineExpose({ startSelectionCommentSend, selectionCommentSendPending, selection
                 @click="addAllCommentsToMessage"
             >
                 {{ commentsWithContentCount === 1
-                    ? 'Add comment to message'
-                    : `Add all comments (${commentsWithContentCount}) to message`
+                    ? $t("Add comment to message")
+                    : $t("Add all comments ({p0}) to message", { p0: (commentsWithContentCount) })
                 }}
             </wa-button>
             <wa-button
@@ -2146,7 +2148,7 @@ defineExpose({ startSelectionCommentSend, selectionCommentSendPending, selection
                 size="small"
                 @click="clearAllSessionComments"
             >
-                {{ commentsWithContentCount === 1 ? 'Clear comment' : 'Clear comments' }}
+                {{ commentsWithContentCount === 1 ? $t("Clear comment") : $t("Clear comments") }}
             </wa-button>
         </div>
         <div
@@ -2156,8 +2158,8 @@ defineExpose({ startSelectionCommentSend, selectionCommentSendPending, selection
             <wa-icon name="circle-question" class="async-question-header-icon"></wa-icon>
             <span v-if="readyAsyncQuestionCount > 0" class="async-question-header-description">
                 {{ readyAsyncQuestionCount === 1
-                    ? 'Along with your next message, you can answer the following question.'
-                    : 'Along with your next message, you can answer the following questions.' }}
+                    ? $t("Along with your next message, you can answer the following question.")
+                    : $t("Along with your next message, you can answer the following questions.") }}
             </span>
         </div>
         <div v-if="asyncQuestionNotice" class="async-question-notice" role="status">{{ asyncQuestionNotice }}</div>
@@ -2182,7 +2184,7 @@ defineExpose({ startSelectionCommentSend, selectionCommentSendPending, selection
         ></wa-textarea>
 
         <div v-if="asyncQuestionSendClassification.commandBlocked" class="async-question-notice" role="status">
-            Use a normal message or clear your question answers before sending a command.
+            {{ $t("Use a normal message or clear your question answers before sending a command.") }}
         </div>
 
         <!-- Popups teleported out of the flex container -->
@@ -2269,7 +2271,7 @@ defineExpose({ startSelectionCommentSend, selectionCommentSendPending, selection
                 >
                     <wa-icon name="paperclip"></wa-icon>
                 </wa-button>
-                <AppTooltip :for="attachButtonId">Attach files</AppTooltip>
+                <AppTooltip :for="attachButtonId">{{ $t("Attach files") }}</AppTooltip>
 
                 <!-- Attachment badge + popover -->
                 <template v-if="attachmentCount > 0">
@@ -2313,7 +2315,7 @@ defineExpose({ startSelectionCommentSend, selectionCommentSendPending, selection
                                 @click="removeAllAttachments"
                             >
                                 <wa-icon name="trash" slot="start"></wa-icon>
-                                Remove all
+                                {{ $t("Remove all") }}
                             </wa-button>
                         </div>
                     </wa-popover>
@@ -2356,10 +2358,10 @@ defineExpose({ startSelectionCommentSend, selectionCommentSendPending, selection
                     :aria-pressed="session?.ephemeral === true"
                     @click="toggleEphemeral"
                 >
-                    <wa-icon name="ghost" label="Ephemeral session" class="ephemeral-icon" :class="{ 'session-state-icon--ephemeral': session?.ephemeral }"></wa-icon>
+                    <wa-icon name="ghost" :label="$t(&quot;Ephemeral session&quot;)" class="ephemeral-icon" :class="{ 'session-state-icon--ephemeral': session?.ephemeral }"></wa-icon>
                 </wa-button>
                 <AppTooltip v-if="isDraft" :for="ephemeralButtonId">
-                    {{ session?.ephemeral ? 'Ephemeral mode on — click to turn off' : 'Start as an ephemeral session' }}
+                    {{ session?.ephemeral ? $t("Ephemeral mode on — click to turn off") : $t("Start as an ephemeral session") }}
                 </AppTooltip>
 
                 <!-- Hybrid CLI mode toggle (Claude Code, visible sessions only).
@@ -2390,7 +2392,7 @@ defineExpose({ startSelectionCommentSend, selectionCommentSendPending, selection
                     class="cancel-button"
                 >
                     <wa-icon name="xmark" variant="classic"></wa-icon>
-                    <span>Cancel</span>
+                    <span>{{ $t("Cancel") }}</span>
                 </wa-button>
                 <!-- Reset/Clear button for existing sessions: "Reset" when agent
                      settings changed (with or without message/attachments), "Clear"
@@ -2405,7 +2407,7 @@ defineExpose({ startSelectionCommentSend, selectionCommentSendPending, selection
                     class="reset-button"
                 >
                     <wa-icon name="xmark" variant="classic"></wa-icon>
-                    <span>{{ hasDropdownsChanged ? 'Reset' : 'Clear' }}</span>
+                    <span>{{ hasDropdownsChanged ? $t("Reset") : $t("Clear") }}</span>
                 </wa-button>
                 <!-- Send / Update button: dynamically labeled based on state.
                      A pending request replaces it with the paused indicator. Session
@@ -2427,7 +2429,7 @@ defineExpose({ startSelectionCommentSend, selectionCommentSendPending, selection
                      preparing the next message; it sends once the request is answered. -->
                 <div v-else class="sending-locked-indicator" :id="sendingLockedId">
                     <wa-icon name="lock" variant="classic"></wa-icon>
-                    <span>Sending paused</span>
+                    <span>{{ $t("Sending paused") }}</span>
                 </div>
                 <AppTooltip v-if="sendingLocked" :for="sendingLockedId">{{ sendingLockedReason }}</AppTooltip>
             </div>
@@ -2435,16 +2437,16 @@ defineExpose({ startSelectionCommentSend, selectionCommentSendPending, selection
 
         <wa-dialog
             ref="ephemeralDialogRef"
-            label="Start this session as ephemeral?"
+            :label="$t(&quot;Start this session as ephemeral?&quot;)"
             style="--width: min(520px, calc(100vw - 2rem))"
             @wa-after-show.self="ephemeralConfirmRef?.focus()"
         >
-            <p>TwiCC and the provider do not save a local session transcript. Only the final answer appears.</p>
-            <p>This browser saves your prompt and answer until Discard. You cannot resume the run. A connection loss can lose its answer.</p>
-            <p>Inherited MCP servers are off. Codex plugins are also off for this run.</p>
-            <wa-switch :checked="ephemeralDontShowAgain" @change="ephemeralDontShowAgain = $event.target.checked">Don't show again</wa-switch>
-            <wa-button slot="footer" @click="ephemeralDialogRef.open = false">Cancel</wa-button>
-            <wa-button ref="ephemeralConfirmRef" slot="footer" variant="brand" @click="confirmEphemeral">Start as ephemeral</wa-button>
+            <p>{{ $t("TwiCC and the provider do not save a local session transcript. Only the final answer appears.") }}</p>
+            <p>{{ $t("This browser saves your prompt and answer until Discard. You cannot resume the run. A connection loss can lose its answer.") }}</p>
+            <p>{{ $t("Inherited MCP servers are off. Codex plugins are also off for this run.") }}</p>
+            <wa-switch :checked="ephemeralDontShowAgain" @change="ephemeralDontShowAgain = $event.target.checked">{{ $t("Don't show again") }}</wa-switch>
+            <wa-button slot="footer" @click="ephemeralDialogRef.open = false">{{ $t("Cancel") }}</wa-button>
+            <wa-button ref="ephemeralConfirmRef" slot="footer" variant="brand" @click="confirmEphemeral">{{ $t("Start as ephemeral") }}</wa-button>
         </wa-dialog>
 
         <!-- Hybrid CLI mode dialog — one dialog, four variants (see script).
@@ -2471,13 +2473,13 @@ defineExpose({ startSelectionCommentSend, selectionCommentSendPending, selection
                 class="hybrid-dialog-switch"
                 :checked="hybridDontShowAgain"
                 @change="hybridDontShowAgain = $event.target.checked"
-            >Don't show this again</wa-switch>
+            >{{ $t("Don't show this again") }}</wa-switch>
             <wa-button
                 slot="footer"
                 variant="neutral"
                 appearance="outlined"
                 @click="cancelHybridDialog"
-            >Cancel</wa-button>
+            >{{ $t("Cancel") }}</wa-button>
             <wa-button
                 ref="hybridConfirmBtnRef"
                 slot="footer"

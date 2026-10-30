@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // PendingRequestForm.vue - Thin shell for pending request forms.
 //
 // Owns only:
@@ -167,8 +169,8 @@ const requestType = computed(() => props.pendingRequest.request_type)
 // Icon + title, shared by the normal header and the minimized bar.
 const headerIcon = computed(() => requestType.value === 'ask_user_question' ? 'circle-question' : 'shield-halved')
 const headerTitle = computed(() => requestType.value === 'ask_user_question'
-    ? `${providerLabel.value} needs your input`
-    : 'Tool approval requested')
+    ? $t("{p0} needs your input", { p0: (providerLabel.value) })
+    : $t("Tool approval requested"))
 
 // ── Auto-deny countdown (bypassPermissions) ──────────────────────────────────
 // The store gives an armed request a local `autoDenyDeadlineMs` (utils/autoDeny.js).
@@ -204,10 +206,10 @@ const autoDenyLocked = computed(() => autoDenyDeadlineMs.value !== null
 const autoDenyLabel = computed(() => {
     if (autoDenyDeadlineMs.value === null) return null
     if (autoDenyLocked.value) return 'Auto-denying…'
-    return `Auto-deny in ${formatAutoDenyRemaining(autoDenyDeadlineMs.value, autoDenyNowMs.value)}`
+    return $t("Auto-deny in {p0}", { p0: (formatAutoDenyRemaining(autoDenyDeadlineMs.value, autoDenyNowMs.value)) })
 })
 
-const autoDenyTooltip = `Bypass permissions mode: this request is denied automatically when nobody answers within ${AUTO_DENY_DELAY_SECONDS / 60} minutes.`
+const autoDenyTooltip = $t("Bypass permissions mode: this request is denied automatically when nobody answers within {p0} minutes.", { p0: (AUTO_DENY_DELAY_SECONDS / 60) })
 
 // Route to the appropriate body component based on provider
 const bodyComponent = computed(() => {
@@ -286,11 +288,11 @@ watch(() => props.pendingRequest?.request_id, (newId, oldId) => {
                     class="pending-count-badge"
                     :id="`pending-count-${sessionId}`"
                     role="status"
-                >+{{ extraPendingCount }} pending</span>
+                >+{{ extraPendingCount }} {{ $t("pending") }}</span>
                 <AppTooltip
                     v-if="extraPendingCount > 0"
                     :for="`pending-count-${sessionId}`"
-                >{{ extraPendingCount }} more request{{ extraPendingCount > 1 ? 's' : '' }} waiting after this one</AppTooltip>
+                >{{ extraPendingCount }} {{ $t("more request") }}{{ extraPendingCount > 1 ? $t("s") : '' }} {{ $t("waiting after this one") }}</AppTooltip>
             </template>
         </CollapsedBar>
         <!-- Normal header (window controls). Title + icon vary on requestType. -->
@@ -313,11 +315,11 @@ watch(() => props.pendingRequest?.request_id, (newId, oldId) => {
                 class="pending-count-badge"
                 :id="`pending-count-${sessionId}`"
                 role="status"
-            >+{{ extraPendingCount }} pending</span>
+            >+{{ extraPendingCount }} {{ $t("pending") }}</span>
             <AppTooltip
                 v-if="extraPendingCount > 0"
                 :for="`pending-count-${sessionId}`"
-            >{{ extraPendingCount }} more request{{ extraPendingCount > 1 ? 's' : '' }} waiting after this one</AppTooltip>
+            >{{ extraPendingCount }} {{ $t("more request") }}{{ extraPendingCount > 1 ? $t("s") : '' }} {{ $t("waiting after this one") }}</AppTooltip>
             <wa-button
                 variant="neutral"
                 appearance="plain"
@@ -328,7 +330,7 @@ watch(() => props.pendingRequest?.request_id, (newId, oldId) => {
             >
                 <wa-icon name="window-minimize" variant="classic"></wa-icon>
             </wa-button>
-            <AppTooltip :for="minimizeToggleId">Minimize</AppTooltip>
+            <AppTooltip :for="minimizeToggleId">{{ $t("Minimize") }}</AppTooltip>
             <wa-button
                 variant="neutral"
                 appearance="plain"
@@ -339,7 +341,7 @@ watch(() => props.pendingRequest?.request_id, (newId, oldId) => {
             >
                 <wa-icon :name="isMaximized ? 'compress' : 'expand'" variant="classic"></wa-icon>
             </wa-button>
-            <AppTooltip :for="maximizeToggleId">{{ isMaximized ? 'Restore' : 'Maximize' }}</AppTooltip>
+            <AppTooltip :for="maximizeToggleId">{{ isMaximized ? $t("Restore") : $t("Maximize") }}</AppTooltip>
         </div>
 
         <!-- Provider-routed body. Always mounted (hidden by CSS while minimized) so

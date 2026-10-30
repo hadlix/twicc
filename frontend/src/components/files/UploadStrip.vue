@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // The in-tab upload indicator (spec §6.7): a compact strip at the top of a
 // Files / Artifacts panel, one line per upload that belongs to the panel
 // (same `origin.panel` and `origin.key`). Nothing when the panel has none.
@@ -120,38 +122,38 @@ function onResumeInputChange(event) {
                         <wa-progress-bar
                             class="upload-progress"
                             :value="line.percent"
-                            :label="`Upload of ${line.entry.filename}: ${line.percent}%`"
+                            :label="$t(&quot;Upload of {p0}: {p1}%&quot;, { p0: (line.entry.filename), p1: (line.percent) })"
                         ></wa-progress-bar>
                         <span class="upload-percent">{{ line.percent }}%</span>
                         <span v-if="line.actions.text" class="upload-state">{{ line.actions.text }}</span>
-                        <span v-if="line.actions.error" class="upload-error" :title="line.actions.error">{{ line.actions.error }}</span>
+                        <span v-if="line.actions.error" class="upload-error" :title="line.actions.error">{{ $t(line.actions.error) }}</span>
                         <div class="upload-buttons">
                             <wa-button
                                 v-if="line.actions.buttons.includes('retry')"
                                 size="small"
                                 appearance="plain"
                                 @click="uploads.retry(line.entry.key)"
-                            >Retry</wa-button>
+                            >{{ $t("Retry") }}</wa-button>
                             <wa-button
                                 v-if="line.actions.buttons.includes('retryFinalization')"
                                 size="small"
                                 appearance="plain"
                                 @click="uploads.retryFinalization(line.entry.key)"
-                            >Retry</wa-button>
+                            >{{ $t("Retry") }}</wa-button>
                             <wa-button
                                 v-if="line.actions.buttons.includes('resume')"
                                 size="small"
                                 appearance="plain"
                                 @click="pickForResume(line.entry.key)"
-                            >Resume</wa-button>
+                            >{{ $t("Resume") }}</wa-button>
                             <wa-button
                                 v-if="line.actions.buttons.includes('cancel')"
                                 size="small"
                                 appearance="plain"
                                 class="upload-cancel"
-                                :aria-label="`Cancel the upload of ${line.entry.filename}`"
+                                :aria-label="$t(&quot;Cancel the upload of {p0}&quot;, { p0: (line.entry.filename) })"
                                 @click="uploads.cancel(line.entry.key)"
-                            ><wa-icon name="xmark" label="Cancel"></wa-icon></wa-button>
+                            ><wa-icon name="xmark" :label="$t(&quot;Cancel&quot;)"></wa-icon></wa-button>
                         </div>
                     </div>
                 </div>

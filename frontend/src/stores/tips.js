@@ -1,3 +1,4 @@
+import { t } from '../i18n/index.js'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { isTipAvailable } from './tipsConstraints'
@@ -27,7 +28,9 @@ export const useTipsStore = defineStore('tips', () => {
     const enabled = ref(lsEnabled === null ? true : lsEnabled === 'true')
 
     function applyManifest(remote) {
-        manifest.value = remote || {}
+        manifest.value = Object.fromEntries(Object.entries(remote || {}).map(([key, meta]) => [
+            key, { ...meta, get title() { return t(meta.title) } },
+        ]))
     }
 
     // Backend-provided default (OFF in a devctl worktree). Only applies while

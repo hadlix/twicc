@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../../../i18n/index.js'
+
 import { computed, ref, nextTick, onMounted } from 'vue'
 import { useDataStore } from '../../../../stores/data'
 import { useDetailsClosing } from '../../../../composables/useDetailsClosing'
@@ -80,8 +82,8 @@ function onAfterHide() {
 <template>
     <wa-details ref="detailsRef" :open="isOpen" :style="instantOpen ? { '--show-duration': '0ms', '--hide-duration': '0ms' } : null" class="item-details unknown-entry" icon-placement="start" @wa-show="onShow" @wa-hide="onHide" @wa-after-hide="onAfterHide">
         <span slot="summary" class="items-details-summary">
-            <strong class="items-details-summary-name">Unhandled event</strong>
-            <span class="items-details-summary-separator"> — </span>
+            <strong class="items-details-summary-name">{{ $t("Unhandled event") }}</strong>
+            <span class="items-details-summary-separator"> {{ $t("—") }} </span>
             <span class="items-details-summary-description">{{ type }}<template v-if="subType"> ({{ subType }})</template></span>
         </span>
         <template v-if="isOpen || isClosing()">
@@ -95,7 +97,7 @@ function onAfterHide() {
                 />
             </div>
             <div v-else class="unknown-no-data">
-                No data available
+                {{ $t("No data available") }}
             </div>
         </template>
     </wa-details>

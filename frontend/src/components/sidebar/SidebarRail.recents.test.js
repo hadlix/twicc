@@ -1,3 +1,4 @@
+import { t as $t, getFormatLocale } from '../../i18n/index.js'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
@@ -11,7 +12,7 @@ async function render(rows = [], recentProjects = [], recentWorkspaces = []) {
     const { descriptor } = parse(source)
     const compiled = compileTemplate({ source: descriptor.template.content, filename: 'SidebarRail.vue', id: 'rail', compilerOptions: { mode: 'function' } })
     const render = runInNewContext(`(function() { ${compiled.code} })()`, { Vue })
-    const ctx = { top: [], bottom: [], rows, recentProjects, recentWorkspaces,
+    const ctx = { $t, top: [], bottom: [], rows, recentProjects, recentWorkspaces,
         hasCentralContent: !!(rows.length || recentProjects.length || recentWorkspaces.length),
         currentSessionId: null, route: { name: 'project', params: { projectId: 'p' }, query: {} },
         store: { resolvedProjectIcons: {}, getProjectDisplayName: id => `Project ${id}` },
@@ -24,6 +25,7 @@ async function render(rows = [], recentProjects = [], recentWorkspaces = []) {
         app.component(name, { props: ['projectId', 'projectIds'], setup: (props, { slots }) => () => Vue.h('span', { 'data-component': name, 'data-project': props.projectId, 'data-projects': props.projectIds?.join(',') }, slots.default?.()) })
     }
     app.config.warnHandler = () => {}
+    app.config.globalProperties.$t = $t
     return renderToString(app)
 }
 test('compiled rail renders ordered recent groups and project/workspace tooltip scopes', async () => {

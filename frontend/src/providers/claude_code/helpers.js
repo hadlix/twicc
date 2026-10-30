@@ -1,3 +1,5 @@
+
+import { t as $t } from '../../i18n/index.js'
 import { matchesStreamingBlock } from './streamMatching.js'
 import { buildEphemeralResultContent } from '../ephemeralContent.js'
 import { BaseProviderHelpers, formatRetirementDate } from '../baseHelpers'
@@ -18,13 +20,13 @@ import { startupSettingsDeferredText } from '../../utils/backgroundWork'
 // so the picker tags it ``built-in workflow``. The flag also exists as a real
 // ``Command`` column for workflows discovered on disk.
 const BUILTIN_COMMANDS = [
-    { name: 'compact', plugin_name: null, is_builtin: true, is_global: true, description: 'Clear conversation history but keep a summary in context', argument_hint: '[instructions for summarization]' },
-    { name: 'cost', plugin_name: null, is_builtin: true, is_global: true, description: 'Show the cost of the current session', argument_hint: null },
-    { name: 'context', plugin_name: null, is_builtin: true, is_global: true, description: 'Show the current context window usage', argument_hint: null },
-    { name: 'init', plugin_name: null, is_builtin: true, is_global: true, description: 'Initialize a new CLAUDE.md file with codebase documentation', argument_hint: null },
-    { name: 'loop', plugin_name: null, is_builtin: true, is_global: true, description: "Run a prompt or slash command on a recurring interval until the session ends (e.g. /loop 5m /foo, defaults to 10m)", argument_hint: '[interval] [command or prompt]' },
-    { name: 'goal', plugin_name: null, is_builtin: true, is_global: true, description: "Set a completion condition Claude keeps working toward across turns until an evaluator agent confirms it's met; run with no argument to show status, or 'clear' to cancel", argument_hint: '[condition | clear]' },
-    { name: 'deep-research', plugin_name: null, is_builtin: true, is_workflow: true, is_global: true, description: 'Research a question across many web sources, cross-verify claims, and return a cited report', argument_hint: '<question>' },
+    { name: 'compact', plugin_name: null, is_builtin: true, is_global: true, get description() { return $t("Clear conversation history but keep a summary in context") }, get argument_hint() { return $t("[instructions for summarization]") } },
+    { name: 'cost', plugin_name: null, is_builtin: true, is_global: true, get description() { return $t("Show the cost of the current session") }, argument_hint: null },
+    { name: 'context', plugin_name: null, is_builtin: true, is_global: true, get description() { return $t("Show the current context window usage") }, argument_hint: null },
+    { name: 'init', plugin_name: null, is_builtin: true, is_global: true, get description() { return $t("Initialize a new CLAUDE.md file with codebase documentation") }, argument_hint: null },
+    { name: 'loop', plugin_name: null, is_builtin: true, is_global: true, get description() { return $t("Run a prompt or slash command on a recurring interval until the session ends (e.g. /loop 5m /foo, defaults to 10m)") }, get argument_hint() { return $t("[interval] [command or prompt]") } },
+    { name: 'goal', plugin_name: null, is_builtin: true, is_global: true, get description() { return $t("Set a completion condition Claude keeps working toward across turns until an evaluator agent confirms it's met; run with no argument to show status, or 'clear' to cancel") }, get argument_hint() { return $t("[condition | clear]") } },
+    { name: 'deep-research', plugin_name: null, is_builtin: true, is_workflow: true, is_global: true, get description() { return $t("Research a question across many web sources, cross-verify claims, and return a cited report") }, get argument_hint() { return $t("<question>") } },
 ]
 
 // Map of usage-file field names (cross-provider) → Claude Code store
@@ -77,11 +79,11 @@ const SYNCED_SETTING_KEYS_TO_STORE = {
 // Statuspage display map: Atlassian status values → footer rendering.
 // Matches the status strings broadcast by the backend statuspage task.
 const ANTHROPIC_STATUS_DISPLAY = {
-    operational:          { label: 'Operational',      modifier: 'ok' },
-    degraded_performance: { label: 'Degraded',         modifier: 'warning' },
-    partial_outage:       { label: 'Partial outage',   modifier: 'warning' },
-    major_outage:         { label: 'Major outage',     modifier: 'error' },
-    under_maintenance:    { label: 'Maintenance',      modifier: 'info' },
+    operational:          { get label() { return $t("Operational") },      modifier: 'ok' },
+    degraded_performance: { get label() { return $t("Degraded") },         modifier: 'warning' },
+    partial_outage:       { get label() { return $t("Partial outage") },   modifier: 'warning' },
+    major_outage:         { get label() { return $t("Major outage") },     modifier: 'error' },
+    under_maintenance:    { get label() { return $t("Maintenance") },      modifier: 'info' },
 }
 
 // Per-field choice catalogue for the Claude Code provider.
@@ -106,74 +108,74 @@ const AGENT_SETTINGS_CHOICES = {
     permission_mode: [
         {
             value: PERMISSION_MODE.PLAN,
-            label: 'Plan',
-            description: 'Read-only: Claude can analyze but not modify files',
+            get label() { return $t("Plan") },
+            get description() { return $t("Read-only: Claude can analyze but not modify files") },
             icon: 'clipboard-list',
             color: 'var(--wa-color-purple-60)',
         },
         {
             value: PERMISSION_MODE.DONT_ASK,
-            label: "Don't Ask",
-            description: 'Auto-denies tools unless pre-approved via permission rules',
+            get label() { return $t("Don't Ask") },
+            get description() { return $t("Auto-denies tools unless pre-approved via permission rules") },
             icon: 'shield-halved',
             color: 'var(--wa-color-blue-60)',
         },
         {
             value: PERMISSION_MODE.DEFAULT,
-            label: 'Default',
-            description: 'Prompts for permission on first use of each tool',
+            get label() { return $t("Default") },
+            get description() { return $t("Prompts for permission on first use of each tool") },
             icon: 'eye',
             color: 'var(--wa-color-green-60)',
         },
         {
             value: PERMISSION_MODE.ACCEPT_EDITS,
-            label: 'Accept Edits',
-            description: 'Auto-accepts file edit permissions',
+            get label() { return $t("Accept Edits") },
+            get description() { return $t("Auto-accepts file edit permissions") },
             icon: 'pen-to-square',
             color: 'var(--wa-color-yellow-60)',
         },
         {
             value: PERMISSION_MODE.AUTO,
-            label: 'Auto',
-            description: 'Auto-approves tools, with safety checks blocking risky actions',
+            get label() { return $t("Auto") },
+            get description() { return $t("Auto-approves tools, with safety checks blocking risky actions") },
             icon: 'shield-check',
             color: 'var(--wa-color-orange-60)',
         },
         {
             value: PERMISSION_MODE.BYPASS,
-            label: 'Bypass permissions',
-            description: 'Skips all permission prompts',
+            get label() { return $t("Bypass permissions") },
+            get description() { return $t("Skips all permission prompts") },
             icon: 'triangle-exclamation',
             color: 'var(--wa-color-red-60)',
         },
     ],
     effort: [
-        { value: EFFORT.LOW,    label: 'Low',    display_label: 'Low effort' },
-        { value: EFFORT.MEDIUM, label: 'Medium', display_label: 'Medium effort' },
-        { value: EFFORT.HIGH,   label: 'High',   display_label: 'High effort' },
-        { value: EFFORT.X_HIGH, label: 'xHigh',  display_label: 'xHigh effort' },
-        { value: EFFORT.MAX,    label: 'Max',    display_label: 'Max effort' },
+        { value: EFFORT.LOW,    get label() { return $t("Low") },    get display_label() { return $t("Low effort") } },
+        { value: EFFORT.MEDIUM, get label() { return $t("Medium") }, get display_label() { return $t("Medium effort") } },
+        { value: EFFORT.HIGH,   get label() { return $t("High") },   get display_label() { return $t("High effort") } },
+        { value: EFFORT.X_HIGH, get label() { return $t("xHigh") },  get display_label() { return $t("xHigh effort") } },
+        { value: EFFORT.MAX,    get label() { return $t("Max") },    get display_label() { return $t("Max effort") } },
     ],
     thinking_enabled: [
-        { value: true,  label: 'Adaptive', display_label: 'Thinking' },
-        { value: false, label: 'Disabled', display_label: 'No thinking' },
+        { value: true,  get label() { return $t("Adaptive") }, get display_label() { return $t("Thinking") } },
+        { value: false, get label() { return $t("Disabled") }, get display_label() { return $t("No thinking") } },
     ],
     claude_in_chrome: [
-        { value: true,  label: 'Enabled',  display_label: 'Chrome MCP' },
-        { value: false, label: 'Disabled', display_label: 'No Chrome MCP' },
+        { value: true,  get label() { return $t("Enabled") },  get display_label() { return $t("Chrome MCP") } },
+        { value: false, get label() { return $t("Disabled") }, get display_label() { return $t("No Chrome MCP") } },
     ],
     fast_mode: [
         {
             value: true,
-            label: 'Enabled',
-            display_label: 'Fast mode',
-            description: 'Faster generation, billed on extra usage credits. Costs 2x the tokens (6x before 4.8).',
+            get label() { return $t("Enabled") },
+            get display_label() { return $t("Fast mode") },
+            get description() { return $t("Faster generation, billed on extra usage credits. Costs 2x the tokens (6x before 4.8).") },
         },
-        { value: false, label: 'Disabled', display_label: 'No fast mode' },
+        { value: false, get label() { return $t("Disabled") }, get display_label() { return $t("No fast mode") } },
     ],
     context_max: [
-        { value: CONTEXT_MAX.DEFAULT,  label: '200K' },
-        { value: CONTEXT_MAX.EXTENDED, label: '1M' },
+        { value: CONTEXT_MAX.DEFAULT,  get label() { return $t("200K") } },
+        { value: CONTEXT_MAX.EXTENDED, get label() { return $t("1M") } },
     ],
 }
 
@@ -206,7 +208,7 @@ export class ClaudeCodeHelpers extends BaseProviderHelpers {
     }
 
     getPlaceholderAssistantTurnNote() {
-        return 'Note: it will not appear in the conversation history.'
+        return $t("Note: it will not appear in the conversation history.")
     }
 
     getBuiltInCommands(activationChar) {
@@ -279,7 +281,7 @@ export class ClaudeCodeHelpers extends BaseProviderHelpers {
     }
 
     getUsageExternalLink() {
-        return { url: 'https://claude.ai/settings/usage', label: 'View usage on claude.ai' }
+        return { url: 'https://claude.ai/settings/usage', get label() { return $t("View usage on claude.ai") } }
     }
 
     supportsUsageRefresh() {
@@ -325,7 +327,7 @@ export class ClaudeCodeHelpers extends BaseProviderHelpers {
         return {
             ...entry,
             url: this.constructor.serviceStatusUrl,
-            tooltip: "Claude Code status on Anthropic's side",
+            get tooltip() { return $t("Claude Code status on Anthropic's side") },
         }
     }
 
@@ -565,7 +567,7 @@ export class ClaudeCodeHelpers extends BaseProviderHelpers {
         if (field === 'selected_model') {
             const resolved = this.resolveToAvailableModel(value)
             const entry = this.getModelRegistry().find(e => e.selected_model === resolved)
-            if (entry?.latest) return `${this.getModelLabel(resolved)} (latest: ${entry.version})`
+            if (entry?.latest) return $t("{p0} (latest: {p1})", { p0: (this.getModelLabel(resolved)), p1: (entry.version) })
             return this.getModelLabel(resolved)
         }
         return super.getDefaultValueLabel(field, value)
@@ -615,12 +617,12 @@ export class ClaudeCodeHelpers extends BaseProviderHelpers {
 
     getFieldHelpText(field, context) {
         if (field === 'context_max') {
-            if (context?.isContextMaxForced) return 'Forced to 1M: context usage exceeds 85% of 200K.'
-            if (!this.modelSupports1m(context?.effectiveModel)) return '1M not available for this model version.'
+            if (context?.isContextMaxForced) return $t("Forced to 1M: context usage exceeds 85% of 200K.")
+            if (!this.modelSupports1m(context?.effectiveModel)) return $t("1M not available for this model version.")
             return null
         }
         if (field === 'fast_mode') {
-            if (!this.modelSupportsFast(context?.effectiveModel)) return 'Fast mode is only available on supported Opus versions.'
+            if (!this.modelSupportsFast(context?.effectiveModel)) return $t("Fast mode is only available on supported Opus versions.")
             // When fast mode is available, the cost note lives under the
             // ``Enabled`` option (see ``AGENT_SETTINGS_CHOICES.fast_mode``)
             // so the field-level help stays empty to avoid duplication.
@@ -628,7 +630,7 @@ export class ClaudeCodeHelpers extends BaseProviderHelpers {
         }
         if (field === 'thinking_enabled') {
             if (!this.modelSupportsThinkingDisabled(context?.effectiveModel)) {
-                return 'Always on for this model — thinking cannot be disabled.'
+                return $t("Always on for this model — thinking cannot be disabled.")
             }
             return null
         }
@@ -637,7 +639,7 @@ export class ClaudeCodeHelpers extends BaseProviderHelpers {
             // is STARTUP there (no reliable external setter in the TUI).
             // Chain super so the trust-clamp note still wins when forced.
             return super.getFieldHelpText(field, context)
-                ?? 'Hybrid CLI: applied on the next message by restarting the CLI.'
+                ?? $t("Hybrid CLI: applied on the next message by restarting the CLI.")
         }
         return super.getFieldHelpText(field, context)
     }
@@ -649,7 +651,7 @@ export class ClaudeCodeHelpers extends BaseProviderHelpers {
             return {
                 icon: 'triangle-exclamation',
                 variant: 'warning',
-                text: 'Forced to 1M: context usage exceeds 85% of 200K.',
+                get text() { return $t("Forced to 1M: context usage exceeds 85% of 200K.") },
             }
         }
         // Fast mode (only shown on supported models): a brand info icon (circle
@@ -715,7 +717,7 @@ export class ClaudeCodeHelpers extends BaseProviderHelpers {
         return [
             {
                 entries: list.filter(e => e.latest).map(e => this.buildModelOption(
-                    e, `${this.getModelLabel(e.selected_model)} (latest: ${e.version})`,
+                    e, $t("{p0} (latest: {p1})", { p0: (this.getModelLabel(e.selected_model)), p1: (e.version) }),
                 )),
             },
             {
@@ -726,7 +728,7 @@ export class ClaudeCodeHelpers extends BaseProviderHelpers {
                 entries: list.filter(e => !e.latest).map(e => this.buildModelOption(
                     e,
                     e.retirement_date
-                        ? `${this.getModelLabel(e.selected_model)} (until ${formatRetirementDate(e.retirement_date)})`
+                        ? $t("{p0} (until {p1})", { p0: (this.getModelLabel(e.selected_model)), p1: (formatRetirementDate(e.retirement_date)) })
                         : this.getModelLabel(e.selected_model),
                 )),
             },

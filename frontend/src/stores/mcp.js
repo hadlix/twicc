@@ -1,3 +1,5 @@
+
+import { t as $t } from '../i18n/index.js'
 import { defineStore } from 'pinia'
 
 const pendingRefresh = new WeakMap()
@@ -35,7 +37,7 @@ export const useMcpStore = defineStore('mcp', {
             const task = (async () => {
             try {
                 const response = await this.request()
-                if (!response.ok) throw new Error('Cannot load MCP connections.')
+                if (!response.ok) throw new Error($t("Cannot load MCP connections."))
                 const data = await response.json()
                 this.connections = data.connections
                 this.requests = data.requests
@@ -57,7 +59,7 @@ export const useMcpStore = defineStore('mcp', {
                     body: JSON.stringify({ action, ...fields }),
                 })
                 const data = await response.json()
-                if (!response.ok) throw new Error(data.error || 'MCP action failed.')
+                if (!response.ok) throw new Error(data.error || $t("MCP action failed."))
                 await pendingRefresh.get(this)
                 await this.refresh()
                 return true

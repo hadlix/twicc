@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 import { computed } from 'vue'
 import AppTooltip from '../ui/AppTooltip.vue'
 import { localPresence } from '../../utils/presence'
@@ -12,10 +14,10 @@ const props = defineProps({
 })
 
 const statusConfig = {
-    OPEN: { label: 'Connected', color: 'var(--wa-color-success)' },
-    CONNECTING: { label: 'Connecting...', color: 'var(--wa-color-warning)' },
-    CLOSING: { label: 'Disconnecting...', color: 'var(--wa-color-warning)' },
-    CLOSED: { label: 'Disconnected', color: 'var(--wa-color-danger)' }
+    OPEN: { get label() { return $t("Connected") }, color: 'var(--wa-color-success)' },
+    CONNECTING: { get label() { return $t("Connecting...") }, color: 'var(--wa-color-warning)' },
+    CLOSING: { get label() { return $t("Disconnecting...") }, color: 'var(--wa-color-warning)' },
+    CLOSED: { get label() { return $t("Disconnected") }, color: 'var(--wa-color-danger)' }
 }
 
 const config = computed(() => {
@@ -25,7 +27,7 @@ const config = computed(() => {
     // to suppress auto "mark as read" on an unattended device) is working. Other
     // states keep their own color.
     if (props.status === 'OPEN' && !localPresence.value) {
-        return { label: `${base.label} (Away)`, color: 'var(--wa-color-blue-60)' }
+        return { get label() { return $t("{p0} (Away)", { p0: (base.label) }) }, color: 'var(--wa-color-blue-60)' }
     }
     return base
 })
@@ -35,7 +37,7 @@ const config = computed(() => {
     <div id="connection-indicator" class="connection-indicator">
         <span class="indicator-dot" :style="{ backgroundColor: config.color }"></span>
     </div>
-    <AppTooltip for="connection-indicator">WebSocket: {{ config.label }}</AppTooltip>
+    <AppTooltip for="connection-indicator">{{ $t("WebSocket:") }} {{ config.label }}</AppTooltip>
 </template>
 
 <style scoped>

@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // ProjectTrustDialog.vue — asks the user whether to trust a project before the
 // first session is started in it. Imperative, promise-based: a parent calls
 // `requestDecision(project)` and awaits `{ trusted, propagation }` or `null`
@@ -55,12 +57,10 @@ defineExpose({ requestDecision })
 </script>
 
 <template>
-    <wa-dialog ref="dialogRef" label="Trust this project?" class="project-trust-dialog" @wa-hide="handleHide">
+    <wa-dialog ref="dialogRef" :label="$t(&quot;Trust this project?&quot;)" class="project-trust-dialog" @wa-hide="handleHide">
         <div class="dialog-content">
             <p class="intro">
-                Is this a project you created or trust (your own code, a well-known
-                open-source project, or your team's work)? Claude Code and Codex will be
-                able to read, edit and run files here.
+                {{ $t("Is this a project you created or trust (your own code, a well-known open-source project, or your team's work)? Claude Code and Codex will be able to read, edit and run files here.") }}
             </p>
 
             <div v-if="project" class="project-info">
@@ -74,24 +74,24 @@ defineExpose({ requestDecision })
                 @change="propagation = $event.target.checked"
                 size="small"
             >
-                Apply to sub-folders and worktrees
+                {{ $t("Apply to sub-folders and worktrees") }}
                 <span class="propagate-hint">
-                    — descendants inherit this decision until you decide otherwise.
+                    {{ $t("— descendants inherit this decision until you decide otherwise.") }}
                 </span>
             </wa-switch>
         </div>
 
         <div slot="footer" class="dialog-footer">
             <wa-button variant="neutral" appearance="outlined" @click="settle(null)">
-                Cancel
+                {{ $t("Cancel") }}
             </wa-button>
             <wa-button variant="neutral" @click="decide(false)">
                 <wa-icon slot="start" name="xmark"></wa-icon>
-                Don't trust
+                {{ $t("Don't trust") }}
             </wa-button>
             <wa-button variant="brand" @click="decide(true)">
                 <wa-icon slot="start" name="shield"></wa-icon>
-                Trust
+                {{ $t("Trust") }}
             </wa-button>
         </div>
     </wa-dialog>

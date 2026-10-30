@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../../i18n/index.js'
+
 // Small per-tab arrow opening a dropdown to place the tab into the center or one of the six
 // docks. Menu only (no drag-and-drop). Lives inside a wa-tab / nav, so every WA event is
 // stopped from bubbling to the surrounding tab group, and clicks never switch the tab.
@@ -32,13 +34,13 @@ function onSelect(event) {
             appearance="plain"
             size="small"
             class="placement-trigger"
-            title="Place this tab"
-            aria-label="Place this tab"
+            :title="$t(&quot;Place this tab&quot;)"
+            :aria-label="$t(&quot;Place this tab&quot;)"
         >
             <wa-icon name="chevron-down"></wa-icon>
         </wa-button>
 
-        <wa-dropdown-item disabled class="placement-header">Tab placement</wa-dropdown-item>
+        <wa-dropdown-item disabled class="placement-header">{{ $t("Tab placement") }}</wa-dropdown-item>
         <wa-divider></wa-divider>
         <wa-dropdown-item
             v-for="opt in PLACEMENT_OPTIONS"

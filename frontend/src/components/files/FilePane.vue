@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 import { ref, watch, computed, nextTick, useId, inject, onMounted, onBeforeUnmount } from 'vue'
 import { apiFetch } from '../../utils/api'
 import { base64UrlEncode, encodeFilePathSegments } from '../../utils/download'
@@ -25,7 +27,7 @@ import { useFramePoolStore } from '../../stores/framePool'
 import { useTextSelectionComment } from '../../composables/useTextSelectionComment'
 
 // Stable identity — an inline literal would churn the frame descriptor watch.
-const HTML_PREVIEW_FRAME_ATTRS = { sandbox: 'allow-scripts allow-same-origin allow-forms', title: 'HTML preview' }
+const HTML_PREVIEW_FRAME_ATTRS = { sandbox: 'allow-scripts allow-same-origin allow-forms', get title() { return $t("HTML preview") } }
 
 const props = defineProps({
     projectId: String,
@@ -514,7 +516,7 @@ const elementCommentSourceLabel = computed(() => {
     // "artifact" in the Artifacts context (bookmark session id set), plain
     // "file" for a repo .html in the Files tab.
     const noun = props.artifactBookmarkSessionId ? 'artifact' : 'file'
-    return `from the HTML preview of the ${noun} at ${props.displayPath || props.filePath}`
+    return $t("from the HTML preview of the {p0} at {p1}", { p0: (noun), p1: (props.displayPath || props.filePath) })
 })
 
 function openElementComment() {
@@ -522,9 +524,9 @@ function openElementComment() {
     const rect = selectToolbarRef.value?.$el?.getBoundingClientRect()
     if (!description || !rect) return
     const lines = []
-    if (description.openingTag) lines.push(`Element: ${description.openingTag}`)
-    if (description.text) lines.push(`Text: "${description.text}"`)
-    lines.push(`Path: ${description.chain}`)
+    if (description.openingTag) lines.push($t("Element: {p0}", { p0: (description.openingTag) }))
+    if (description.text) lines.push($t("Text: \"{p0}\"", { p0: (description.text) }))
+    lines.push($t("Path: {p0}", { p0: (description.chain) }))
     closeTextSelectionComment()
     elementCommentText.value = lines.join('\n')
     elementCommentPosition.value = { top: rect.bottom, left: rect.left + rect.width / 2, above: false }
@@ -533,7 +535,7 @@ function openElementComment() {
 // Passed to the comment widget's "Include screenshot" switch; rejects cleanly
 // so the switch can revert.
 function captureElementScreenshot() {
-    if (!picker) return Promise.reject(new Error('select mode is off'))
+    if (!picker) return Promise.reject(new Error($t("select mode is off")))
     return picker.capture()
 }
 
@@ -543,7 +545,7 @@ function captureElementScreenshot() {
 // Artifacts tab).
 async function attachElementScreenshot(dataUrl, options = {}) {
     const sessionId = composerSessionId.value
-    if (!sessionId) throw new Error('no session to attach to')
+    if (!sessionId) throw new Error($t("no session to attach to"))
     const blob = await (await fetch(dataUrl)).blob()
     const file = new File([blob], `artifact-capture-${Date.now()}.png`, { type: 'image/png' })
     return dataStore.addAttachment(sessionId, file, options)
@@ -561,16 +563,16 @@ const previewActions = computed(() => {
     const html = showHtmlPreview.value && isHtmlFile.value && !props.diffMode
     if (html && htmlPreviewSrc.value && inSessionContext.value) {
         actions.push({ id: responsiveButtonId, icon: 'mobile-screen-button', active: responsiveActive.value,
-            label: responsiveActive.value ? 'Exit responsive mode' : 'Responsive mode — preview at a device size',
+            label: responsiveActive.value ? $t("Exit responsive mode") : $t("Responsive mode — preview at a device size"),
             action: () => { responsiveActive.value = !responsiveActive.value } })
     }
     if (html && htmlPreviewSrc.value && canSelectElement.value) {
         actions.push({ id: selectButtonId, icon: 'arrow-pointer', active: selectModeActive.value,
-            label: selectModeActive.value ? 'Stop selecting an element' : 'Select an element',
+            label: selectModeActive.value ? $t("Stop selecting an element") : $t("Select an element"),
             action: () => setSelectMode(!selectModeActive.value) })
     }
     if (html && artifactBookmark.value) {
-        actions.push({ id: previewOpenTabButtonId, icon: 'up-right-from-square', label: 'Open in new tab',
+        actions.push({ id: previewOpenTabButtonId, icon: 'up-right-from-square', get label() { return $t("Open in new tab") },
             href: `/artifacts/${artifactBookmark.value.id}/` })
     }
     return actions
@@ -959,7 +961,7 @@ async function fetchFileContent(filePath, { isSwitch = false } = {}) {
         const data = await res.json()
 
         if (!res.ok) {
-            error.value = data.error || 'Failed to load file'
+            error.value = data.error || $t("Failed to load file")
             currentContent.value = ''
             return
         }
@@ -986,7 +988,7 @@ async function fetchFileContent(filePath, { isSwitch = false } = {}) {
         // Reset dirty state after a tick so CodeMirror has processed the new content
         nextTick(() => codeEditorRef.value?.resetDirty())
     } catch (err) {
-        error.value = 'Network error: failed to load file'
+        error.value = $t("Network error: failed to load file")
         currentContent.value = ''
     } finally {
         loading.value = false
@@ -1122,7 +1124,7 @@ watch(
         if (available) {
             registerCommand({
                 id: toggleEditCommandId,
-                label: 'Toggle File Edit Mode',
+                get label() { return $t("Toggle File Edit Mode") },
                 icon: 'pen-to-square',
                 category: 'display',
                 toggled: () => isEditing.value,
@@ -1147,14 +1149,14 @@ watch(
         if (bookmarked !== null) {
             registerCommand({
                 id: bookmarkArtifactCommandId,
-                label: bookmarked ? 'Edit Artifact Bookmark…' : 'Bookmark This Artifact…',
+                label: bookmarked ? $t("Edit Artifact Bookmark…") : $t("Bookmark This Artifact…"),
                 icon: 'bookmark',
                 category: 'ui',
                 action: () => artifactBookmarkButtonRef.value?.openDialog(),
             })
             registerCommand({
                 id: shareArtifactCommandId,
-                label: 'Share This Artifact…',
+                get label() { return $t("Share This Artifact…") },
                 icon: 'share-nodes',
                 category: 'ui',
                 // No share host configured → nothing to create, like the
@@ -1222,7 +1224,7 @@ async function save() {
         const data = await res.json()
 
         if (!res.ok || data.error) {
-            saveError.value = data.error || 'Failed to save file'
+            saveError.value = data.error || $t("Failed to save file")
             return
         }
 
@@ -1233,7 +1235,7 @@ async function save() {
             codeEditorRef.value?.resetDirty()
         }
     } catch (err) {
-        saveError.value = 'Network error: failed to save file'
+        saveError.value = $t("Network error: failed to save file")
     } finally {
         saving.value = false
     }
@@ -1416,7 +1418,7 @@ function goToNextDiff() {
                 >
                     <wa-icon name="magnifying-glass"></wa-icon>
                 </wa-button>
-                <AppTooltip :for="searchButtonId">Search in editor</AppTooltip>
+                <AppTooltip :for="searchButtonId">{{ $t("Search in editor") }}</AppTooltip>
                 <!-- "View in Files tab" button: shown only in diff mode (Git tab context) -->
                 <wa-button
                     v-if="viewFileInFilesTab && diffMode"
@@ -1429,7 +1431,7 @@ function goToNextDiff() {
                 >
                     <wa-icon name="folder-open"></wa-icon>
                 </wa-button>
-                <AppTooltip :for="viewInFilesButtonId">View in Files tab</AppTooltip>
+                <AppTooltip :for="viewInFilesButtonId">{{ $t("View in Files tab") }}</AppTooltip>
                 <!-- Edit controls: hidden in read-only diff mode (commit diffs),
                      and while a preview is active (editing the source is a
                      separate mode from previewing the rendered result). -->
@@ -1439,8 +1441,8 @@ function goToNextDiff() {
                         :checked="isEditing"
                         size="small"
                         @change="onEditToggle"
-                    >Edit</wa-switch>
-                    <AppTooltip :for="editSwitchId">Toggle edit mode (Alt+E)</AppTooltip>
+                    >{{ $t("Edit") }}</wa-switch>
+                    <AppTooltip :for="editSwitchId">{{ $t("Toggle edit mode (Alt+E)") }}</AppTooltip>
                     <template v-if="isEditing">
                         <wa-button
                             size="small"
@@ -1450,7 +1452,7 @@ function goToNextDiff() {
                             @click="save"
                         >
                             <wa-spinner v-if="saving" slot="start"></wa-spinner>
-                            Save
+                            {{ $t("Save") }}
                         </wa-button>
                         <wa-button
                             size="small"
@@ -1459,7 +1461,7 @@ function goToNextDiff() {
                             :disabled="saving"
                             class="reduced-height"
                             @click="revert"
-                        >Revert</wa-button>
+                        >{{ $t("Revert") }}</wa-button>
                     </template>
                     <wa-button
                         v-else
@@ -1467,7 +1469,7 @@ function goToNextDiff() {
                         variant="neutral"
                         appearance="outlined"
                         class="header-spacer reduced-height"
-                    >Spacer</wa-button>
+                    >{{ $t("Spacer") }}</wa-button>
                 </template>
             </div>
             <div v-if="diffMode && !isPreviewing" class="header-center">
@@ -1482,7 +1484,7 @@ function goToNextDiff() {
                     >
                         <wa-icon name="arrow-up"></wa-icon>
                     </wa-button>
-                    <AppTooltip :for="prevChangeButtonId">Previous change</AppTooltip>
+                    <AppTooltip :for="prevChangeButtonId">{{ $t("Previous change") }}</AppTooltip>
                     <wa-button
                         size="small"
                         variant="neutral"
@@ -1493,7 +1495,7 @@ function goToNextDiff() {
                     >
                         <wa-icon name="arrow-down"></wa-icon>
                     </wa-button>
-                    <AppTooltip :for="nextChangeButtonId">Next change</AppTooltip>
+                    <AppTooltip :for="nextChangeButtonId">{{ $t("Next change") }}</AppTooltip>
                 </div>
             </div>
             <div class="header-right">
@@ -1503,14 +1505,14 @@ function goToNextDiff() {
                     :checked="wordWrap"
                     size="small"
                     @change="onWordWrapToggle"
-                >Wrap</wa-switch>
+                >{{ $t("Wrap") }}</wa-switch>
                 <wa-switch
                     v-if="diffMode && !showMarkdownPreview && canSideBySide"
                     :checked="sideBySide"
                     size="small"
                     class="diff-layout-toggle"
                     @change="onSideBySideToggle"
-                >Side by side</wa-switch>
+                >{{ $t("Side by side") }}</wa-switch>
                 <!-- Markdown preview toggle: shown for .md files, including while
                      editing — but disabled until unsaved changes are saved, since
                      entering the preview leaves edit mode. -->
@@ -1526,7 +1528,7 @@ function goToNextDiff() {
                 >
                     <wa-icon name="eye"></wa-icon>
                 </wa-button>
-                <AppTooltip :for="markdownPreviewButtonId">Toggle markdown preview</AppTooltip>
+                <AppTooltip :for="markdownPreviewButtonId">{{ $t("Toggle markdown preview") }}</AppTooltip>
                 <!-- SVG preview toggle: shown for .svg files, including while
                      editing — disabled until unsaved changes are saved. -->
                 <wa-button
@@ -1541,7 +1543,7 @@ function goToNextDiff() {
                 >
                     <wa-icon name="eye"></wa-icon>
                 </wa-button>
-                <AppTooltip :for="svgPreviewButtonId">Toggle SVG preview</AppTooltip>
+                <AppTooltip :for="svgPreviewButtonId">{{ $t("Toggle SVG preview") }}</AppTooltip>
                 <!-- HTML preview toggle: shown for .html files, including while
                      editing (disabled until saved). Excluded in diff mode (Git
                      tab): a preview of the working-tree file would not reflect the
@@ -1558,7 +1560,7 @@ function goToNextDiff() {
                 >
                     <wa-icon name="eye"></wa-icon>
                 </wa-button>
-                <AppTooltip :for="htmlPreviewButtonId">Toggle HTML preview</AppTooltip>
+                <AppTooltip :for="htmlPreviewButtonId">{{ $t("Toggle HTML preview") }}</AppTooltip>
                 <!-- Reload the rendered HTML (reflects the file as saved on disk).
                      Only present while the preview is on, which implies not editing. -->
                 <wa-button
@@ -1572,7 +1574,7 @@ function goToNextDiff() {
                 >
                     <wa-icon name="arrows-rotate"></wa-icon>
                 </wa-button>
-                <AppTooltip :for="htmlPreviewReloadButtonId">Reload preview</AppTooltip>
+                <AppTooltip :for="htmlPreviewReloadButtonId">{{ $t("Reload preview") }}</AppTooltip>
                 <!-- Mermaid preview toggle: shown for .mmd files, including while
                      editing (disabled until saved). Excluded in diff mode (Git tab). -->
                 <wa-button
@@ -1587,7 +1589,7 @@ function goToNextDiff() {
                 >
                     <wa-icon name="eye"></wa-icon>
                 </wa-button>
-                <AppTooltip :for="mermaidPreviewButtonId">Toggle Mermaid preview</AppTooltip>
+                <AppTooltip :for="mermaidPreviewButtonId">{{ $t("Toggle Mermaid preview") }}</AppTooltip>
             </div>
         </div>
 
@@ -1701,7 +1703,7 @@ function goToNextDiff() {
                     :key="filePath"
                     :src="rawFileUrl"
                     class="pdf-preview"
-                    title="PDF preview"
+                    :title="$t(&quot;PDF preview&quot;)"
                 ></iframe>
 
                 <!-- Audio preview — native <audio> player streaming from file-raw. -->
@@ -1751,7 +1753,7 @@ function goToNextDiff() {
                     v-if="showMarkdownPreview && isMarkdownFile && showScrollTop"
                     :for="scrollTopButtonId"
                     placement="left"
-                >Scroll to top</AppTooltip>
+                >{{ $t("Scroll to top") }}</AppTooltip>
             </div>
 
             <!-- CodeMirror diff editor (diff mode) -->
@@ -1796,12 +1798,12 @@ function goToNextDiff() {
                 </template>
                 <template v-else-if="error">
                     <wa-callout variant="danger" size="small">
-                        {{ error }}
+                        {{ $t(error) }}
                     </wa-callout>
                 </template>
                 <template v-else-if="isBinary">
                     <wa-icon name="file-zipper" style="font-size: 1.5rem; opacity: 0.5;"></wa-icon>
-                    <span>Binary file ({{ formatSize(fileSize) }}) cannot be displayed</span>
+                    <span>{{ $t("Binary file (") }}{{ formatSize(fileSize) }}{{ $t(") cannot be displayed") }}</span>
                 </template>
             </div>
         </div>
@@ -1809,7 +1811,7 @@ function goToNextDiff() {
         <!-- Save error message (overlays above the editor) -->
         <div v-if="saveError" class="editor-overlay">
             <wa-callout variant="danger" size="small">
-                {{ saveError }}
+                {{ $t(saveError) }}
             </wa-callout>
         </div>
 

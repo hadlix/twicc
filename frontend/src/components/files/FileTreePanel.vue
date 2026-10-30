@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 /**
  * FileTreePanel - Shared component encapsulating a file tree with search,
  * keyboard navigation, options dropdown, and scroll-to-path functionality.
@@ -198,7 +200,7 @@ const props = defineProps({
     },
     searchPlaceholder: {
         type: String,
-        default: 'Filter files...',
+        get default() { return $t("Filter files...") },
     },
     /**
      * Where an upload started from this tree belongs (`{ panel, key }`, spec
@@ -236,12 +238,12 @@ function closeFileTree() {
  */
 const headerPlaceholder = computed(() => {
     if (isSearching.value && !searchTree.value?.children?.length && searchResponded.value) {
-        return 'No matches'
+        return $t("No matches")
     }
     if (!props.rootPath && !props.hasExtraTree) {
-        return props.mode === 'git' ? 'No changes' : 'No directory'
+        return props.mode === 'git' ? $t("No changes") : $t("No directory")
     }
-    return 'Select a file'
+    return $t("Select a file")
 })
 
 // ─── Search state ────────────────────────────────────────────────────────────
@@ -1375,7 +1377,7 @@ defineExpose({
                             value="auto-open"
                             :checked="autoOpen"
                         >
-                            Auto-open
+                            {{ $t("Auto-open") }}
                         </wa-dropdown-item>
                         <wa-divider></wa-divider>
                         <wa-dropdown-item
@@ -1383,7 +1385,7 @@ defineExpose({
                             value="reveal-in-tree"
                         >
                             <wa-icon slot="icon" name="crosshairs"></wa-icon>
-                            <div>Scroll to selected file</div>
+                            <div>{{ $t("Scroll to selected file") }}</div>
                             <div class="reveal-path">{{ selectedFile }}</div>
                         </wa-dropdown-item>
                     </template>
@@ -1392,10 +1394,10 @@ defineExpose({
                         value="refresh"
                     >
                         <wa-icon slot="icon" name="arrows-rotate"></wa-icon>
-                        Refresh
+                        {{ $t("Refresh") }}
                     </wa-dropdown-item>
                 </wa-dropdown>
-                <AppTooltip :for="fileOptionsButtonId">Files options</AppTooltip>
+                <AppTooltip :for="fileOptionsButtonId">{{ $t("Files options") }}</AppTooltip>
                 <wa-input
                     ref="searchInputRef"
                     :value="searchQuery"
@@ -1416,16 +1418,16 @@ defineExpose({
                 <wa-spinner></wa-spinner>
             </div>
             <div v-else-if="isSearching && !hasExtraTree && !searchTree?.children?.length && searchResponded" class="panel-placeholder">
-                No matches
+                {{ $t("No matches") }}
             </div>
             <div v-else-if="!isSearching && loading" class="panel-placeholder">
                 <wa-spinner></wa-spinner>
             </div>
             <div v-else-if="!isSearching && error" class="panel-placeholder panel-error">
-                {{ error }}
+                {{ $t(error) }}
             </div>
             <div v-else-if="!isSearching && !rootPath && !hasExtraTree" class="panel-placeholder">
-                {{ mode === 'git' ? 'No changes' : 'No directory' }}
+                {{ mode === 'git' ? $t("No changes") : $t("No directory") }}
             </div>
 
             <!-- Tree (same structure for both browse and search) -->
@@ -1467,7 +1469,7 @@ defineExpose({
                     />
                 </div>
                 <div v-if="isSearching && searchTruncated" class="search-truncated">
-                    {{ searchTotal }} matches — showing first {{ searchTree.children.length }}
+                    {{ searchTotal }} {{ $t("matches — showing first") }} {{ searchTree.children.length }}
                 </div>
             </template>
         </div>

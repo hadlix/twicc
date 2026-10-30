@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // Shared single-line "collapsed" bar used by both the message input and the
 // pending request form when they are reduced to a header. Clicking anywhere on
 // the bar expands it (the chevron button is the explicit visual cue); the icon
@@ -13,7 +15,7 @@ defineProps({
     // Single-line label; truncated with an ellipsis when too long.
     label: { type: String, default: '' },
     // Tooltip on the expand (chevron) button.
-    expandTooltip: { type: String, default: 'Expand' },
+    expandTooltip: { type: String, get default() { return $t("Expand") } },
     // Icon + label color family. The historical bars (pending request, message
     // input) are warning-tinted; the goal bar picks per goal state.
     variant: {

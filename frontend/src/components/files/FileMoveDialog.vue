@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 import { ref, useId, nextTick } from 'vue'
 import { apiFetch } from '../../utils/api'
 import FileTreePanel from './FileTreePanel.vue'
@@ -79,10 +81,10 @@ async function loadTree(dirPath) {
             tree.value = await res.json()
         } else {
             const data = await res.json().catch(() => ({}))
-            treeError.value = data.error || 'Failed to load directory tree'
+            treeError.value = data.error || $t("Failed to load directory tree")
         }
     } catch {
-        treeError.value = 'Network error'
+        treeError.value = $t("Network error")
     } finally {
         treeLoading.value = false
     }
@@ -133,14 +135,14 @@ async function handleMove() {
             }),
         })
     } catch {
-        errorMessage.value = 'Network error. Please try again.'
+        errorMessage.value = $t("Network error. Please try again.")
         isMoving.value = false
         return
     }
 
     const data = await response.json().catch(() => ({}))
     if (!response.ok) {
-        errorMessage.value = data.error || `Failed to move (HTTP ${response.status})`
+        errorMessage.value = data.error || $t("Failed to move (HTTP {p0})", { p0: (response.status) })
         isMoving.value = false
         return
     }
@@ -156,13 +158,13 @@ defineExpose({ open, close })
 <template>
     <wa-dialog
         ref="dialogRef"
-        :label="`Move ${nodeType}`"
+        :label="$t(&quot;Move {p0}&quot;, { p0: (nodeType) })"
         class="move-dialog"
         @wa-show="syncFormState"
     >
         <form :id="formId" class="dialog-content" @submit.prevent="handleMove">
             <div class="move-source">
-                Moving <strong>{{ sourceName }}</strong>
+                {{ $t("Moving") }} <strong>{{ sourceName }}</strong>
             </div>
 
             <div class="tree-wrapper">
@@ -185,17 +187,17 @@ defineExpose({ open, close })
             </div>
 
             <div v-if="selectedDir" class="move-destination">
-                Destination: <span class="destination-path">{{ displaySelectedDir() }}</span>
+                {{ $t("Destination:") }} <span class="destination-path">{{ displaySelectedDir() }}</span>
             </div>
 
             <wa-callout v-if="errorMessage" variant="danger" size="small">
-                {{ errorMessage }}
+                {{ $t(errorMessage) }}
             </wa-callout>
         </form>
 
         <div slot="footer" class="dialog-footer">
             <wa-button variant="neutral" appearance="outlined" @click="close" :disabled="isMoving">
-                Cancel
+                {{ $t("Cancel") }}
             </wa-button>
             <wa-button
                 ref="saveButtonRef"
@@ -204,7 +206,7 @@ defineExpose({ open, close })
                 :disabled="isMoving || !selectedDir"
             >
                 <wa-spinner v-if="isMoving" slot="start"></wa-spinner>
-                Move
+                {{ $t("Move") }}
             </wa-button>
         </div>
     </wa-dialog>

@@ -1,3 +1,5 @@
+
+import { t as $t } from '../i18n/index.js'
 import { ref, computed, watch, toValue, nextTick } from 'vue'
 import { useDataStore } from '../stores/data'
 import { useSettingsStore } from '../stores/settings'
@@ -205,7 +207,7 @@ export function useSessionAgentSettings(sessionIdSource) {
                 const isMainRepoOfWorktree = selfIsWorktree && self.worktree_of === node.id
                 ancestorSources.push({
                     key: `node:${node.id}`,
-                    label: isMainRepoOfWorktree ? 'Project default' : (node.name || node.directory || node.id),
+                    label: isMainRepoOfWorktree ? $t("Project default") : (node.name || node.directory || node.id),
                     bundle: resolveFromChainSlice(chain.slice(i), provider, g),
                 })
             }
@@ -214,14 +216,14 @@ export function useSessionAgentSettings(sessionIdSource) {
         const hasProjectDefaults = (selfBundle && Object.keys(selfBundle).length) || ancestorSources.length > 0
         const targets = [{
             key: 'default',
-            label: selfIsWorktree ? 'Worktree default' : 'Project default',
+            label: selfIsWorktree ? $t("Worktree default") : $t("Project default"),
             bundle: resolveDefaultsForProvider(provider),
         }]
         if (hasProjectDefaults) {
             targets.push(...ancestorSources)
             targets.push({
                 key: 'global',
-                label: 'Global defaults',
+                get label() { return $t("Global defaults") },
                 bundle: collapseTrustPermission({ ...g }, sessionIsUntrusted.value),
             })
         }

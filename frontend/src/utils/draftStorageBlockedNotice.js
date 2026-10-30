@@ -1,3 +1,5 @@
+
+import { t as $t } from '../i18n/index.js'
 // frontend/src/utils/draftStorageBlockedNotice.js
 // Startup notice for a blocked draft-storage upgrade (spec 2026-10-03 §9.1).
 //
@@ -6,7 +8,7 @@
 // closes its connection: only the user can close it. The bootstrap shows this
 // notice before Vue mounts, so it uses plain DOM and no Vue component.
 
-export const DRAFT_STORAGE_BLOCKED_MESSAGE = 'Draft storage upgrade blocked. Close other TwiCC tabs, then keep this page open.'
+export const DRAFT_STORAGE_BLOCKED_MESSAGE = $t("Draft storage upgrade blocked. Close other TwiCC tabs, then keep this page open.")
 
 /**
  * Show the notice while the upgrade is blocked, and hide it once it is not.

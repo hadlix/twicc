@@ -1,3 +1,5 @@
+
+import { t as $t } from '../i18n/index.js'
 // frontend/src/composables/useTerminal.js
 
 import { ref, reactive, watch, onMounted, onUnmounted } from 'vue'
@@ -402,7 +404,7 @@ export function useTerminal(contextKey, terminalIndex = 0, { sessionId = null, p
                 if (settingsStore.isTerminalUseTmux && sessionId) {
                     const session = dataStore.getSession(sessionId)
                     const reason = session?.draft ? 'draft' : 'archived'
-                    terminal?.writeln(`\x1b[2m(tmux disabled for ${reason} sessions)\x1b[0m`)
+                    terminal?.writeln($t("\u001b[2m(tmux disabled for {p0} sessions)\u001b[0m", { p0: (reason) }))
                 }
             }
             // The PTY was spawned at the dimensions carried by the WS URL;
@@ -1691,7 +1693,7 @@ export function useTerminal(contextKey, terminalIndex = 0, { sessionId = null, p
                     navigator.clipboard.writeText(selection)
                     terminal.clearSelection()
                     resetTmuxScrollSelection()
-                    toast.success('Copied to clipboard', { duration: 2000 })
+                    toast.success($t("Copied to clipboard"), { duration: 2000 })
                     event.preventDefault()
                     return false
                 }
@@ -1808,7 +1810,7 @@ export function useTerminal(contextKey, terminalIndex = 0, { sessionId = null, p
         terminal.clearSelection()
         hasSelection.value = false
         resetTmuxScrollSelection()
-        toast.success('Copied to clipboard', { duration: 2000 })
+        toast.success($t("Copied to clipboard"), { duration: 2000 })
     }
 
     // ── Extra keys bar handlers ────────────────────────────────────────
@@ -1896,7 +1898,7 @@ export function useTerminal(contextKey, terminalIndex = 0, { sessionId = null, p
                 wsSend({ type: 'input', data: text })
             }
         } catch {
-            toast.error('Clipboard access denied')
+            toast.error($t("Clipboard access denied"))
         }
         terminal?.focus()
     }

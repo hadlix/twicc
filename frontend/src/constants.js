@@ -1,3 +1,5 @@
+
+import { t as $t } from './i18n/index.js'
 // frontend/src/constants.js
 
 /**
@@ -78,7 +80,7 @@ export const DEFAULT_MAX_CACHED_SESSIONS = 20
  * Tool names that spawn subagent sessions.
  * "Task" is the legacy name, "Agent" is the new one — both behave identically.
  */
-export const AGENT_TOOL_NAMES = new Set(['Task', 'Agent'])
+export const AGENT_TOOL_NAMES = new Set(['Task', "Agent"])
 
 /**
  * Display level values for session items (matches backend ItemDisplayLevel enum).
@@ -125,10 +127,10 @@ export const PROCESS_STATE = {
  * Human-friendly names for each process state.
  */
 export const PROCESS_STATE_NAMES = {
-    [PROCESS_STATE.STARTING]: 'Starting',
-    [PROCESS_STATE.ASSISTANT_TURN]: 'Assistant turn',
-    [PROCESS_STATE.USER_TURN]: 'User turn',
-    [PROCESS_STATE.DEAD]: 'Dead',
+    get [PROCESS_STATE.STARTING]() { return $t("Starting") },
+    get [PROCESS_STATE.ASSISTANT_TURN]() { return $t("Assistant turn") },
+    get [PROCESS_STATE.USER_TURN]() { return $t("User turn") },
+    get [PROCESS_STATE.DEAD]() { return $t("Dead") },
 }
 
 /**

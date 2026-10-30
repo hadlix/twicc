@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../../../i18n/index.js'
+
 import { computed, onBeforeUnmount, shallowRef, watch } from 'vue'
 import { useDataStore } from '../../../../stores/data'
 import { getProviderLabel, getToolHelpers } from '../../../../providers'
@@ -62,13 +64,13 @@ const isAwaiting = computed(() => pendingRequests.value.length > 0)
 // panel surfaces pendingRequests[0] too). Unknown / mixed types fall back to the
 // generic phrasing.
 const PENDING_VERBS = {
-    tool_approval: 'waiting for your approval',
-    ask_user_question: 'waiting for your answer',
-    hybrid_terminal: 'waiting for you in the terminal',
+    get tool_approval() { return $t("waiting for your approval") },
+    get ask_user_question() { return $t("waiting for your answer") },
+    get hybrid_terminal() { return $t("waiting for you in the terminal") },
 }
 const pendingVerb = computed(() => {
     if (!isAwaiting.value) return null
-    return PENDING_VERBS[pendingRequests.value[0]?.request_type] || 'waiting for your input'
+    return PENDING_VERBS[pendingRequests.value[0]?.request_type] || $t("waiting for your input")
 })
 
 const plainPhrase = computed(() => {
@@ -130,8 +132,8 @@ function buildPhraseGroups(tools, baseDir, lastStartedToolId, lastToolVisible, t
             class="working-assistant-message__awaiting"
         ></wa-icon>
         <ProcessIndicator v-else :state="processState" size="small" :animate-states="['starting', 'assistant_turn']" />
-        <span v-if="plainPhrase !== null" class="working-assistant-message__phrase">{{ providerLabel }} is {{ plainPhrase }}<span class="working-assistant-message__dots" aria-hidden="true"><i></i><i></i><i></i></span></span>
-        <span v-else class="working-assistant-message__phrase">{{ providerLabel }} is <template v-for="(group, gi) in phraseGroups" :key="gi"><template v-if="gi > 0 && gi === phraseGroups.length - 1"> and </template><template v-else-if="gi > 0">, </template><template v-if="phraseGroups.length > 1"><strong>{{ group.verb }}</strong></template><template v-else>{{ group.verb }}</template><template v-if="group.targets"> (<template v-for="(t, ti) in group.targets" :key="`${gi}-${ti}`"><template v-if="ti > 0">, </template><code>{{ t }}</code></template>)</template></template><span class="working-assistant-message__dots" aria-hidden="true"><i></i><i></i><i></i></span></span>
+        <span v-if="plainPhrase !== null" class="working-assistant-message__phrase">{{ providerLabel }} {{ $t("is") }} {{ plainPhrase }}<span class="working-assistant-message__dots" aria-hidden="true"><i></i><i></i><i></i></span></span>
+        <span v-else class="working-assistant-message__phrase">{{ providerLabel }} {{ $t("is") }} <template v-for="(group, gi) in phraseGroups" :key="gi"><template v-if="gi > 0 && gi === phraseGroups.length - 1"> {{ $t("and") }} </template><template v-else-if="gi > 0">, </template><template v-if="phraseGroups.length > 1"><strong>{{ group.verb }}</strong></template><template v-else>{{ group.verb }}</template><template v-if="group.targets"> (<template v-for="(t, ti) in group.targets" :key="`${gi}-${ti}`"><template v-if="ti > 0">, </template><code>{{ t }}</code></template>)</template></template><span class="working-assistant-message__dots" aria-hidden="true"><i></i><i></i><i></i></span></span>
     </AgentStatusLine>
 </template>
 

@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // ArtifactBookmarksSidebarControls.vue — the sidebar's second header row in Artifacts
 // mode: a trimmed options dropdown ("Compact view") and an artifact filter
 // input. Full-text search stays available in the icon bar and indexes session history.
@@ -60,24 +62,24 @@ defineExpose({ focus })
                 value="show-all-artifacts"
                 :checked="showAllArtifacts"
             >
-                Show all (ignore scope)
+                {{ $t("Show all (ignore scope)") }}
             </wa-dropdown-item>
             <wa-dropdown-item
                 type="checkbox"
                 value="compact-view"
                 :checked="compactView"
             >
-                Compact view
+                {{ $t("Compact view") }}
             </wa-dropdown-item>
         </wa-dropdown>
-        <AppTooltip for="bookmark-options-button">Artifacts list options</AppTooltip>
+        <AppTooltip for="bookmark-options-button">{{ $t("Artifacts list options") }}</AppTooltip>
 
         <!-- Filter input -->
         <wa-input
             ref="searchInputRef"
             :value="searchQuery"
             @input="emit('update:searchQuery', $event.target.value)"
-            placeholder="Filter artifacts..."
+            :placeholder="$t(&quot;Filter artifacts...&quot;)"
             size="small"
             with-clear
             class="session-search"

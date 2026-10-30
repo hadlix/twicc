@@ -22,7 +22,7 @@ test('1. a real button with the expanded state, a rule on each side of the pill,
 })
 
 test('2. the pill reads "N tool(s)" with no icon before it, keeps the code-comments indicator; the chevron shows the state', () => {
-    assert.ok(template.includes("{{ itemCount }} tool{{ itemCount !== 1 ? 's' : '' }}"))
+    assert.ok(template.includes(`{{ itemCount }} {{ $t("tool") }}{{ itemCount !== 1 ? $t("s") : '' }}`))
     assert.ok(!template.includes('ellipsis'))
     assert.ok(template.includes('<CodeCommentsIndicator :count="commentsCount" :show-tooltip="false" class="toggle-comments-indicator" />'))
     assert.ok(template.includes('<wa-icon name="chevron-down" class="group-toggle-chevron"></wa-icon>'))

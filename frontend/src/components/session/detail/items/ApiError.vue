@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../../../i18n/index.js'
+
 import { computed } from 'vue'
 import { parseApiErrorString, stripAnthropicDocsUrl } from '../../../../utils/errorParsing'
 import { useDataStore } from '../../../../stores/data'
@@ -40,7 +42,7 @@ const providerLabel = computed(() => getProviderLabel(provider.value))
 
 // Image-only messages carry no text to resend; fall back to a minimal nudge so
 // the resumed agent re-answers the attachments it already has in context.
-const RESEND_FALLBACK_TEXT = 'Please continue.'
+const RESEND_FALLBACK_TEXT = $t("Please continue.")
 
 // Sent to the agent for the 'retry' (mid-turn error) case. The ``<twicc-…>``
 // prefix makes the watcher classify it SYSTEM, so it never surfaces as a user
@@ -74,7 +76,7 @@ function extractBastardErrorInfo(data) {
     // Fallback: display raw text
     return {
         type: 'unknown_error',
-        message: textContent || 'Unknown error',
+        message: textContent || $t("Unknown error"),
         status: null,
         retryAttempt: null,
         maxRetries: null
@@ -88,7 +90,7 @@ const errorInfo = computed(() => {
         || (props.data?.provider === 'codex' && props.data?.isApiErrorMessage === true)) {
         return {
             type: props.data?.error?.type || 'unknown_error',
-            message: props.data?.error?.message || 'Unknown error',
+            message: props.data?.error?.message || $t("Unknown error"),
             status: null,
             retryAttempt: null,
             maxRetries: null,
@@ -104,7 +106,7 @@ const errorInfo = computed(() => {
     const error = props.data?.error?.error?.error
     return {
         type: error?.type || 'unknown_error',
-        message: stripAnthropicDocsUrl(error?.message || 'Unknown error'),
+        message: stripAnthropicDocsUrl(error?.message || $t("Unknown error")),
         status: props.data?.error?.status,
         retryAttempt: props.data?.retryAttempt,
         maxRetries: props.data?.maxRetries
@@ -214,12 +216,12 @@ function retry() {
         <wa-callout variant="danger" size="small">
             <wa-icon slot="icon" name="circle-exclamation"></wa-icon>
             <div class="error-content">
-                <div class="error-message">Error from {{ providerLabel }}: {{ errorInfo.message }}</div>
+                <div class="error-message">{{ $t("Error from") }} {{ providerLabel }}: {{ errorInfo.message }}</div>
                 <div v-if="errorInfo.status || errorInfo.retryAttempt" class="error-details">
-                    <span v-if="errorInfo.status">Status: {{ errorInfo.status }}</span>
+                    <span v-if="errorInfo.status">{{ $t("Status:") }} {{ errorInfo.status }}</span>
                     <span v-if="errorInfo.status && errorInfo.retryAttempt" class="separator">•</span>
                     <span v-if="errorInfo.retryAttempt">
-                        Retry {{ errorInfo.retryAttempt }}/{{ errorInfo.maxRetries }}
+                        {{ $t("Retry") }} {{ errorInfo.retryAttempt }}/{{ errorInfo.maxRetries }}
                     </span>
                 </div>
             </div>
@@ -232,7 +234,7 @@ function retry() {
                     @click="resend"
                 >
                     <wa-icon slot="start" name="paper-plane"></wa-icon>
-                    Resend your message
+                    {{ $t("Resend your message") }}
                 </wa-button>
                 <wa-button
                     v-else
@@ -242,7 +244,7 @@ function retry() {
                     @click="retry"
                 >
                     <wa-icon slot="start" name="rotate-right"></wa-icon>
-                    Retry
+                    {{ $t("Retry") }}
                 </wa-button>
             </div>
         </wa-callout>

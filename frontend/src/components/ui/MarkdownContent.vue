@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 import { ref, computed, inject, watch, onScopeDispose, nextTick, getCurrentInstance, unref } from 'vue'
 import { useRouter } from 'vue-router'
 import {
@@ -305,10 +307,10 @@ function addCodeToolsIn(root) {
 
         const bar = blockToolsBar(
             MARKDOWN_LANGS.has(pre.dataset.language ?? '')
-                ? blockToolsButton('view', 'eye', 'Show rendered markdown')
+                ? blockToolsButton('view', 'eye', $t("Show rendered markdown"))
                 : '',
-            blockToolsButton('wrap', 'text-width', 'Toggle line wrapping'),
-            blockToolsButton('copy', 'copy', 'Copy code'),
+            blockToolsButton('wrap', 'text-width', $t("Toggle line wrapping")),
+            blockToolsButton('copy', 'copy', $t("Copy code")),
         )
 
         pre.replaceWith(wrapper)
@@ -372,7 +374,7 @@ async function applyCodeRendered(wrapper, rendered, isCurrent) {
         } catch {
             if (!isCurrent()) return false
             // Keep the raw block shown rather than swapping in an empty frame.
-            toast.error('Could not render this markdown block', { duration: 3000 })
+            toast.error($t("Could not render this markdown block"), { duration: 3000 })
             return false
         }
         // The block may have been replaced (streaming) while the nested render
@@ -389,7 +391,7 @@ async function applyCodeRendered(wrapper, rendered, isCurrent) {
     if (!isCurrent()) return false
     wrapper.classList.toggle('is-rendered', rendered)
     viewBtn.querySelector('wa-icon')?.setAttribute('name', rendered ? 'code' : 'eye')
-    const label = rendered ? 'Show raw markdown' : 'Show rendered markdown'
+    const label = rendered ? $t("Show raw markdown") : $t("Show rendered markdown")
     viewBtn.setAttribute('title', label)
     viewBtn.setAttribute('aria-label', label)
     return true
@@ -408,7 +410,7 @@ async function handleCodeToolsAction(button) {
 
     switch (button.dataset.blockAction) {
         case 'copy':
-            await copyText(pre.textContent ?? '', 'Code')
+            await copyText(pre.textContent ?? '', $t("Code"))
             break
         case 'wrap': {
             // Read the effective value rather than our own state: with no
@@ -479,13 +481,13 @@ function addQuoteToolsIn(root, src) {
         const source = aligned ? sources[index] : ''
         if (!source.trim() && !(quote.textContent ?? '').trim()) return
         if (source) quote.dataset.quoteSource = source
-        quote.prepend(blockToolsBar(blockToolsButton('copy', 'copy', 'Copy quote')))
+        quote.prepend(blockToolsBar(blockToolsButton('copy', 'copy', $t("Copy quote"))))
     })
 }
 
 function handleQuoteToolsAction(button, quote) {
     if (button.dataset.blockAction !== 'copy') return
-    copyText(quote.dataset.quoteSource ?? (quote.textContent ?? '').trim(), 'Quote')
+    copyText(quote.dataset.quoteSource ?? (quote.textContent ?? '').trim(), $t("Quote"))
 }
 
 // Everything that turns freshly parsed markdown HTML into its final shape. Runs
@@ -582,7 +584,7 @@ const coordinator = createMarkdownRenderCoordinator({
     onState: state => { rendering.value = state.rendering },
     onError: error => {
         const handler = componentInstance?.appContext.config.errorHandler
-        if (typeof handler === 'function') handler(error, componentInstance.proxy, 'Markdown document render')
+        if (typeof handler === 'function') handler(error, componentInstance.proxy, $t("Markdown document render"))
         else console.error(error)
     },
 })
@@ -630,12 +632,12 @@ async function copyText(text, label) {
     } catch {
         ok = false
     }
-    if (ok) toast.success(`${label} copied to clipboard`, { duration: 2000 })
-    else toast.error(`Could not copy the ${label.toLowerCase()}`, { duration: 3000 })
+    if (ok) toast.success($t("{p0} copied to clipboard", { p0: (label) }), { duration: 2000 })
+    else toast.error($t("Could not copy the {p0}", { p0: (label.toLowerCase()) }), { duration: 3000 })
 }
 
 function copySource() {
-    copyText(props.source, 'Markdown')
+    copyText(props.source, $t("Markdown"))
 }
 
 // Selector for media that should open in MediaPreviewDialog when clicked:
@@ -689,7 +691,7 @@ function buildImgItem(img) {
     return {
         type: 'image',
         src: img.src,
-        name: img.getAttribute('alt') || 'Image',
+        name: img.getAttribute('alt') || "Image",
         link,
     }
 }
@@ -700,7 +702,7 @@ function buildSvgItem(svg) {
     return {
         type: 'image',
         src,
-        name: 'Mermaid diagram',
+        name: "Mermaid diagram",
         link: null,
     }
 }
@@ -808,7 +810,7 @@ function handleLinkClick(event) {
 
 <template>
     <div class="markdown-content-wrapper">
-        <wa-details v-if="showTocDetails" class="markdown-toc" summary="Table of contents">
+        <wa-details v-if="showTocDetails" class="markdown-toc" :summary="$t(&quot;Table of contents&quot;)">
             <ul class="markdown-toc-list">
                 <li
                     v-for="(h, i) in headings"
@@ -816,18 +818,18 @@ function handleLinkClick(event) {
                     :style="{ paddingInlineStart: `${(h.level - tocMinLevel) * 1}rem` }"
                 >
                     <button type="button" class="markdown-toc-link" @click="scrollToHeading(i)">
-                        {{ h.text || 'Untitled' }}
+                        {{ h.text || $t("Untitled") }}
                     </button>
                 </li>
             </ul>
         </wa-details>
         <div v-if="showToolbar" class="markdown-toolbar">
-            <wa-button-group orientation="vertical" label="Markdown tools">
+            <wa-button-group orientation="vertical" :label="$t(&quot;Markdown tools&quot;)">
                 <wa-button
                     size="small"
                     :variant="showRaw ? 'neutral' : 'brand'"
                     appearance="filled"
-                    :title="showRaw ? 'Show rendered markdown' : 'Show raw markdown'"
+                    :title="showRaw ? $t(&quot;Show rendered markdown&quot;) : $t(&quot;Show raw markdown&quot;)"
                     @click="toggleRaw"
                 >
                     <wa-icon :name="showRaw ? 'code' : 'eye'"></wa-icon>
@@ -836,7 +838,7 @@ function handleLinkClick(event) {
                     size="small"
                     variant="neutral"
                     appearance="filled"
-                    title="Copy raw markdown"
+                    :title="$t(&quot;Copy raw markdown&quot;)"
                     @click="copySource"
                 >
                     <wa-icon name="copy"></wa-icon>
@@ -854,17 +856,17 @@ function handleLinkClick(event) {
             <template v-for="block in blocks" :key="block.key">
                 <template v-if="block.type === 'inline-artifact'">
                     <div v-if="artifactPlacement(block).status === 'invalid'" class="inline-artifact-error" role="status">
-                        Inline artifact invalid: {{ block.span.error }}
+                        {{ $t("Inline artifact invalid:") }} {{ $t(block.span.error) }}
                     </div>
                     <blockquote v-else-if="artifactPlacement(block).status === 'superseded'" class="inline-artifact-replaced" role="status">
                         <p>
-                            <em>This artifact has been replaced. Its latest version appears later in the conversation.</em>
+                            <em>{{ $t("This artifact has been replaced. Its latest version appears later in the conversation.") }}</em>
                             <button
                                 v-if="navigateToInlinePublication"
                                 type="button"
                                 class="inline-artifact-replaced-link"
                                 @click="navigateToInlinePublication(artifactPlacement(block).latestLineNum, artifactPlacement(block).latestPublicationKey)"
-                            >Go to the latest version</button>
+                            >{{ $t("Go to the latest version") }}</button>
                         </p>
                     </blockquote>
                     <InlineArtifactBlock

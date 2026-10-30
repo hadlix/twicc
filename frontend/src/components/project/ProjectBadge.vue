@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // ProjectBadge.vue - Displays a project mark (color dot or icon) and its name.
 //
 // A git worktree (a project whose `worktree_of` points at its main repository)
@@ -140,8 +142,8 @@ const untrusted = computed(() => store.untrustedProjectIds.has(props.projectId))
         <wa-icon
             v-if="untrusted"
             name="lock"
-            label="Untrusted project"
-            title="This project is not trusted"
+            :label="$t(&quot;Untrusted project&quot;)"
+            :title="$t(&quot;This project is not trusted&quot;)"
             class="project-badge-trust"
         ></wa-icon>
     </span>

@@ -27,7 +27,7 @@ test('3. the session header marks a draft and a stale session with icons, and ta
     const src = read('../components/session/detail/SessionHeader.vue')
     assert.doesNotMatch(src, /<wa-tag[^>]*>\s*(Archived|Arch\.|Draft|Stale)\s*<\/wa-tag>/)
     assert.doesNotMatch(src, /session-title-tags/)
-    assert.match(src, /name="file-pen"[\s\S]{0,80}session-state-icon--draft/)
+    assert.match(src, /name="file-pen"[\s\S]{0,120}session-state-icon--draft/)
     assert.match(src, /name="link-slash"[\s\S]{0,120}session-state-icon--stale/)
 })
 

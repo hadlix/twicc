@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../../../../i18n/index.js'
+
 defineProps({
     pattern: { type: String, default: null },
     fileType: { type: String, default: null },
@@ -10,8 +12,8 @@ defineProps({
 <template>
     <span class="items-details-summary-description grep-summary">
         <code v-if="pattern">{{ pattern }}</code>
-        <span v-if="fileType"><span class="grep-connector">in</span> <code>{{ fileType }}</code> <span class="grep-connector">files</span></span>
-        <span v-if="path"><span class="grep-connector">in</span>
+        <span v-if="fileType"><span class="grep-connector">{{ $t("in") }}</span> <code>{{ fileType }}</code> <span class="grep-connector">{{ $t("files") }}</span></span>
+        <span v-if="path"><span class="grep-connector">{{ $t("in") }}</span>
             <span v-if="pathIconSrc" class="items-details-summary-file">
                 <img :src="pathIconSrc" class="items-details-summary-file-icon" loading="lazy" width="16" height="16" />
                 <span>{{ path }}</span>

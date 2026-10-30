@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 /**
  * SessionToastContent - Rich content for session-related toast notifications.
  *
@@ -75,7 +77,7 @@ const processState = computed(() => store.processStates[props.sessionId])
 const projectId = computed(() => session.value?.project_id || processState.value?.project_id)
 
 
-const sessionTitle = computed(() => session.value?.title || processState.value?.session_title || 'Unknown')
+const sessionTitle = computed(() => session.value?.title || processState.value?.session_title || $t("Unknown"))
 
 /** Parsed error info (clean message + optional HTTP status). */
 const parsedError = computed(() => {
@@ -161,11 +163,11 @@ function goToSession() {
 <template>
     <div class="session-toast-content">
         <span v-if="projectId" class="session-toast-row">
-            <span class="session-toast-label">Project:</span>
+            <span class="session-toast-label">{{ $t("Project:") }}</span>
             <ProjectBadge :project-id="projectId" class="session-toast-project" />
         </span>
         <span class="session-toast-session">
-            <span class="session-toast-label">Session:</span>
+            <span class="session-toast-label">{{ $t("Session:") }}</span>
             <span class="session-toast-title">{{ sessionTitle }}</span>
         </span>
         <span v-if="detail" class="session-toast-detail">{{ detail }}</span>
@@ -173,9 +175,9 @@ function goToSession() {
             {{ parsedError.summary }}<span v-if="parsedError.status" class="error-status"> ({{ parsedError.status }})</span>
         </span>
         <div v-if="!isCurrentSession" class="session-toast-actions">
-            <wa-button v-if="showActions" size="small" variant="brand" appearance="outlined" @click="archiveSession">Archive</wa-button>
-            <wa-button v-if="showActions" size="small" variant="brand" appearance="outlined" @click="markRead">Mark as read</wa-button>
-            <wa-button size="small" variant="brand" appearance="outlined" @click="goToSession">Go to session</wa-button>
+            <wa-button v-if="showActions" size="small" variant="brand" appearance="outlined" @click="archiveSession">{{ $t("Archive") }}</wa-button>
+            <wa-button v-if="showActions" size="small" variant="brand" appearance="outlined" @click="markRead">{{ $t("Mark as read") }}</wa-button>
+            <wa-button size="small" variant="brand" appearance="outlined" @click="goToSession">{{ $t("Go to session") }}</wa-button>
         </div>
     </div>
 </template>

@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // Per-target share manager: lists every share of one session / artifact and lets
 // the owner manage them or create another. Opened by the share buttons when the
 // target already has links (an empty target jumps straight to the create dialog).
@@ -42,7 +44,7 @@ async function pushAll() {
     pushingAll.value = true
     try {
         await Promise.all(outdated.value.map((s) => store.propagateShare(s.id)))
-        toast.success('Update pushed to all outdated links')
+        toast.success($t("Update pushed to all outdated links"))
     } finally {
         pushingAll.value = false
     }
@@ -66,15 +68,15 @@ function onHide(e) { if (e.target === dialogRef.value) emit('close') }
 
 <template>
     <wa-dialog ref="dialogRef" :open="open"
-               :label="defaultTitle ? `Shared links — ${defaultTitle}` : 'Shared links'"
+               :label="defaultTitle ? $t(&quot;Shared links — {p0}&quot;, { p0: (defaultTitle) }) : $t(&quot;Shared links&quot;)"
                style="--width: min(720px, calc(100vw - 2rem))" @wa-hide="onHide">
         <wa-callout v-if="outdated.length" variant="warning" class="outdated-banner">
             <wa-icon slot="icon" name="triangle-exclamation"></wa-icon>
             <div class="outdated-banner__row">
-                <span>{{ outdated.length }} link{{ outdated.length > 1 ? 's' : '' }}
-                    {{ outdated.length > 1 ? 'are' : 'is' }} behind the current files.</span>
+                <span>{{ outdated.length }} {{ $t("link") }}{{ outdated.length > 1 ? $t("s") : '' }}
+                    {{ outdated.length > 1 ? $t("are") : $t("is") }} {{ $t("behind the current files.") }}</span>
                 <wa-button size="small" variant="warning" :loading="pushingAll" @click="pushAll">
-                    Push update to all
+                    {{ $t("Push update to all") }}
                 </wa-button>
             </div>
         </wa-callout>
@@ -86,9 +88,9 @@ function onHide(e) { if (e.target === dialogRef.value) emit('close') }
                      :edit="editing" @close="closeChild" />
         <div slot="footer" class="dialog-footer">
             <wa-button variant="brand" @click="openCreate">
-                <wa-icon slot="start" name="plus"></wa-icon>Create new share
+                <wa-icon slot="start" name="plus"></wa-icon>{{ $t("Create new share") }}
             </wa-button>
-            <wa-button @click="emit('close')">Close</wa-button>
+            <wa-button @click="emit('close')">{{ $t("Close") }}</wa-button>
         </div>
     </wa-dialog>
 </template>

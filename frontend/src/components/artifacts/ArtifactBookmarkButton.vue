@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // ArtifactBookmarkButton.vue — an icon-only bookmark toggle, styled like the
 // session pin button (coloured when bookmarked, quiet/grey otherwise). Hosts the
 // create/edit dialog. Placed in the file-path header (desktop) and the mobile
@@ -50,17 +52,17 @@ const bookmark = computed(() => store.artifactBookmarkFor(props.sessionId, props
 const { pendingCount } = useNetworkDenials(bookmark)
 
 const BOOKMARK_TOOLTIP = {
-    project: 'Bookmarked in project',
-    workspace: 'Bookmarked in workspace',
-    all: 'Bookmarked everywhere',
+    get project() { return $t("Bookmarked in project") },
+    get workspace() { return $t("Bookmarked in workspace") },
+    get all() { return $t("Bookmarked everywhere") },
 }
 const bookmarkTooltip = computed(() => {
     if (pendingCount.value > 0) {
-        return `${pendingCount.value} network host${pendingCount.value > 1 ? 's' : ''} awaiting your decision`
+        return $t("{p0} network host{p1} awaiting your decision", { p0: (pendingCount.value), p1: (pendingCount.value > 1 ? 's' : '') })
     }
     return bookmark.value
-        ? (BOOKMARK_TOOLTIP[bookmark.value.scope] || 'Bookmarked')
-        : 'Bookmark this artifact'
+        ? (BOOKMARK_TOOLTIP[bookmark.value.scope] || $t("Bookmarked"))
+        : $t("Bookmark this artifact")
 })
 
 function openDialog() {
@@ -84,14 +86,14 @@ const shareVariant = computed(() =>
     outdatedShareCount.value > 0 ? 'warning' : (activeShareCount.value > 0 ? 'brand' : 'neutral')
 )
 const shareTooltip = computed(() => {
-    if (!sharingEnabled.value) return 'Configure a share host in Settings → Sharing to create links'
+    if (!sharingEnabled.value) return $t("Configure a share host in Settings → Sharing to create links")
     if (outdatedShareCount.value > 0) {
-        return `Share artifact — ${outdatedShareCount.value} update${outdatedShareCount.value > 1 ? 's' : ''} to push`
+        return $t("Share artifact — {p0} update{p1} to push", { p0: (outdatedShareCount.value), p1: (outdatedShareCount.value > 1 ? 's' : '') })
     }
     if (activeShareCount.value > 0) {
-        return `Share artifact (${activeShareCount.value} active link${activeShareCount.value > 1 ? 's' : ''})`
+        return $t("Share artifact ({p0} active link{p1})", { p0: (activeShareCount.value), p1: (activeShareCount.value > 1 ? 's' : '') })
     }
-    return bookmark.value ? 'Share artifact' : 'Share artifact (bookmarks it first)'
+    return bookmark.value ? $t("Share artifact") : $t("Share artifact (bookmarks it first)")
 })
 async function shareArtifact() {
     if (!sharingEnabled.value) return
@@ -106,7 +108,7 @@ async function shareArtifact() {
                 sessionId: props.sessionId, relativePath: props.relativePath, name, scope: 'project',
             })
         } catch (err) {
-            toast.error(err?.message || 'Failed to bookmark artifact')
+            toast.error(err?.message || $t("Failed to bookmark artifact"))
             return
         }
     }
@@ -172,9 +174,9 @@ defineExpose({
         class="bookmark-button reduced-height"
         @click.stop="viewInArtifacts"
     >
-        <wa-icon :name="ARTIFACT_ICON" label="Open in the artifacts list"></wa-icon>
+        <wa-icon :name="ARTIFACT_ICON" :label="$t(&quot;Open in the artifacts list&quot;)"></wa-icon>
     </wa-button>
-    <AppTooltip v-if="bookmark" :for="viewButtonId">Open in the artifacts list</AppTooltip>
+    <AppTooltip v-if="bookmark" :for="viewButtonId">{{ $t("Open in the artifacts list") }}</AppTooltip>
     <wa-button
         v-if="bookmark"
         :id="sessionButtonId"
@@ -184,9 +186,9 @@ defineExpose({
         class="bookmark-button reduced-height"
         @click.stop="openInSession"
     >
-        <wa-icon name="house" label="Open in session"></wa-icon>
+        <wa-icon name="house" :label="$t(&quot;Open in session&quot;)"></wa-icon>
     </wa-button>
-    <AppTooltip v-if="bookmark" :for="sessionButtonId">Open in session</AppTooltip>
+    <AppTooltip v-if="bookmark" :for="sessionButtonId">{{ $t("Open in session") }}</AppTooltip>
     <!-- Keep the bookmark toggle before Share. When sharing is unavailable it
          remains the right-most button and receives the host's positioning attrs. -->
     <wa-button
@@ -200,7 +202,7 @@ defineExpose({
             'bookmark-button--attention': pendingCount > 0 }]"
         @click.stop="openDialog"
     >
-        <wa-icon name="bookmark" :variant="bookmark ? 'solid' : 'regular'" label="Bookmark"></wa-icon>
+        <wa-icon name="bookmark" :variant="bookmark ? 'solid' : 'regular'" :label="$t(&quot;Bookmark&quot;)"></wa-icon>
     </wa-button>
     <AppTooltip :for="buttonId">{{ bookmarkTooltip }}</AppTooltip>
     <!-- Share this artifact only when a share host is configured. It is last in
@@ -217,7 +219,7 @@ defineExpose({
             'bookmark-button--attention': outdatedShareCount > 0 }]"
         @click.stop="shareArtifact"
     >
-        <wa-icon name="share-nodes" label="Share artifact"></wa-icon>
+        <wa-icon name="share-nodes" :label="$t(&quot;Share artifact&quot;)"></wa-icon>
     </wa-button>
     <AppTooltip v-if="sharingEnabled" :for="shareButtonId">{{ shareTooltip }}</AppTooltip>
     <ArtifactBookmarkDialog

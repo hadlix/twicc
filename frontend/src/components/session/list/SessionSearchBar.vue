@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../../i18n/index.js'
+
 import { ref, computed, watch, nextTick } from 'vue'
 import { useDebounceFn } from '@vueuse/core'
 import { apiFetch } from '../../../utils/api'
@@ -44,8 +46,8 @@ const isPartialMatch = computed(
 // otherwise carried by the badge colour alone, which no screen reader sees.
 const countLabel = computed(() =>
     isPartialMatch.value
-        ? 'Partial match — no message contains all your terms'
-        : 'Matches in this session'
+        ? $t("Partial match — no message contains all your terms")
+        : $t("Matches in this session")
 )
 
 // Whether navigation buttons should be enabled
@@ -83,9 +85,9 @@ async function performSearch() {
 
         if (!response.ok) {
             if (response.status === 503) {
-                error.value = 'Search index not available'
+                error.value = $t("Search index not available")
             } else {
-                error.value = 'Search failed'
+                error.value = $t("Search failed")
             }
             matchLineNums.value = []
             currentMatchIndex.value = -1
@@ -121,7 +123,7 @@ async function performSearch() {
             goToNext()
         }
     } catch (err) {
-        error.value = 'Search failed'
+        error.value = $t("Search failed")
         matchLineNums.value = []
         currentMatchIndex.value = -1
         hasSearched.value = false
@@ -246,7 +248,7 @@ defineExpose({ open, reset, openWithQuery, goToNext, goToPrevious })
             :value="query"
             @input="query = $event.target.value"
             @keydown="handleKeydown"
-            placeholder="Search in session..."
+            :placeholder="$t(&quot;Search in session...&quot;)"
             size="small"
             class="search-input"
             clearable
@@ -276,31 +278,31 @@ defineExpose({ open, reset, openWithQuery, goToNext, goToPrevious })
             id="session-search-prev"
             class="nav-button"
             :disabled="!canNavigate"
-            aria-label="Previous match"
+            :aria-label="$t(&quot;Previous match&quot;)"
             @click="goToPrevious"
         >
             <wa-icon name="chevron-up"></wa-icon>
         </button>
-        <AppTooltip for="session-search-prev">Previous match (Shift+Enter / Shift+F3)</AppTooltip>
+        <AppTooltip for="session-search-prev">{{ $t("Previous match (Shift+Enter / Shift+F3)") }}</AppTooltip>
         <button
             id="session-search-next"
             class="nav-button"
             :disabled="!canNavigate"
-            aria-label="Next match"
+            :aria-label="$t(&quot;Next match&quot;)"
             @click="goToNext"
         >
             <wa-icon name="chevron-down"></wa-icon>
         </button>
-        <AppTooltip for="session-search-next">Next match (Enter / F3)</AppTooltip>
+        <AppTooltip for="session-search-next">{{ $t("Next match (Enter / F3)") }}</AppTooltip>
         <button
             id="session-search-close"
             class="nav-button close-button"
-            aria-label="Close search"
+            :aria-label="$t(&quot;Close search&quot;)"
             @click="emit('close')"
         >
             <wa-icon name="x"></wa-icon>
         </button>
-        <AppTooltip for="session-search-close">Close (Escape)</AppTooltip>
+        <AppTooltip for="session-search-close">{{ $t("Close (Escape)") }}</AppTooltip>
     </div>
 </template>
 

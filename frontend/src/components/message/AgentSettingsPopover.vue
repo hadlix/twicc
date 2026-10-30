@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // Provider-agnostic agent-settings popover anchored on the trigger button
 // rendered by MessageInput. Every render decision (which fields appear,
 // which options are disabled, what the help text says, what the startup
@@ -30,7 +32,7 @@ const props = defineProps({
     settings: { type: Object, required: true },
     isDraft: { type: Boolean, default: false },
     messageText: { type: String, default: '' },
-    buttonLabel: { type: String, default: 'Send' },
+    buttonLabel: { type: String, get default() { return $t("Send") } },
     // True while a pending request locks sending: the Send/Apply button is hidden,
     // so the "click X to apply" hint is replaced with one explaining the changes
     // will apply once the request is answered.
@@ -270,7 +272,7 @@ const selectRows = computed(() => {
                     value: String(opt.value),
                     label: opt.label,
                     description: disabledReason ?? opt.description ?? null,
-                    labelWithSuffix: disabled ? `${opt.label} (not available)` : opt.label,
+                    labelWithSuffix: disabled ? $t("{p0} (not available)", { p0: (opt.label) }) : opt.label,
                     disabled,
                     icon: opt.icon ?? null,
                     color: opt.color ?? null,
@@ -459,7 +461,7 @@ onBeforeUnmount(() => {
                      only its own. See useSessionAgentSettings.presetGroups. -->
                 <wa-dropdown @wa-select="handlePresetSelect" class="presets-dropdown">
                     <wa-button slot="trigger" size="small" appearance="outlined" :disabled="isStarting" class="presets-trigger">
-                        <span class="presets-trigger-label"><wa-icon name="sliders"></wa-icon> Reset / Presets</span>
+                        <span class="presets-trigger-label"><wa-icon name="sliders"></wa-icon> {{ $t("Reset / Presets") }}</span>
                         <wa-icon slot="end" name="caret-down"></wa-icon>
                     </wa-button>
                     <template v-for="(group, gi) in presetGroups" :key="group.provider">
@@ -512,7 +514,7 @@ onBeforeUnmount(() => {
                     <wa-divider></wa-divider>
                     <wa-dropdown-item value="__manage__">
                         <wa-icon slot="icon" name="pen-to-square"></wa-icon>
-                        Manage presets
+                        {{ $t("Manage presets") }}
                     </wa-dropdown-item>
                 </wa-dropdown>
             </div>
@@ -522,13 +524,13 @@ onBeforeUnmount(() => {
                 <div v-if="!isDraft && hasDropdownsChanged" class="settings-panel-links">
                     <a class="settings-action-link" @click.prevent="restoreSettings">
                         <wa-icon name="xmark"></wa-icon>
-                        Discard unsaved changes
+                        {{ $t("Discard unsaved changes") }}
                     </a>
                 </div>
                 <wa-callout v-if="!isDraft && hasDropdownsChanged" variant="brand" class="settings-info-callout">
                     <wa-icon name="circle-info" slot="icon"></wa-icon>
-                    <template v-if="sendingLocked">Your changes are saved and will apply once you answer the pending request.</template>
-                    <template v-else>Click "{{ buttonLabel }}" to apply your changes.</template>
+                    <template v-if="sendingLocked">{{ $t("Your changes are saved and will apply once you answer the pending request.") }}</template>
+                    <template v-else>{{ $t("Click \"") }}{{ buttonLabel }}{{ $t("\" to apply your changes.") }}</template>
                 </wa-callout>
                 <wa-callout v-if="startupSettingsWarning" variant="warning" class="startup-warning-callout">
                     <wa-icon name="triangle-exclamation" slot="icon"></wa-icon>
@@ -542,9 +544,7 @@ onBeforeUnmount(() => {
                      so settings must be driven from here. -->
                 <wa-callout v-if="session?.hybrid" variant="neutral" class="hybrid-settings-note">
                     <wa-icon name="terminal" slot="icon"></wa-icon>
-                    Hybrid CLI session: change settings here rather than inside the
-                    terminal — TwiCC does not read back TUI-side changes. Changes
-                    apply on the next message; some restart the CLI.
+                    {{ $t("Hybrid CLI session: change settings here rather than inside the terminal — TwiCC does not read back TUI-side changes. Changes apply on the next message; some restart the CLI.") }}
                 </wa-callout>
             </div>
 
@@ -552,8 +552,8 @@ onBeforeUnmount(() => {
             <div class="settings-panel">
                 <!-- Heading above the matrix + a link to the score help page. -->
                 <div class="matrix-heading">
-                    <span class="setting-label">Model &amp; effort picker</span>
-                    <HelpTextLink help-key="model-effort-score" label="What are those numbers?" />
+                    <span class="setting-label">{{ $t("Model & effort picker") }}</span>
+                    <HelpTextLink help-key="model-effort-score" :label="$t(&quot;What are those numbers?&quot;)" />
                 </div>
 
                 <!-- Provider × model × effort matrix — owns those three fields. -->
@@ -589,8 +589,8 @@ onBeforeUnmount(() => {
                             :icon="row.iconInfo.icon"
                             :color="row.iconInfo.color"
                         />
-                        <wa-option :value="DEFAULT_SENTINEL">Default: {{ row.defaultLabel }}</wa-option>
-                        <small class="select-group-label">Force to:</small>
+                        <wa-option :value="DEFAULT_SENTINEL">{{ $t("Default:") }} {{ row.defaultLabel }}</wa-option>
+                        <small class="select-group-label">{{ $t("Force to:") }}</small>
                         <wa-option
                             v-for="opt in row.choices"
                             :key="opt.value"
@@ -609,7 +609,7 @@ onBeforeUnmount(() => {
                         </wa-option>
                     </wa-select>
                     <span v-if="row.helpText" class="setting-help">{{ row.helpText }}</span>
-                    <a v-else-if="row.value !== DEFAULT_SENTINEL" class="reset-setting-link" @click.prevent="resetField(row.field)">Reset to default: {{ row.defaultLabel }}</a>
+                    <a v-else-if="row.value !== DEFAULT_SENTINEL" class="reset-setting-link" @click.prevent="resetField(row.field)">{{ $t("Reset to default:") }} {{ row.defaultLabel }}</a>
                 </div>
             </div>
         </div>

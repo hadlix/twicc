@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 /**
  * FilePickerPopup - A popup file tree for selecting files to reference with @.
  *
@@ -127,7 +129,7 @@ async function fetchTree(dirPath) {
         )
         if (!res.ok) {
             const data = await res.json()
-            error.value = data.error || `HTTP ${res.status}`
+            error.value = data.error || $t("HTTP {p0}", { p0: (res.status) })
             tree.value = null
             return
         }
@@ -377,7 +379,7 @@ defineExpose({ open, close, isOpen })
                         value="show-hidden"
                         :checked="showHidden"
                     >
-                        Show hidden files
+                        {{ $t("Show hidden files") }}
                     </wa-dropdown-item>
                     <wa-dropdown-item
                         v-if="isGit"
@@ -385,12 +387,12 @@ defineExpose({ open, close, isOpen })
                         value="show-ignored"
                         :checked="showIgnored"
                     >
-                        Show git ignored files
+                        {{ $t("Show git ignored files") }}
                     </wa-dropdown-item>
                     <template v-if="availableRoots.length >= 1">
                         <wa-divider></wa-divider>
                         <wa-dropdown-item disabled class="dropdown-header">
-                            Root:
+                            {{ $t("Root:") }}
                         </wa-dropdown-item>
                         <wa-dropdown-item
                             v-for="root in availableRoots"

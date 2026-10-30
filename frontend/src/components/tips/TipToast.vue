@@ -1,4 +1,7 @@
 <script setup>
+import { locale } from '../../i18n/index.js'
+import { t as $t } from '../../i18n/index.js'
+
 import { ref, computed, watch, onBeforeUnmount } from 'vue'
 import { useTipsStore } from '../../stores/tips'
 import { useSettingsStore } from '../../stores/settings'
@@ -41,9 +44,12 @@ const hasMoreCandidates = computed(() => {
     return candidates.filter((c) => c.key !== tip.value.key).length > 0
 })
 
+let loadVersion = 0
 async function loadBody(key) {
-    if (bodyCache.has(key)) {
-        bodyHtml.value = bodyCache.get(key)
+    const version = ++loadVersion
+    const cacheKey = `${locale.value}:${key}`
+    if (bodyCache.has(cacheKey)) {
+        bodyHtml.value = bodyCache.get(cacheKey)
         loading.value = false
         errored.value = false
         return
@@ -51,22 +57,25 @@ async function loadBody(key) {
     loading.value = true
     errored.value = false
     try {
-        const r = await fetch(resolvePublicAssetUrl(`tips/${key}.md`))
-        if (!r.ok) throw new Error(`HTTP ${r.status}`)
+        const r = await fetch(resolvePublicAssetUrl(`tips/${locale.value === 'fr' ? 'fr/' : ''}${key}.md`))
+        if (!r.ok) throw new Error($t("HTTP {p0}", { p0: (r.status) }))
         const raw = await r.text()
+        if (version !== loadVersion) return
         const body = stripFrontMatter(raw)
         // Tips are authored with soft line wraps for source readability; render
         // them with CommonMark paragraph behavior (soft wrap -> space, blank line
         // -> new paragraph) rather than the chat-style breaks: true.
         const html = await renderMarkdown(body, { softBreakAsSpace: true })
+        if (version !== loadVersion) return
         const finalHtml = rewriteAssetUrls(html, { folder: 'tips' })
-        bodyCache.set(key, finalHtml)
+        bodyCache.set(cacheKey, finalHtml)
         bodyHtml.value = finalHtml
     } catch (e) {
+        if (version !== loadVersion) return
         console.error('Failed to load tip', key, e)
         errored.value = true
     } finally {
-        loading.value = false
+        if (version === loadVersion) loading.value = false
     }
 }
 
@@ -80,7 +89,7 @@ function commitSeen(key) {
 
 // React to currentToastTipKey changes : load new body.
 // No markSeen here — commit happens only on voluntary close / Next.
-watch(() => tipsStore.currentToastTipKey, async (newKey) => {
+watch([() => tipsStore.currentToastTipKey, locale], async ([newKey]) => {
     if (!newKey) return
     await loadBody(newKey)
 }, { immediate: true })
@@ -132,15 +141,15 @@ function onNextTip() {
         <header class="tip-header">
             <wa-tag size="medium" class="tip-badge" variant="brand">
                 <wa-icon name="lightbulb" />
-                Tip
+                {{ $t("Tip") }}
             </wa-tag>
             <span class="tip-title">{{ tip?.title }}</span>
         </header>
 
         <wa-divider></wa-divider>
 
-        <div v-if="loading" class="tip-loading">Loading…</div>
-        <div v-else-if="errored" class="tip-error">Failed to load tip content.</div>
+        <div v-if="loading" class="tip-loading">{{ $t("Loading…") }}</div>
+        <div v-else-if="errored" class="tip-error">{{ $t("Failed to load tip content.") }}</div>
         <div v-else class="tip-body" v-html="bodyHtml" @click="handleHelpLinkClick" />
 
         <template v-if="hasMoreCandidates">
@@ -148,7 +157,7 @@ function onNextTip() {
 
             <footer class="tip-footer">
                 <wa-button size="small" @click="onNextTip">
-                    Next tip
+                    {{ $t("Next tip") }}
                     <wa-icon slot="end" name="chevron-right" />
                 </wa-button>
             </footer>

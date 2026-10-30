@@ -1,4 +1,7 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+import { locale } from '../../i18n/index.js'
+
 // ContributionGraph.vue - Pure presentation component for a GitHub-style contribution heatmap.
 // Receives pre-fetched daily activity data via props.
 // Supports three modes: 'messages' (user message count), 'sessions' (session count), and 'cost' (USD cost).
@@ -26,6 +29,11 @@ const props = defineProps({
 
 const isCostMode = computed(() => props.mode === 'cost')
 const isSessionsMode = computed(() => props.mode === 'sessions')
+const calendarLocale = computed(() => locale.value === 'fr' ? {
+    months: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'],
+    days: ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'],
+    on: 'le', less: 'Moins', more: 'Plus',
+} : undefined)
 
 const settingsStore = useSettingsStore()
 
@@ -93,15 +101,25 @@ const heatmapMax = computed(() => {
  */
 function tooltipFormatter(item, unit) {
     const date = item.date
-    const dateStr = date.toLocaleDateString('en-US', {
+    const dateStr = date.toLocaleDateString(locale.value === 'fr' ? 'fr-FR' : 'en-US', {
         month: 'short',
         day: 'numeric',
         year: 'numeric',
     })
     const count = item.count || 0
+    if (locale.value === 'fr') {
+        if (isCostMode.value) return count === 0
+            ? $t('No cost on {p0}', { p0: dateStr })
+            : $t('{p0} on {p1}', { p0: `$${count.toFixed(2)}`, p1: dateStr })
+        if (count === 0) return $t(isSessionsMode.value ? 'No sessions created on {p0}' : 'No message turns on {p0}', { p0: dateStr })
+        const noun = isSessionsMode.value
+            ? $t(count === 1 ? 'session created' : 'sessions created')
+            : $t(count === 1 ? 'message turn' : 'message turns')
+        return $t('{p0} {p1} on {p2}', { p0: count, p1: noun, p2: dateStr })
+    }
     if (isCostMode.value) {
         if (count === 0) {
-            return `No cost on ${dateStr}`
+            return $t("No cost on {p0}", { p0: (dateStr) })
         }
         return `$${count.toFixed(2)} on ${dateStr}`
     }
@@ -114,10 +132,11 @@ function tooltipFormatter(item, unit) {
 
 <template>
     <div class="contribution-graph">
-        <h3 class="contribution-graph-title">{{ isCostMode ? 'Cost per day' : isSessionsMode ? 'Sessions created per day' : 'Message turns per day' }}</h3>
+        <h3 class="contribution-graph-title">{{ isCostMode ? $t("Cost per day") : isSessionsMode ? $t("Sessions created per day") : $t("Message turns per day") }}</h3>
         <CalendarHeatmap
             v-if="heatmapValues.length > 0 && rangeColor.length === 6"
-            :key="`${rangeColor.join(',')}-${mode}`"
+            :key="`${rangeColor.join(',')}-${mode}-${locale}`"
+            :locale="calendarLocale"
             :values="heatmapValues"
             :end-date="endDate"
             :max="heatmapMax"
@@ -129,7 +148,7 @@ function tooltipFormatter(item, unit) {
             :dark-mode="isDark"
         />
         <div v-else-if="dailyActivity.length === 0" class="no-data">
-            No activity data
+            {{ $t("No activity data") }}
         </div>
     </div>
 </template>

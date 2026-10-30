@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // Plan tab: a selector over every plan-like document the session touched
 // (``Session.plan_paths`` — native Claude plan + pattern-detected docs, both
 // providers) above a read-only rendered preview (FilePane in renderOnly mode:
@@ -174,8 +176,8 @@ const paneScope = computed(() => {
 // --- Labels -------------------------------------------------------------------
 
 function entryLabel(entry) {
-    const base = entry.source === 'claude_plan' ? 'Claude plan' : entry.path
-    return entry.exists === false ? `${base} (missing)` : base
+    const base = entry.source === 'claude_plan' ? $t("Claude plan") : entry.path
+    return entry.exists === false ? $t("{p0} (missing)", { p0: (base) }) : base
 }
 
 // --- Live refresh ----------------------------------------------------------------
@@ -256,7 +258,7 @@ defineExpose({ reload: () => filePaneRef.value?.reload() })
             />
             <div v-else class="plan-state">
                 <wa-icon name="file-circle-question"></wa-icon>
-                <span>No plan document selected</span>
+                <span>{{ $t("No plan document selected") }}</span>
             </div>
         </div>
     </div>

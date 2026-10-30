@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../../i18n/index.js'
+
 /**
  * SessionSelectionBar - Action bar for the session list multi-select mode.
  *
@@ -108,24 +110,24 @@ const confirmLabel = computed(() => {
     if (!confirmState.value) return ''
     const { mode, sessionIds } = confirmState.value
     const n = sessionIds.length
-    if (mode === 'archive') return `Archive ${n} session${n > 1 ? 's' : ''}?`
-    if (mode === 'stop') return `Stop ${n} process${n > 1 ? 'es' : ''}?`
-    return `Discard ${n} local session${n > 1 ? 's' : ''}?`
+    if (mode === 'archive') return $t("Archive {p0} session{p1}?", { p0: (n), p1: (n > 1 ? 's' : '') })
+    if (mode === 'stop') return $t("Stop {p0} process{p1}?", { p0: (n), p1: (n > 1 ? 'es' : '') })
+    return $t("Discard {p0} local session{p1}?", { p0: (n), p1: (n > 1 ? 's' : '') })
 })
 
 const confirmMessage = computed(() => {
     if (!confirmState.value) return ''
     const { mode, processCount, cronCount, shellCount } = confirmState.value
-    if (mode === 'delete-drafts') return 'This cannot be undone.'
+    if (mode === 'delete-drafts') return $t("This cannot be undone.")
     return batchStopConfirmationMessage({ mode, processCount, cronCount, shellCount })
 })
 
 const confirmButtonLabel = computed(() => {
     if (!confirmState.value) return ''
     const { mode } = confirmState.value
-    if (mode === 'archive') return 'Stop and archive'
-    if (mode === 'stop') return 'Stop'
-    return 'Delete'
+    if (mode === 'archive') return $t("Stop and archive")
+    if (mode === 'stop') return $t("Stop")
+    return $t("Delete")
 })
 
 function cancelConfirm() {
@@ -251,7 +253,7 @@ function handleActionSelect(event) {
 
 <template>
     <div class="session-selection-bar">
-        <span class="selection-count">{{ count }} selected</span>
+        <span class="selection-count">{{ count }} {{ $t("selected") }}</span>
 
         <wa-dropdown placement="bottom-end" @wa-select="handleActionSelect">
             <wa-button
@@ -262,55 +264,55 @@ function handleActionSelect(event) {
                 with-caret
                 :disabled="count === 0"
             >
-                Actions
+                {{ $t("Actions") }}
             </wa-button>
 
             <wa-dropdown-item type="checkbox" :checked="isPinModeChecked(null)" :disabled="pinTargets(null).length === 0" value="pin-none">
-                Not pinned
+                {{ $t("Not pinned") }}
                 <span slot="details" class="affected-count">{{ pinTargets(null).length }}</span>
             </wa-dropdown-item>
             <wa-dropdown-item type="checkbox" :checked="isPinModeChecked('project')" :disabled="pinTargets('project').length === 0" value="pin-project">
-                Pin in project
-                <span slot="details" class="affected-count">{{ pinTargets('project').length }}</span>
+                {{ $t("Pin in project") }}
+                <span slot="details" class="affected-count">{{ pinTargets($t("project")).length }}</span>
             </wa-dropdown-item>
             <wa-dropdown-item type="checkbox" :checked="isPinModeChecked('workspace')" :disabled="pinTargets('workspace').length === 0" value="pin-workspace">
-                Pin in workspace
-                <span slot="details" class="affected-count">{{ pinTargets('workspace').length }}</span>
+                {{ $t("Pin in workspace") }}
+                <span slot="details" class="affected-count">{{ pinTargets($t("workspace")).length }}</span>
             </wa-dropdown-item>
             <wa-dropdown-item type="checkbox" :checked="isPinModeChecked('all')" :disabled="pinTargets('all').length === 0" value="pin-all">
-                Pin everywhere
-                <span slot="details" class="affected-count">{{ pinTargets('all').length }}</span>
+                {{ $t("Pin everywhere") }}
+                <span slot="details" class="affected-count">{{ pinTargets($t("all")).length }}</span>
             </wa-dropdown-item>
             <wa-divider></wa-divider>
             <wa-dropdown-item :disabled="markReadCandidates.length === 0" value="mark-read">
                 <wa-icon slot="icon" name="eye-slash"></wa-icon>
-                Mark as read
+                {{ $t("Mark as read") }}
                 <span slot="details" class="affected-count">{{ markReadCandidates.length }}</span>
             </wa-dropdown-item>
             <wa-dropdown-item :disabled="markUnreadCandidates.length === 0" value="mark-unread">
                 <wa-icon slot="icon" name="eye"></wa-icon>
-                Mark as unread
+                {{ $t("Mark as unread") }}
                 <span slot="details" class="affected-count">{{ markUnreadCandidates.length }}</span>
             </wa-dropdown-item>
             <wa-dropdown-item :disabled="archiveTargets.length === 0" value="archive">
                 <wa-icon slot="icon" name="box-archive"></wa-icon>
-                Archive
+                {{ $t("Archive") }}
                 <span slot="details" class="affected-count">{{ archiveTargets.length }}</span>
             </wa-dropdown-item>
             <wa-dropdown-item :disabled="unarchiveTargets.length === 0" value="unarchive">
                 <wa-icon slot="icon" name="box-open"></wa-icon>
-                Unarchive
+                {{ $t("Unarchive") }}
                 <span slot="details" class="affected-count">{{ unarchiveTargets.length }}</span>
             </wa-dropdown-item>
             <wa-divider></wa-divider>
             <wa-dropdown-item :disabled="stopTargets.length === 0" value="stop">
                 <wa-icon slot="icon" name="ban"></wa-icon>
-                Stop the process{{ stopTargets.length > 1 ? 'es' : '' }}
+                {{ $t("Stop the process") }}{{ stopTargets.length > 1 ? $t("es") : '' }}
                 <span slot="details" class="affected-count">{{ stopTargets.length }}</span>
             </wa-dropdown-item>
             <wa-dropdown-item :disabled="draftTargets.length === 0" value="delete-drafts" variant="danger">
                 <wa-icon slot="icon" name="trash"></wa-icon>
-                Discard
+                {{ $t("Discard") }}
                 <span slot="details" class="affected-count">{{ draftTargets.length }}</span>
             </wa-dropdown-item>
         </wa-dropdown>
@@ -322,15 +324,15 @@ function handleActionSelect(event) {
             size="small"
             @click="selectionStore.exit()"
         >
-            <wa-icon name="xmark" label="Exit selection mode"></wa-icon>
+            <wa-icon name="xmark" :label="$t(&quot;Exit selection mode&quot;)"></wa-icon>
         </wa-button>
-        <AppTooltip for="selection-bar-exit">Exit selection mode</AppTooltip>
+        <AppTooltip for="selection-bar-exit">{{ $t("Exit selection mode") }}</AppTooltip>
 
         <!-- Aggregated batch confirmation -->
         <wa-dialog :open="confirmState !== null" :label="confirmLabel" @wa-hide="handleDialogHide">
             <p class="confirm-message">{{ confirmMessage }}</p>
             <wa-button slot="footer" variant="neutral" appearance="plain" @click="cancelConfirm">
-                Cancel
+                {{ $t("Cancel") }}
             </wa-button>
             <wa-button slot="footer" variant="danger" @click="runConfirmed">
                 {{ confirmButtonLabel }}

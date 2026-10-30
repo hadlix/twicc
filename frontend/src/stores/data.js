@@ -1,3 +1,5 @@
+
+import { t as $t } from '../i18n/index.js'
 import { buildProjectActivityIndex, createProjectActivityComparator } from '../utils/projectActivity.js'
 import { getStableSessionList } from '../utils/sessionLists.js'
 import { agentLinkState, setAgentLink as cacheAgentLink, clearAgentLinks as clearAgentLinkCache, markAgentStopped as cacheAgentStop, markAgentIdle, beginAgentFetch, applyAgentSnapshot, rootAgentToolLine, staleSyntheticAgentIds, buildAgentTree, hasTreeAgents, runStateFromPayload, interactionFromPayload, setAgentRunState as cacheAgentRunState, setAgentInteraction as cacheAgentInteraction, dropRootAgentState, effectiveAgentRun } from '../utils/agentLinkIndex'
@@ -1682,7 +1684,7 @@ export const useDataStore = defineStore('data', {
 
                 if (!response.ok) {
                     const data = await response.json()
-                    throw new Error(data.error || 'Failed to update project')
+                    throw new Error(data.error || $t("Failed to update project"))
                 }
 
                 const updatedProject = await response.json()
@@ -2553,7 +2555,7 @@ export const useDataStore = defineStore('data', {
             const res = await apiFetch(url)
 
             if (!res.ok) {
-                throw new Error(`Failed to load sessions: ${res.status}`)
+                throw new Error($t("Failed to load sessions: {p0}", { p0: (res.status) }))
             }
 
             return await res.json()
@@ -2723,7 +2725,7 @@ export const useDataStore = defineStore('data', {
                     return null
                 }
                 if (!response.ok) {
-                    throw new Error(`Failed to load session: ${response.status}`)
+                    throw new Error($t("Failed to load session: {p0}", { p0: (response.status) }))
                 }
                 const session = await response.json()
                 this.updateSessionFromServer(session)
@@ -2766,7 +2768,7 @@ export const useDataStore = defineStore('data', {
             try {
                 const res = await apiFetch(`/api/artifact-bookmarks/${id}/`)
                 if (res.status === 404) { delete this.artifactBookmarks[id]; return null }
-                if (!res.ok) throw new Error(`Failed to load artifact bookmark: ${res.status}`)
+                if (!res.ok) throw new Error($t("Failed to load artifact bookmark: {p0}", { p0: (res.status) }))
                 const b = await res.json()
                 this.artifactBookmarks[b.id] = b
                 return b
@@ -2785,7 +2787,7 @@ export const useDataStore = defineStore('data', {
             })
             if (!res.ok) {
                 const err = await res.json().catch(() => ({}))
-                throw new Error(err?.error || 'Failed to create artifact bookmark')
+                throw new Error(err?.error || $t("Failed to create artifact bookmark"))
             }
             const b = await res.json()
             // Through the live entry point: the artifacts list plays the new row's entrance.
@@ -2798,14 +2800,14 @@ export const useDataStore = defineStore('data', {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(patch),
             })
-            if (!res.ok) throw new Error('Failed to update artifact bookmark')
+            if (!res.ok) throw new Error($t("Failed to update artifact bookmark"))
             const b = await res.json()
             this.artifactBookmarks[b.id] = b
             return b
         },
         async deleteArtifactBookmark(id) {
             const res = await apiFetch(`/api/artifact-bookmarks/${id}/`, { method: 'DELETE' })
-            if (!res.ok) throw new Error('Failed to delete artifact bookmark')
+            if (!res.ok) throw new Error($t("Failed to delete artifact bookmark"))
             delete this.artifactBookmarks[id]
         },
         /**
@@ -2842,7 +2844,7 @@ export const useDataStore = defineStore('data', {
                     ])
                     // An unloaded session must not be populated by an old load.
                     if (this.localState.sessions[sessionId] !== local || !local.itemsFetched) return false
-                    if (!metadata || !items) throw new Error('Failed to load session history')
+                    if (!metadata || !items) throw new Error($t("Failed to load session history"))
 
                     // Keep live lines delivered during a first load, including
                     // lines beyond the REST snapshots' bounds.
@@ -3904,7 +3906,7 @@ export const useDataStore = defineStore('data', {
             const code = info.code || 'send_failed'
             if (code !== 'send_uncertain') this.releaseAsyncQuestionSendLock(sessionId, requestId)
             else this.lockAsyncQuestionSend(sessionId, requestId, entry.asyncQuestions || entry.async_questions)
-            const message = info.message || 'The message could not be delivered.'
+            const message = info.message || $t("The message could not be delivered.")
             const failedAt = info.failedAt || Date.now()
             const failedSend = {
                 requestId,
@@ -4051,7 +4053,7 @@ export const useDataStore = defineStore('data', {
                     continue
                 }
                 if (retainsAsyncQuestionSend(entry) && ['staged', 'dispatched'].includes(entry.status)) {
-                    this._applySendFailure(requestId, entry, { code: 'send_uncertain', message: 'Delivery is not confirmed. Waiting for source evidence.' })
+                    this._applySendFailure(requestId, entry, { code: 'send_uncertain', get message() { return $t("Delivery is not confirmed. Waiting for source evidence.") } })
                     continue
                 }
                 if (!inflightSends.has(requestId)) inflightSends.set(requestId, entry)
@@ -4123,8 +4125,8 @@ export const useDataStore = defineStore('data', {
                 if (linesToFetch.some(n => itemsNow[n - 1] && !hasContent(itemsNow[n - 1]))) return
             }
 
-            const message = 'This message could not be confirmed as delivered — '
-                + 'it may never have reached the agent (interrupted connection?).'
+            const message = $t("This message could not be confirmed as delivered — ")
+                + $t("it may never have reached the agent (interrupted connection?).")
             for (const id of candidates) {
                 const entry = inflightSends.get(id)
                 if (!entry || !this.shouldAuditInflightSend(id)) continue // resolved or accepted during the content fetch
@@ -5792,7 +5794,7 @@ export const useDataStore = defineStore('data', {
 
                 if (!response.ok) {
                     const data = await response.json()
-                    throw new Error(data.error || 'Failed to rename session')
+                    throw new Error(data.error || $t("Failed to rename session"))
                 }
 
                 const updatedSession = await response.json()
@@ -5840,7 +5842,7 @@ export const useDataStore = defineStore('data', {
 
                 if (!response.ok) {
                     const data = await response.json()
-                    throw new Error(data.error || 'Failed to dismiss the goal')
+                    throw new Error(data.error || $t("Failed to dismiss the goal"))
                 }
 
                 const updatedSession = await response.json()
@@ -6048,7 +6050,7 @@ export const useDataStore = defineStore('data', {
 
                 if (!response.ok) {
                     const data = await response.json()
-                    throw new Error(data.error || 'Failed to update session')
+                    throw new Error(data.error || $t("Failed to update session"))
                 }
 
                 const updatedSession = await response.json()
@@ -6126,7 +6128,7 @@ export const useDataStore = defineStore('data', {
             })
             if (!res.ok) {
                 const err = await res.json().catch(() => ({}))
-                throw new Error(err.error || `HTTP ${res.status}`)
+                throw new Error(err.error || $t("HTTP {p0}", { p0: (res.status) }))
             }
             return res.json()
         },
@@ -6159,7 +6161,7 @@ export const useDataStore = defineStore('data', {
 
                 if (!response.ok) {
                     const data = await response.json()
-                    throw new Error(data.error || 'Failed to update session')
+                    throw new Error(data.error || $t("Failed to update session"))
                 }
 
                 const updatedSession = await response.json()

@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../../../../i18n/index.js'
+
 /**
  * Codex canonical image-generation renderer.
  *
@@ -77,7 +79,7 @@ const imageSrc = computed(() => {
 // Derive a human filename for the preview dialog title — fall back to a
 // generic label when ``saved_path`` is missing.
 const imageName = computed(() => {
-    if (!savedPath.value) return 'Generated image'
+    if (!savedPath.value) return $t("Generated image")
     const idx = savedPath.value.lastIndexOf('/')
     return idx >= 0 ? savedPath.value.slice(idx + 1) : savedPath.value
 })
@@ -162,7 +164,7 @@ function onPromptAfterHide() {
             @wa-after-hide="onPromptAfterHide"
         >
             <span slot="summary" class="items-details-summary">
-                <strong class="items-details-summary-name">Image prompt</strong>
+                <strong class="items-details-summary-name">{{ $t("Image prompt") }}</strong>
             </span>
             <div v-if="isPromptOpen || isClosing()" class="image-generation-prompt-body">
                 <MarkdownContent :source="promptMarkdown" :show-toolbar="false" />
@@ -173,7 +175,7 @@ function onPromptAfterHide() {
             <span class="image-generation-path-text">{{ savedPath }}</span>
         </div>
         <div v-if="transparentBackground !== null" class="image-generation-metadata">
-            Transparent background: {{ transparentBackground ? 'yes' : 'no' }}
+            {{ $t("Transparent background:") }} {{ transparentBackground ? $t("yes") : $t("no") }}
         </div>
         <wa-callout v-if="failureText" variant="danger">
             <wa-icon slot="icon" name="circle-exclamation"></wa-icon>

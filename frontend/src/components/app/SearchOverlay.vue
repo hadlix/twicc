@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 /**
  * SearchOverlay — Full-text search dialog with filters, results, and keyboard navigation.
  *
@@ -222,7 +224,7 @@ const activeWs = computed(() => {
     return wsId ? workspacesStore.getWorkspaceById(wsId) : null
 })
 
-const activeWsLabel = computed(() => activeWs.value ? `${activeWs.value.name} projects` : null)
+const activeWsLabel = computed(() => activeWs.value ? $t("{p0} projects", { p0: (activeWs.value.name) }) : null)
 const activeWsColor = computed(() => activeWs.value?.color || null)
 
 /** Selectable workspaces for the filter dropdown */
@@ -315,12 +317,12 @@ async function performSearch(resetOffset = true) {
 
         if (!res.ok) {
             if (res.status === 503) {
-                error.value = 'Search index is still being built…'
+                error.value = $t("Search index is still being built…")
             } else if (res.status === 400) {
                 const data = await res.json()
-                error.value = data.error || 'Invalid search query'
+                error.value = data.error || $t("Invalid search query")
             } else {
-                error.value = 'Search error, please try again'
+                error.value = $t("Search error, please try again")
             }
             matchMode.value = 'all'
             return
@@ -341,7 +343,7 @@ async function performSearch(resetOffset = true) {
         totalSessions.value = data.total_sessions || 0
         selectedIndex.value = 0
     } catch (e) {
-        error.value = 'Network error, please try again'
+        error.value = $t("Network error, please try again")
         // This path keeps `results`, so a stale 'any' would leave the partial-match
         // banner rendered above the error message.
         matchMode.value = 'all'
@@ -542,7 +544,7 @@ defineExpose({ open })
                     <wa-input
                         ref="searchInputRef"
                         v-model="query"
-                        placeholder="Search in all sessions..."
+                        :placeholder="$t(&quot;Search in all sessions...&quot;)"
                         size="medium"
                         with-clear
                         :autofocus.attr="true"
@@ -566,7 +568,7 @@ defineExpose({ open })
                 <div class="search-filters" :class="{ 'filters-expanded': filtersExpanded }">
                     <wa-select
                         v-model="filters.projectId"
-                        placeholder="All projects"
+                        :placeholder="$t(&quot;All projects&quot;)"
                         size="small"
                         with-clear
                         class="filter-select glass-listbox-direct"
@@ -586,7 +588,7 @@ defineExpose({ open })
                         ></wa-icon>
                         <!-- Workspaces -->
                         <template v-if="selectableWorkspaces.length">
-                            <wa-option disabled class="section-header-option">Workspaces</wa-option>
+                            <wa-option disabled class="section-header-option">{{ $t("Workspaces") }}</wa-option>
                             <wa-option
                                 v-for="ws in selectableWorkspaces"
                                 :key="ws.id"
@@ -599,7 +601,7 @@ defineExpose({ open })
                                 </span>
                             </wa-option>
                             <wa-divider></wa-divider>
-                            <wa-option v-if="!activeWsProjectIds" disabled class="section-header-option">Projects</wa-option>
+                            <wa-option v-if="!activeWsProjectIds" disabled class="section-header-option">{{ $t("Projects") }}</wa-option>
                         </template>
                         <!-- Projects -->
                         <ProjectSelectOptions :projects="projects" :priority-project-ids="activeWsProjectIds" :priority-label="activeWsLabel" :priority-color="activeWsColor" />
@@ -607,55 +609,55 @@ defineExpose({ open })
 
                     <wa-select
                         v-model="filters.from"
-                        placeholder="Any source"
+                        :placeholder="$t(&quot;Any source&quot;)"
                         size="small"
                         with-clear
                         class="filter-select glass-listbox-direct"
                     >
-                        <wa-option value="user">User</wa-option>
-                        <wa-option value="assistant">Assistant</wa-option>
-                        <wa-option value="title">Title</wa-option>
+                        <wa-option value="user">{{ $t("User") }}</wa-option>
+                        <wa-option value="assistant">{{ $t("Assistant") }}</wa-option>
+                        <wa-option value="title">{{ $t("Title") }}</wa-option>
                     </wa-select>
 
                     <wa-select
                         v-model="filters.newerThan"
-                        placeholder="Any recent"
+                        :placeholder="$t(&quot;Any recent&quot;)"
                         size="small"
                         with-clear
                         class="filter-select glass-listbox-direct"
                     >
-                        <wa-option value="24h">Newer than 24 hours</wa-option>
-                        <wa-option value="3d">Newer than 3 days</wa-option>
-                        <wa-option value="7d">Newer than 7 days</wa-option>
-                        <wa-option value="10d">Newer than 10 days</wa-option>
-                        <wa-option value="20d">Newer than 20 days</wa-option>
-                        <wa-option value="30d">Newer than 30 days</wa-option>
-                        <wa-option value="2m">Newer than 2 months</wa-option>
-                        <wa-option value="3m">Newer than 3 months</wa-option>
-                        <wa-option value="6m">Newer than 6 months</wa-option>
+                        <wa-option value="24h">{{ $t("Newer than 24 hours") }}</wa-option>
+                        <wa-option value="3d">{{ $t("Newer than 3 days") }}</wa-option>
+                        <wa-option value="7d">{{ $t("Newer than 7 days") }}</wa-option>
+                        <wa-option value="10d">{{ $t("Newer than 10 days") }}</wa-option>
+                        <wa-option value="20d">{{ $t("Newer than 20 days") }}</wa-option>
+                        <wa-option value="30d">{{ $t("Newer than 30 days") }}</wa-option>
+                        <wa-option value="2m">{{ $t("Newer than 2 months") }}</wa-option>
+                        <wa-option value="3m">{{ $t("Newer than 3 months") }}</wa-option>
+                        <wa-option value="6m">{{ $t("Newer than 6 months") }}</wa-option>
                     </wa-select>
 
                     <wa-select
                         v-model="filters.olderThan"
-                        placeholder="Any old"
+                        :placeholder="$t(&quot;Any old&quot;)"
                         size="small"
                         with-clear
                         class="filter-select glass-listbox-direct"
                     >
-                        <wa-option value="24h">Older than 24 hours</wa-option>
-                        <wa-option value="3d">Older than 3 days</wa-option>
-                        <wa-option value="7d">Older than 7 days</wa-option>
-                        <wa-option value="10d">Older than 10 days</wa-option>
-                        <wa-option value="20d">Older than 20 days</wa-option>
-                        <wa-option value="30d">Older than 30 days</wa-option>
-                        <wa-option value="2m">Older than 2 months</wa-option>
-                        <wa-option value="3m">Older than 3 months</wa-option>
-                        <wa-option value="6m">Older than 6 months</wa-option>
+                        <wa-option value="24h">{{ $t("Older than 24 hours") }}</wa-option>
+                        <wa-option value="3d">{{ $t("Older than 3 days") }}</wa-option>
+                        <wa-option value="7d">{{ $t("Older than 7 days") }}</wa-option>
+                        <wa-option value="10d">{{ $t("Older than 10 days") }}</wa-option>
+                        <wa-option value="20d">{{ $t("Older than 20 days") }}</wa-option>
+                        <wa-option value="30d">{{ $t("Older than 30 days") }}</wa-option>
+                        <wa-option value="2m">{{ $t("Older than 2 months") }}</wa-option>
+                        <wa-option value="3m">{{ $t("Older than 3 months") }}</wa-option>
+                        <wa-option value="6m">{{ $t("Older than 6 months") }}</wa-option>
                     </wa-select>
 
                     <label class="filter-checkbox">
                         <input type="checkbox" v-model="filters.includeArchived" />
-                        <span>Archived</span>
+                        <span>{{ $t("Archived") }}</span>
                     </label>
                 </div>
             </div>
@@ -663,7 +665,7 @@ defineExpose({ open })
             <!-- Indexing in progress banner (non-blocking — shown alongside results) -->
             <div v-if="!searchIndexReady" class="search-index-banner">
                 <wa-icon name="hourglass-half"></wa-icon>
-                <span>Indexing in progress ({{ searchIndexPercent }}%) — results may be incomplete</span>
+                <span>{{ $t("Indexing in progress (") }}{{ searchIndexPercent }}{{ $t("%) — results may be incomplete") }}</span>
                 <wa-progress-bar :value="searchIndexPercent"></wa-progress-bar>
             </div>
 
@@ -681,14 +683,13 @@ defineExpose({ open })
                     size="small"
                 >
                     <wa-icon slot="icon" name="circle-info"></wa-icon>
-                    No session contains all your terms in one message. Showing sessions
-                    that match at least one, most relevant first.
+                    {{ $t("No session contains all your terms in one message. Showing sessions that match at least one, most relevant first.") }}
                 </wa-callout>
             </div>
 
             <!-- Error state -->
             <div v-if="error" class="search-error">
-                <wa-callout variant="danger">{{ error }}</wa-callout>
+                <wa-callout variant="danger">{{ $t(error) }}</wa-callout>
             </div>
 
             <!-- Results list -->
@@ -706,7 +707,7 @@ defineExpose({ open })
                     @pointerenter="selectedIndex = index"
                 >
                     <div class="result-header">
-                        <wa-icon v-if="result.archived" name="box-archive" label="Archived" class="session-state-icon session-state-icon--archived"></wa-icon>
+                        <wa-icon v-if="result.archived" name="box-archive" :label="$t(&quot;Archived&quot;)" class="session-state-icon session-state-icon--archived"></wa-icon>
                         <span class="result-title">{{ result.session_title || result.session_id }}</span>
                         <div class="result-meta">
                             <ProjectBadge
@@ -734,7 +735,7 @@ defineExpose({ open })
                             <span class="snippet-text" v-html="match.snippet"></span>
                         </div>
                         <div v-if="result.matches.length > 3" class="snippet-more">
-                            +{{ result.matches.length - 3 }} more matches
+                            +{{ result.matches.length - 3 }} {{ $t("more matches") }}
                         </div>
                     </div>
                 </div>
@@ -749,7 +750,7 @@ defineExpose({ open })
                         @click="loadMore"
                     >
                         <wa-spinner v-if="isLoading" slot="start"></wa-spinner>
-                        Load more results
+                        {{ $t("Load more results") }}
                     </wa-button>
                 </div>
             </div>
@@ -757,17 +758,17 @@ defineExpose({ open })
             <!-- Loading state (initial search) -->
             <div v-else-if="isLoading" class="search-loading">
                 <wa-spinner></wa-spinner>
-                <span>Searching…</span>
+                <span>{{ $t("Searching…") }}</span>
             </div>
 
             <!-- Empty state -->
             <div v-else-if="query.trim().length >= 2 && !isLoading" class="search-empty">
-                No results found
+                {{ $t("No results found") }}
             </div>
 
             <!-- Initial state (no query) -->
             <div v-else-if="query.trim().length < 2 && query.trim().length > 0" class="search-hint">
-                Type at least 2 characters to search
+                {{ $t("Type at least 2 characters to search") }}
             </div>
 
         </div>

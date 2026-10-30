@@ -1,3 +1,5 @@
+
+import { t as $t } from '../../i18n/index.js'
 /**
  * Tool-rendering helpers for Claude Code sessions.
  *
@@ -37,8 +39,8 @@ import WebSearchSummary from '../../components/session/detail/items/summary/WebS
 import ToolSearchSummary from '../../components/session/detail/items/claude_code/summary/ToolSearchSummary.vue'
 import TodoSummary from '../../components/session/detail/items/summary/TodoSummary.vue'
 
-const FILE_PATH_TOOLS = new Set(['Edit', 'Write', 'Read'])
-const FILE_CHANGE_TOOLS = new Set(['Edit', 'Write'])
+const FILE_PATH_TOOLS = new Set(["Edit", 'Write', "Read"])
+const FILE_CHANGE_TOOLS = new Set(["Edit", 'Write'])
 const DIRECT_CONTENT_TOOLS = new Set(['Bash', 'WebFetch', 'WebSearch'])
 const MONITOR_TOOL_NAME = 'Monitor'
 // Built-in task-tracking tools (``TaskCreate`` / ``TaskUpdate`` / ``TaskGet`` /
@@ -94,7 +96,7 @@ function getDisplayName(name, input) {
 function buildGrepInline(pattern, fileType, path) {
     const parts = []
     if (pattern) parts.push(pattern)
-    if (fileType) parts.push(`in ${fileType} files`)
+    if (fileType) parts.push($t("in {p0} files", { p0: (fileType) }))
     if (path) parts.push(`in ${path}`)
     return parts.length ? parts.join(' ') : null
 }
@@ -332,7 +334,7 @@ export class ClaudeCodeToolHelpers extends BaseToolHelpers {
         // must not read "Stop agent" / "Agent output").
         const controlLabel = agentControlHeaderLabel(name, options?.agentInteraction)
         if (controlLabel) return controlLabel
-        if (name === 'TodoWrite') return 'Todo'
+        if (name === 'TodoWrite') return $t("Todo")
         // TaskCreate / TaskUpdate / TaskGet / TaskList keep their raw names —
         // the operation is informative on its own and a flat ``Task`` header
         // hides it (we'd then only tell create vs update vs get apart via
@@ -435,7 +437,7 @@ export class ClaudeCodeToolHelpers extends BaseToolHelpers {
             const tasks = options?.twiccTasksData
             if (!Array.isArray(tasks)) return null
             const count = tasks.length
-            const label = count === 1 ? '1 task' : `${count} tasks`
+            const label = count === 1 ? $t("1 task") : $t("{p0} tasks", { p0: (count) })
             return {
                 component: DescriptionSummary,
                 props: { description: label, fileIconSrc: null },

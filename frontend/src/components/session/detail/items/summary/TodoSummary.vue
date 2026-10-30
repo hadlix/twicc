@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../../../../i18n/index.js'
+
 defineProps({
     parts: { type: Array, required: true },
 })
@@ -6,7 +8,7 @@ defineProps({
 
 <template>
     <template v-for="(part, i) in parts" :key="i">
-        <span v-if="i > 0" class="items-details-summary-separator"> — </span>
+        <span v-if="i > 0" class="items-details-summary-separator"> {{ $t("—") }} </span>
         <span class="items-details-summary-description" :class="{ 'no-wrap': !part.status }"><span :class="{ 'is-deleted': part.status === 'deleted' }">{{ part.text }}</span><wa-icon v-if="part.status === 'completed'" name="check" class="todo-icon todo-icon-completed"></wa-icon><wa-icon v-else-if="part.status === 'deleted'" name="xmark" class="todo-icon todo-icon-deleted"></wa-icon></span>
     </template>
 </template>

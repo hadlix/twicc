@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 /**
  * CodeCommentsIndicator - Shows a comment icon when there are unsent code comments.
  *
@@ -71,8 +73,8 @@ const effectiveCount = computed(() => {
 const tooltipText = computed(() => {
     const n = effectiveCount.value
     return n === 1
-        ? '1 code comment not yet sent'
-        : `${n} code comments not yet sent`
+        ? $t("1 code comment not yet sent")
+        : $t("{p0} code comments not yet sent", { p0: (n) })
 })
 
 const indicatorId = useId()

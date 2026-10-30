@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // Activity indicators shown next to the Orchestration tab's label: zero, one or
 // two icons, each only when it has something to say.
 //
@@ -40,7 +42,7 @@ const visible = computed(() => visibleOrchestrationIndicators(props.activity, pr
         <ProcessActivityIndicator v-if="visible.sessions" :summary="visible.sessions" size="small" />
         <template v-if="visible.subagents">
             <ProcessIndicator :id="subagentsId" state="assistant_turn" size="small" />
-            <AppTooltip :for="subagentsId">Subagents working</AppTooltip>
+            <AppTooltip :for="subagentsId">{{ $t("Subagents working") }}</AppTooltip>
         </template>
     </span>
 </template>

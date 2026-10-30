@@ -1,4 +1,9 @@
 <script setup>
+import { getFormatLocale } from '../../i18n/index.js'
+
+import { locale, setLocale } from '../../i18n/index.js'
+import { t as $t } from '../../i18n/index.js'
+
 import McpSettings from '../mcp/McpSettings.vue'
 // SettingsPopover.vue - Settings button with popover panel
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue'
@@ -93,7 +98,7 @@ const providerSections = computed(() =>
         return {
             id: `provider_${provider}`,
             provider,
-            label: `${label} settings`,
+            get label() { return $t("{p0} settings", { p0: (label) }) },
             navLabel: label,
             icon: getProviderIcon(provider),
             synced: true,
@@ -103,19 +108,19 @@ const providerSections = computed(() =>
 )
 
 const sections = computed(() => [
-    { id: 'general',       label: 'General' },
-    { id: 'notifications', label: 'Notifications' },
-    { id: 'providers',     label: 'Providers', synced: true },
+    { id: 'general',       get label() { return $t("General") } },
+    { id: 'notifications', get label() { return $t("Notifications") } },
+    { id: 'providers',     get label() { return $t("Providers") }, synced: true },
     ...providerSections.value.filter(s => s.enabled),
-    { id: 'sessions',      label: 'Sessions' },
-    { id: 'layouts',       label: 'Layouts', synced: true },
-    { id: 'title',         label: 'Title suggestion', navLabel: 'Titles', synced: true },
-    { id: 'editor',        label: 'Editor' },
-    { id: 'terminal',      label: 'Terminal' },
-    { id: 'sharing',       label: 'Sharing', synced: true },
-    { id: 'usage',         label: 'Providers quotas/usage', navLabel: 'Usage' },
-    { id: 'mcp',           label: 'External MCP', navLabel: 'MCP', synced: true },
-    { id: 'peers',         label: 'Peers', synced: true, badge: peersStore.inboxCount },
+    { id: 'sessions',      get label() { return $t("Sessions") } },
+    { id: 'layouts',       get label() { return $t("Layouts") }, synced: true },
+    { id: 'title',         get label() { return $t("Title suggestion") }, get navLabel() { return $t("Titles") }, synced: true },
+    { id: 'editor',        get label() { return $t("Editor") } },
+    { id: 'terminal',      get label() { return $t("Terminal") } },
+    { id: 'sharing',       get label() { return $t("Sharing") }, synced: true },
+    { id: 'usage',         get label() { return $t("Providers quotas/usage") }, get navLabel() { return $t("Usage") } },
+    { id: 'mcp',           get label() { return $t("External MCP") }, navLabel: 'MCP', synced: true },
+    { id: 'peers',         get label() { return $t("Peers") }, synced: true, badge: peersStore.inboxCount },
 ])
 
 const activeSection = ref('general')
@@ -205,9 +210,9 @@ const activeSectionObj = computed(() =>
 )
 
 const activeSectionLabel = computed(() => {
-    if (activeSection.value === 'shortcuts') return 'Keyboard shortcuts'
-    if (activeSection.value === 'tips') return 'Tips'
-    if (activeSection.value === 'help') return 'Help'
+    if (activeSection.value === 'shortcuts') return $t("Keyboard shortcuts")
+    if (activeSection.value === 'tips') return $t("Tips")
+    if (activeSection.value === 'help') return $t("Help")
     return activeSectionObj.value?.label ?? ''
 })
 
@@ -305,120 +310,120 @@ const shortcutGroups = computed(() => {
         if (!meta) continue
         commandShortcuts.push({
             keys: [char],
-            description: `${meta.tooltip} (at start of input — ${labels.join(', ')})`,
+            get description() { return $t("{p0} (at start of input — {p1})", { p0: (meta.tooltip), p1: (labels.join(', ')) }) },
         })
     }
 
     return [
         {
-            label: 'Global',
+            get label() { return $t("Global") },
             shortcuts: [
-                { keys: [mod, 'K'], description: 'Open command palette' },
-                { keys: [mod, 'Shift', 'F'], description: 'Open full-text search' },
+                { keys: [mod, 'K'], get description() { return $t("Open command palette") } },
+                { keys: [mod, 'Shift', 'F'], get description() { return $t("Open full-text search") } },
                 // Always Ctrl (even on macOS, where ⌘+` is an OS shortcut), so these
                 // deliberately don't use `mod`. The cycle key is the physical key
                 // above Tab — backquoteKeyLabel resolves its legend per layout, and
                 // the description names its position too.
-                { keys: ['Ctrl', backquoteKeyLabel.value], description: 'Switch between recent sessions — hold Ctrl, tap the key above Tab (or ↑/↓) to cycle, release to switch' },
-                { keys: ['Ctrl', 'Shift', backquoteKeyLabel.value], description: 'Same, through the sessions currently shown in the sidebar (tap Shift while open to toggle either source)' },
-                { keys: ['Alt', 'Shift', 'B'], description: 'Toggle the sidebar' },
+                { keys: ['Ctrl', backquoteKeyLabel.value], get description() { return $t("Switch between recent sessions — hold Ctrl, tap the key above Tab (or ↑/↓) to cycle, release to switch") } },
+                { keys: ['Ctrl', 'Shift', backquoteKeyLabel.value], get description() { return $t("Same, through the sessions currently shown in the sidebar (tap Shift while open to toggle either source)") } },
+                { keys: ['Alt', 'Shift', 'B'], get description() { return $t("Toggle the sidebar") } },
             ]
         },
         {
-            label: 'Session tabs',
+            get label() { return $t("Session tabs") },
             shortcuts: [
-                { keys: ['Alt', 'Shift', '1–9, 0'], description: 'Jump to tab (Chat, Files, Git, Terminal, Tasks, Plan, Artifacts, Orchestration, Workflows, Browser)' },
-                { keys: ['Alt', 'Shift', '←/→'], description: 'Previous / next tab' },
-                { keys: ['Alt', 'Shift', '↑/↓'], description: 'Last visited tab' },
+                { keys: ['Alt', 'Shift', '1–9, 0'], get description() { return $t("Jump to tab (Chat, Files, Git, Terminal, Tasks, Plan, Artifacts, Orchestration, Workflows, Browser)") } },
+                { keys: ['Alt', 'Shift', '←/→'], get description() { return $t("Previous / next tab") } },
+                { keys: ['Alt', 'Shift', '↑/↓'], get description() { return $t("Last visited tab") } },
             ]
         },
         {
-            label: 'Session chat',
+            get label() { return $t("Session chat") },
             shortcuts: [
-                { keys: ['Alt', 'Shift', 'M'], description: 'Focus message input — or the active pending request when one is open (from any session tab)' },
-                { keys: ['Alt', 'Shift', 'PageDown'], description: 'Go to the message input (chat tab)' },
+                { keys: ['Alt', 'Shift', 'M'], get description() { return $t("Focus message input — or the active pending request when one is open (from any session tab)") } },
+                { keys: ['Alt', 'Shift', 'PageDown'], get description() { return $t("Go to the message input (chat tab)") } },
                 // PageUp is dual-purpose: pending-request nav always, plus the hybrid
                 // CLI terminal only when hybrid mode is enabled — drop that clause off.
                 store.isClaudeHybridEnabled
-                    ? { keys: ['Alt', 'Shift', 'PageUp'], description: 'Go to the open pending request — or, from the message input on a hybrid session, the Claude CLI terminal (chat tab)' }
-                    : { keys: ['Alt', 'Shift', 'PageUp'], description: 'Go to the open pending request (chat tab)' },
+                    ? { keys: ['Alt', 'Shift', 'PageUp'], get description() { return $t("Go to the open pending request — or, from the message input on a hybrid session, the Claude CLI terminal (chat tab)") } }
+                    : { keys: ['Alt', 'Shift', 'PageUp'], get description() { return $t("Go to the open pending request (chat tab)") } },
                 // Hybrid-only chords: listed only when hybrid mode is enabled.
                 ...(store.isClaudeHybridEnabled ? [
-                    { keys: ['Alt', 'Shift', 'T'], description: 'Toggle between the Claude CLI terminal and the message input — hybrid sessions only (from any session tab)' },
-                    { keys: ['Alt', 'Shift', 'H'], description: 'Toggle hybrid mode on a Claude session, where it can be toggled (from any session tab)' },
+                    { keys: ['Alt', 'Shift', 'T'], get description() { return $t("Toggle between the Claude CLI terminal and the message input — hybrid sessions only (from any session tab)") } },
+                    { keys: ['Alt', 'Shift', 'H'], get description() { return $t("Toggle hybrid mode on a Claude session, where it can be toggled (from any session tab)") } },
                 ] : []),
-                { keys: ['Quick triple Esc'], description: 'Emergency stop of the running process' },
-                { keys: ['Shift', 'Quick triple Esc'], description: 'Force kill the running process — no grace window, no confirmation (also: Shift-click the Stop button, or click it again while stopping)' },
+                { keys: [$t("Quick triple Esc")], get description() { return $t("Emergency stop of the running process") } },
+                { keys: ['Shift', $t("Quick triple Esc")], get description() { return $t("Force kill the running process — no grace window, no confirmation (also: Shift-click the Stop button, or click it again while stopping)") } },
             ]
         },
         {
-            label: 'Session layout',
+            get label() { return $t("Session layout") },
             shortcuts: [
-                { keys: ['Alt', 'Shift', '↵'], description: 'Maximize the focused pane (chat or a docked tool panel) — press again to restore' },
-                { keys: ['Alt', 'Shift', 'Backspace'], description: 'Minimize the focused docked panel to the gutter' },
+                { keys: ['Alt', 'Shift', '↵'], get description() { return $t("Maximize the focused pane (chat or a docked tool panel) — press again to restore") } },
+                { keys: ['Alt', 'Shift', 'Backspace'], get description() { return $t("Minimize the focused docked panel to the gutter") } },
             ]
         },
         {
-            label: 'Message input',
+            get label() { return $t("Message input") },
             shortcuts: [
-                { keys: [mod, '↵'], description: 'Send message' },
-                { keys: ['Alt', 'Shift', 'O'], description: 'Open / close Agent Settings popover' },
-                { keys: ['@'], description: 'Insert file path (after a space or at start)' },
+                { keys: [mod, '↵'], get description() { return $t("Send message") } },
+                { keys: ['Alt', 'Shift', 'O'], get description() { return $t("Open / close Agent Settings popover") } },
+                { keys: ['@'], get description() { return $t("Insert file path (after a space or at start)") } },
                 ...commandShortcuts,
-                { keys: ['!'], description: 'Message history (at start of input)' },
-                { keys: ['PageUp'], description: 'Message history (cursor on first line)' },
+                { keys: ['!'], get description() { return $t("Message history (at start of input)") } },
+                { keys: ['PageUp'], get description() { return $t("Message history (cursor on first line)") } },
             ]
         },
         {
-            label: 'Pending request (approval / question)',
+            get label() { return $t("Pending request (approval / question)") },
             shortcuts: [
-                { keys: [mod, '↵'], description: 'Submit the form — Approve (or "Approve with changes" in edit mode, Submit for a question). Sends Deny / Cancel turn when that button is focused.' },
+                { keys: [mod, '↵'], get description() { return $t("Submit the form — Approve (or \"Approve with changes\" in edit mode, Submit for a question). Sends Deny / Cancel turn when that button is focused.") } },
             ]
         },
         {
-            label: 'Project home tabs',
+            get label() { return $t("Project home tabs") },
             shortcuts: [
-                { keys: ['Alt', 'Shift', '1–4'], description: 'Jump to tab (Stats, Files, Git, Terminal)' },
-                { keys: ['Alt', 'Shift', '←/→'], description: 'Previous / next tab' },
-                { keys: ['Alt', 'Shift', '↑/↓'], description: 'Last visited tab' },
+                { keys: ['Alt', 'Shift', '1–4'], get description() { return $t("Jump to tab (Stats, Files, Git, Terminal)") } },
+                { keys: ['Alt', 'Shift', '←/→'], get description() { return $t("Previous / next tab") } },
+                { keys: ['Alt', 'Shift', '↑/↓'], get description() { return $t("Last visited tab") } },
             ]
         },
         {
-            label: 'Terminal tabs',
+            get label() { return $t("Terminal tabs") },
             shortcuts: [
-                { keys: ['Alt', 'Ctrl', 'Shift', '1–9'], description: 'Jump to terminal tab N' },
-                { keys: ['Alt', 'Ctrl', 'Shift', '←/→'], description: 'Previous / next terminal tab' },
-                { keys: ['Alt', 'Ctrl', 'Shift', '↑/↓'], description: 'Last visited terminal tab' },
+                { keys: ['Alt', 'Ctrl', 'Shift', '1–9'], get description() { return $t("Jump to terminal tab N") } },
+                { keys: ['Alt', 'Ctrl', 'Shift', '←/→'], get description() { return $t("Previous / next terminal tab") } },
+                { keys: ['Alt', 'Ctrl', 'Shift', '↑/↓'], get description() { return $t("Last visited terminal tab") } },
             ]
         },
         {
-            label: 'Workflow run tabs',
+            get label() { return $t("Workflow run tabs") },
             shortcuts: [
-                { keys: ['Alt', 'Ctrl', 'Shift', '1–9'], description: 'Jump to workflow run tab N' },
-                { keys: ['Alt', 'Ctrl', 'Shift', '←/→'], description: 'Previous / next workflow run tab' },
-                { keys: ['Alt', 'Ctrl', 'Shift', '↑/↓'], description: 'Last visited workflow run tab' },
+                { keys: ['Alt', 'Ctrl', 'Shift', '1–9'], get description() { return $t("Jump to workflow run tab N") } },
+                { keys: ['Alt', 'Ctrl', 'Shift', '←/→'], get description() { return $t("Previous / next workflow run tab") } },
+                { keys: ['Alt', 'Ctrl', 'Shift', '↑/↓'], get description() { return $t("Last visited workflow run tab") } },
             ]
         },
         {
-            label: 'In-session search',
+            get label() { return $t("In-session search") },
             shortcuts: [
-                { keys: [mod, 'F'], description: 'Find in current session' },
-                { keys: ['F3'], description: 'Next match (works without focus)' },
-                { keys: ['Shift', 'F3'], description: 'Previous match (works without focus)' },
+                { keys: [mod, 'F'], get description() { return $t("Find in current session") } },
+                { keys: ['F3'], get description() { return $t("Next match (works without focus)") } },
+                { keys: ['Shift', 'F3'], get description() { return $t("Previous match (works without focus)") } },
             ]
         },
         {
-            label: 'Files / Git editor',
+            get label() { return $t("Files / Git editor") },
             shortcuts: [
-                { keys: ['Alt', 'E'], description: 'Toggle edit mode for the current file' },
+                { keys: ['Alt', 'E'], get description() { return $t("Toggle edit mode for the current file") } },
             ]
         },
         {
-            label: 'Terminal',
+            get label() { return $t("Terminal") },
             shortcuts: [
-                { keys: ['Ctrl', 'C'], description: 'Copy selected text (instead of SIGINT)' },
-                { keys: ['Ctrl', 'Shift', 'C'], description: 'Copy selected text' },
-                { keys: ['Ctrl', 'D'], description: 'Send EOF / disconnect' },
+                { keys: ['Ctrl', 'C'], get description() { return $t("Copy selected text (instead of SIGINT)") } },
+                { keys: ['Ctrl', 'Shift', 'C'], get description() { return $t("Copy selected text") } },
+                { keys: ['Ctrl', 'D'], get description() { return $t("Send EOF / disconnect") } },
             ]
         },
     ]
@@ -426,16 +431,16 @@ const shortcutGroups = computed(() => {
 
 // Color scheme options for the select
 const colorSchemeOptions = [
-    { value: COLOR_SCHEME.SYSTEM, label: 'System' },
-    { value: COLOR_SCHEME.LIGHT, label: 'Light' },
-    { value: COLOR_SCHEME.DARK, label: 'Dark' },
+    { value: COLOR_SCHEME.SYSTEM, get label() { return $t("System") } },
+    { value: COLOR_SCHEME.LIGHT, get label() { return $t("Light") } },
+    { value: COLOR_SCHEME.DARK, get label() { return $t("Dark") } },
 ]
 
 // Session time format options for the select
 const sessionTimeFormatOptions = [
-    { value: SESSION_TIME_FORMAT.TIME, label: 'Time' },
-    { value: SESSION_TIME_FORMAT.RELATIVE_SHORT, label: 'Relative (short)' },
-    { value: SESSION_TIME_FORMAT.RELATIVE_NARROW, label: 'Relative (narrow)' },
+    { value: SESSION_TIME_FORMAT.TIME, get label() { return $t("Time") } },
+    { value: SESSION_TIME_FORMAT.RELATIVE_SHORT, get label() { return $t("Relative (short)") } },
+    { value: SESSION_TIME_FORMAT.RELATIVE_NARROW, get label() { return $t("Relative (narrow)") } },
 ]
 
 const notificationSettingsRef = ref(null)
@@ -479,8 +484,8 @@ function reasonFor(p) {
 }
 function transitionLabelFor(p) {
     const state = providerStateFor(p)
-    if (state === 'starting') return 'Starting'
-    if (state === 'stopping') return 'Stopping'
+    if (state === 'starting') return $t("Starting")
+    if (state === 'stopping') return $t("Stopping")
     return null
 }
 function onToggleProvider(p, event) {
@@ -517,7 +522,7 @@ const disabledTitleSuggestionModels = computed(() => {
     const disabled = {}
     for (const [model, provider] of Object.entries(TITLE_SUGGESTION_MODEL_PROVIDERS)) {
         if (enabledProviders.value.has(provider)) continue
-        disabled[model] = `${getProviderLabel(provider)} is disabled.`
+        disabled[model] = $t("{p0} is disabled.", { p0: (getProviderLabel(provider)) })
     }
     return disabled
 })
@@ -611,7 +616,7 @@ function dumpApplyIcon(provider) {
 // is locale-aware (12h AM/PM or 24h, per the browser locale, like the app's
 // other clocks). Built once — the locale doesn't change at runtime.
 const WAKEUP_HOUR_OPTIONS = (() => {
-    const fmt = new Intl.DateTimeFormat(navigator.language, { hour: 'numeric' })
+    const fmt = new Intl.DateTimeFormat(getFormatLocale(), { hour: 'numeric' })
     return Array.from({ length: 24 }, (_, h) => ({
         value: String(h).padStart(2, '0'),
         label: fmt.format(new Date(2000, 0, 1, h)),
@@ -668,10 +673,10 @@ const worktreeTemplateError = computed(() => {
     if (v.valid) return ''
     if (v.unknown.length) {
         const list = v.unknown.map((n) => `{${n}}`).join(', ')
-        return `Unknown placeholder${v.unknown.length > 1 ? 's' : ''}: ${list}. `
-            + 'Allowed: {git_root}, {project_name}, {project_basedir}.'
+        return $t("Unknown placeholder{p0}: {p1}. ", { p0: (v.unknown.length > 1 ? 's' : ''), p1: (list) })
+            + $t("Allowed: {git_root}, {project_name}, {project_basedir}.")
     }
-    return 'Malformed template: check for unmatched { or } braces.'
+    return $t("Malformed template: check for unmatched { or } braces.")
 })
 const worktreeDirApplyIcon = computed(() => {
     if (!worktreeTemplateValidation.value.valid) return 'x-circle'
@@ -826,10 +831,10 @@ watch(
 
 // Display mode options for the select
 const displayModeOptions = [
-    { value: DISPLAY_MODE.CONVERSATION, label: 'Conversation' },
-    { value: DISPLAY_MODE.SIMPLIFIED, label: 'Simplified' },
-    { value: DISPLAY_MODE.NORMAL, label: 'Detailed' },
-    { value: DISPLAY_MODE.DEBUG, label: 'Debug' },
+    { value: DISPLAY_MODE.CONVERSATION, get label() { return $t("Conversation") } },
+    { value: DISPLAY_MODE.SIMPLIFIED, get label() { return $t("Simplified") } },
+    { value: DISPLAY_MODE.NORMAL, get label() { return $t("Detailed") } },
+    { value: DISPLAY_MODE.DEBUG, get label() { return $t("Debug") } },
 ]
 
 
@@ -923,9 +928,9 @@ function onTelemetryEnabledChange(event) {
 async function resetTelemetryInstanceId() {
     const result = await requestTelemetryInstanceIdReset()
     if (result.instance_id) {
-        toast.success('Telemetry instance ID reset')
+        toast.success($t("Telemetry instance ID reset"))
     } else {
-        toast.error('Failed to reset telemetry instance ID')
+        toast.error($t("Failed to reset telemetry instance ID"))
     }
 }
 
@@ -1318,12 +1323,12 @@ function onChangelogClose() {
 
 <template>
     <wa-button id="settings-trigger" :class="{ 'settings-trigger--icon-only': props.triggerIconOnly }" variant="brand" :appearance="props.triggerAppearance" size="small">
-        <wa-icon name="gear"></wa-icon><span class="settings-trigger-label">{{ props.triggerLabel ?? 'Settings' }}</span>
+        <wa-icon name="gear"></wa-icon><span class="settings-trigger-label">{{ props.triggerLabel ?? $t("Settings") }}</span>
     </wa-button>
-    <AppTooltip for="settings-trigger" :placement="props.tooltipPlacement">{{ props.triggerLabel ?? 'Toggle settings' }}</AppTooltip>
+    <AppTooltip for="settings-trigger" :placement="props.tooltipPlacement">{{ props.triggerLabel ?? $t("Toggle settings") }}</AppTooltip>
     <Teleport to="body">
         <wa-popover ref="popoverRef" v-popover-focus-fix for="settings-trigger" :placement="props.placement" class="settings-popover" @wa-show.self="onPopoverShow" @wa-after-hide.self="onPopoverAfterHide">
-            <AppTooltip v-if="showLogout" :for="logoutButtonId">Logout</AppTooltip>
+            <AppTooltip v-if="showLogout" :for="logoutButtonId">{{ $t("Logout") }}</AppTooltip>
             <div class="settings-layout">
                 <div class="settings-layout-inner" :class="{ 'showing-content': mobileShowContent }">
                     <!-- Nav: section list -->
@@ -1355,21 +1360,21 @@ function onChangelogClose() {
                             :class="{ active: activeSection === 'shortcuts' }"
                             @click="selectSection('shortcuts')"
                         >
-                            Shortcuts
+                            {{ $t("Shortcuts") }}
                         </button>
                         <button
                             class="settings-nav-item tips-nav-item"
                             :class="{ active: activeSection === 'tips' }"
                             @click="selectSection('tips')"
                         >
-                            Tips
+                            {{ $t("Tips") }}
                         </button>
                         <button
                             class="settings-nav-item help-nav-item"
                             :class="{ active: activeSection === 'help' }"
                             @click="selectSection('help')"
                         >
-                            Help
+                            {{ $t("Help") }}
                         </button>
                     </nav>
 
@@ -1404,9 +1409,24 @@ function onChangelogClose() {
 
                     <!-- General Section -->
                     <section v-if="activeSection === 'general'" class="settings-section">
-                        <h3 class="settings-section-title">General</h3>
+                        <h3 class="settings-section-title">{{ $t("General") }}</h3>
                         <div class="setting-group">
-                            <label class="setting-group-label">External address <wa-icon name="cloud" class="synced-icon"></wa-icon></label>
+                            <label class="setting-group-label" for="interface-language">{{ $t('Language') }}</label>
+                            <wa-select
+                                id="interface-language"
+                                :label="$t('Interface language')"
+                                :value.prop="locale"
+                                @change.self="setLocale($event.target.value)"
+                                size="small"
+                            >
+                                <wa-option value="en">English</wa-option>
+                                <wa-option value="fr">Français</wa-option>
+                            </wa-select>
+                            <span class="setting-group-hint">{{ $t('Saved on this device. Applies to the interface only.') }}</span>
+                        </div>
+                        <wa-divider></wa-divider>
+                        <div class="setting-group">
+                            <label class="setting-group-label">{{ $t("External address") }} <wa-icon name="cloud" class="synced-icon"></wa-icon></label>
                             <div class="setting-input-apply-row">
                                 <wa-input
                                     ref="publicBaseUrlInputRef"
@@ -1422,28 +1442,27 @@ function onChangelogClose() {
                                     @click="onPublicBaseUrlApply"
                                 >
                                     <wa-icon :name="publicBaseUrlApplyIcon" slot="start"></wa-icon>
-                                    Apply
+                                    {{ $t("Apply") }}
                                 </wa-button>
                             </div>
-                            <wa-callout v-if="publicBaseUrlError" variant="danger" size="small">{{ publicBaseUrlError }}</wa-callout>
+                            <wa-callout v-if="publicBaseUrlError" variant="danger" size="small">{{ $t(publicBaseUrlError) }}</wa-callout>
                             <span class="setting-group-hint">
-                                Where you reach TwiCC from your devices — used to build links back to
-                                your sessions (e.g. in notifications). Leave empty to omit those links.
-                                <HelpIconButton help-key="external-url" label="About tunnels &amp; remote access" />
+                                {{ $t("Where you reach TwiCC from your devices — used to build links back to your sessions (e.g. in notifications). Leave empty to omit those links.") }}
+                                <HelpIconButton help-key="external-url" :label="$t(&quot;About tunnels &amp; remote access&quot;)" />
                             </span>
                         </div>
                         <wa-divider></wa-divider>
                         <div class="setting-group">
-                            <label class="setting-group-label">Reduce effects</label>
+                            <label class="setting-group-label">{{ $t("Reduce effects") }}</label>
                             <wa-switch
                                 :checked="reduceEffects"
                                 @change="onReduceEffectsChange"
                                 size="small"
-                            >Enabled</wa-switch>
-                            <span class="setting-group-hint">Turns off animations, glass blur and other costly effects. Useful on a slower device. Only applies to this device.</span>
+                            >{{ $t("Enabled") }}</wa-switch>
+                            <span class="setting-group-hint">{{ $t("Turns off animations, glass blur and other costly effects. Useful on a slower device. Only applies to this device.") }}</span>
                         </div>
                         <div class="setting-group">
-                            <label class="setting-group-label">Color scheme</label>
+                            <label class="setting-group-label">{{ $t("Color scheme") }}</label>
                             <wa-select
                                 :value.prop="colorScheme"
                                 @change="onColorSchemeChange"
@@ -1457,7 +1476,7 @@ function onChangelogClose() {
                             </wa-select>
                         </div>
                         <div class="setting-group">
-                            <label class="setting-group-label">Font size ({{fontSize}}px)</label>
+                            <label class="setting-group-label">{{ $t("Font size (") }}{{fontSize}}{{ $t("px)") }}</label>
                             <wa-slider
                                 :min.prop="12"
                                 :max.prop="32"
@@ -1468,16 +1487,16 @@ function onChangelogClose() {
                             ></wa-slider>
                         </div>
                         <div class="setting-group">
-                            <label class="setting-group-label">Keep the icon bar visible when the sidebar is closed</label>
+                            <label class="setting-group-label">{{ $t("Keep the icon bar visible when the sidebar is closed") }}</label>
                             <wa-switch
                                 :checked="sidebarRailVisibleWhenClosed"
                                 @change="onSidebarRailVisibleWhenClosedChange"
                                 size="small"
-                            >Enabled</wa-switch>
+                            >{{ $t("Enabled") }}</wa-switch>
                         </div>
                         <wa-divider></wa-divider>
                         <div class="setting-group">
-                            <label class="setting-group-label">Time display</label>
+                            <label class="setting-group-label">{{ $t("Time display") }}</label>
                             <wa-select
                                 :value.prop="sessionTimeFormat"
                                 @change="onSessionTimeFormatChange"
@@ -1492,16 +1511,16 @@ function onChangelogClose() {
                             </wa-select>
                         </div>
                         <div class="setting-group">
-                            <label class="setting-group-label">Show costs</label>
+                            <label class="setting-group-label">{{ $t("Show costs") }}</label>
                             <wa-switch
                                 :checked="showCosts"
                                 @change="onShowCostsChange"
                                 size="small"
-                            >Enabled</wa-switch>
+                            >{{ $t("Enabled") }}</wa-switch>
                         </div>
                         <wa-divider></wa-divider>
                         <div class="setting-group">
-                            <label class="setting-group-label">Worktree directory template <wa-icon name="cloud" class="synced-icon"></wa-icon><HelpIconButton help-key="worktrees" label="What's a worktree?" /></label>
+                            <label class="setting-group-label">{{ $t("Worktree directory template") }} <wa-icon name="cloud" class="synced-icon"></wa-icon><HelpIconButton help-key="worktrees" :label="$t(&quot;What's a worktree?&quot;)" /></label>
                             <div class="setting-input-apply-row">
                                 <wa-input
                                     :value="worktreeDirInput"
@@ -1517,53 +1536,48 @@ function onChangelogClose() {
                                     :disabled="!worktreeTemplateValidation.valid"
                                 >
                                     <wa-icon :name="worktreeDirApplyIcon" slot="start"></wa-icon>
-                                    Apply
+                                    {{ $t("Apply") }}
                                 </wa-button>
                             </div>
                             <span class="setting-group-hint">
-                                Template for the base directory of new git worktrees; pre-fills the path when
-                                creating one (<code>../</code> allowed). Placeholders:
-                                <code>{git_root}</code> (the project's git root),
-                                <code>{project_name}</code> (its name, or its folder name if unnamed),
-                                <code>{project_basedir}</code> (its folder name).
-                                E.g. <code>{git_root}/.worktrees</code> or <code>/home/me/worktrees/{project_name}</code>.
-                                A project can override this with its own absolute directory. Leave empty for no default.
+                                {{ $t("Template for the base directory of new git worktrees; pre-fills the path when creating one (") }}<code>../</code> {{ $t("allowed). Placeholders:") }}
+                                <code>{git_root}</code> {{ $t("(the project's git root),") }}
+                                <code>{project_name}</code> {{ $t("(its name, or its folder name if unnamed),") }}
+                                <code>{project_basedir}</code> {{ $t("(its folder name). E.g.") }} <code>{git_root}/.worktrees</code> {{ $t("or") }} <code>/home/me/worktrees/{project_name}</code>{{ $t(". A project can override this with its own absolute directory. Leave empty for no default.") }}
                             </span>
                             <wa-callout
                                 v-if="worktreeDirInput.trim() && !worktreeTemplateValidation.valid"
                                 variant="danger"
                                 size="small"
                                 class="usage-file-validation"
-                            >{{ worktreeTemplateError }}</wa-callout>
+                            >{{ $t(worktreeTemplateError) }}</wa-callout>
                         </div>
                         <wa-divider></wa-divider>
                         <div class="setting-group">
-                            <label class="setting-group-label">Anonymous telemetry <wa-icon name="cloud" class="synced-icon"></wa-icon></label>
+                            <label class="setting-group-label">{{ $t("Anonymous telemetry") }} <wa-icon name="cloud" class="synced-icon"></wa-icon></label>
                             <wa-switch
                                 :checked="telemetryEnabled"
                                 @change="onTelemetryEnabledChange"
                                 size="small"
-                            >Enabled</wa-switch>
+                            >{{ $t("Enabled") }}</wa-switch>
                             <span class="setting-group-hint">
-                                Anonymous usage statistics — counters only, never content, messages, titles or paths.
-                                <a href="https://twicc-telemetry.twidi.com/" target="_blank" rel="noopener">What is collected</a>
+                                {{ $t("Anonymous usage statistics — counters only, never content, messages, titles or paths.") }}
+                                <a href="https://twicc-telemetry.twidi.com/" target="_blank" rel="noopener">{{ $t("What is collected") }}</a>
                             </span>
                             <div v-if="telemetryEnabled" class="telemetry-actions">
-                                <wa-button size="small" appearance="outlined" @click="showTelemetryPayload = true">View last payload</wa-button>
-                                <wa-button size="small" appearance="outlined" @click="resetTelemetryInstanceId">Reset instance ID</wa-button>
+                                <wa-button size="small" appearance="outlined" @click="showTelemetryPayload = true">{{ $t("View last payload") }}</wa-button>
+                                <wa-button size="small" appearance="outlined" @click="resetTelemetryInstanceId">{{ $t("Reset instance ID") }}</wa-button>
                             </div>
                         </div>
                     </section>
 
                     <!-- Providers section -->
                     <section v-if="activeSection === 'providers'" class="settings-section">
-                        <h3 class="settings-section-title">Providers <wa-icon name="cloud" class="synced-icon"></wa-icon></h3>
+                        <h3 class="settings-section-title">{{ $t("Providers") }} <wa-icon name="cloud" class="synced-icon"></wa-icon></h3>
                         <div class="activated-providers-block">
-                            <h4>Activated providers</h4>
+                            <h4>{{ $t("Activated providers") }}</h4>
                             <p class="hint">
-                                Disabling a provider stops all of its background tasks, prevents
-                                creating new sessions or renaming existing ones, and hides its
-                                settings section. Existing sessions remain readable.
+                                {{ $t("Disabling a provider stops all of its background tasks, prevents creating new sessions or renaming existing ones, and hides its settings section. Existing sessions remain readable.") }}
                             </p>
                             <div class="provider-switches">
                                 <div v-for="p in getRegisteredProviders()" :key="p" class="provider-switch-row">
@@ -1591,7 +1605,7 @@ function onChangelogClose() {
                             </div>
                         </div>
                         <div class="setting-group">
-                            <label class="setting-group-label">Default provider for new sessions</label>
+                            <label class="setting-group-label">{{ $t("Default provider for new sessions") }}</label>
                             <wa-select
                                 :value.prop="defaultProvider"
                                 @change="onDefaultProviderChange"
@@ -1633,15 +1647,15 @@ function onChangelogClose() {
                     <McpSettings v-if="activeSection === 'mcp'" />
                     <!-- Sharing Section -->
                     <section v-if="activeSection === 'sharing'" class="settings-section">
-                        <h3 class="settings-section-title">Sharing</h3>
+                        <h3 class="settings-section-title">{{ $t("Sharing") }}</h3>
                         <div class="setting-group">
                             <wa-button size="small" appearance="plain" class="sharing-help-link" @click="showHelp('sharing', { showDontShowAgain: false })">
                                 <wa-icon name="circle-question" slot="start"></wa-icon>
-                                View help
+                                {{ $t("View help") }}
                             </wa-button>
                         </div>
                         <div class="setting-group">
-                            <label class="setting-group-label">Share host <wa-icon name="cloud" class="synced-icon"></wa-icon></label>
+                            <label class="setting-group-label">{{ $t("Share host") }} <wa-icon name="cloud" class="synced-icon"></wa-icon></label>
                             <div class="setting-input-apply-row">
                                 <wa-input
                                     ref="shareBaseUrlInputRef"
@@ -1657,47 +1671,37 @@ function onChangelogClose() {
                                     @click="onShareBaseUrlApply"
                                 >
                                     <wa-icon :name="shareBaseUrlApplyIcon" slot="start"></wa-icon>
-                                    Apply
+                                    {{ $t("Apply") }}
                                 </wa-button>
                             </div>
-                            <wa-callout v-if="shareBaseUrlError" variant="danger" size="small">{{ shareBaseUrlError }}</wa-callout>
+                            <wa-callout v-if="shareBaseUrlError" variant="danger" size="small">{{ $t(shareBaseUrlError) }}</wa-callout>
                             <span class="setting-group-hint">
-                                Dedicated share host — a hostname distinct from this app, pointing at the
-                                same port (e.g. a second tunnel hostname). Required to create share links;
-                                a different port on the same hostname is not enough. Leave empty to disable sharing.
+                                {{ $t("Dedicated share host — a hostname distinct from this app, pointing at the same port (e.g. a second tunnel hostname). Required to create share links; a different port on the same hostname is not enough. Leave empty to disable sharing.") }}
                             </span>
                         </div>
                         <div class="setting-group">
-                            <label class="setting-group-label">Agent sharing <wa-icon name="cloud" class="synced-icon"></wa-icon></label>
+                            <label class="setting-group-label">{{ $t("Agent sharing") }} <wa-icon name="cloud" class="synced-icon"></wa-icon></label>
                             <wa-switch
                                 :checked="allowAgentSessionShares"
                                 @change="onAllowAgentSessionSharesChange"
                                 size="small"
-                            >Session shares</wa-switch>
+                            >{{ $t("Session shares") }}</wa-switch>
                             <span class="setting-group-hint">
-                                Allows agents to create session shares whose target belongs to their own
-                                spawn subtree, and to manage session shares created by agents in their own
-                                spawn subtree. When enabled, agents can also revoke any existing session
-                                share, including links created by you, and read the URL of every existing
-                                session share, including links created by you or by another agent.
+                                {{ $t("Allows agents to create session shares whose target belongs to their own spawn subtree, and to manage session shares created by agents in their own spawn subtree. When enabled, agents can also revoke any existing session share, including links created by you, and read the URL of every existing session share, including links created by you or by another agent.") }}
                             </span>
                             <wa-switch
                                 :checked="allowAgentArtifactShares"
                                 @change="onAllowAgentArtifactSharesChange"
                                 size="small"
-                            >Artifact shares</wa-switch>
+                            >{{ $t("Artifact shares") }}</wa-switch>
                             <span class="setting-group-hint">
-                                Allows agents to create artifact shares whose target belongs to their own
-                                spawn subtree, and to manage artifact shares created by agents in their own
-                                spawn subtree. When enabled, agents can also revoke any existing artifact
-                                share, including links created by you, and read the URL of every existing
-                                artifact share, including links created by you or by another agent.
+                                {{ $t("Allows agents to create artifact shares whose target belongs to their own spawn subtree, and to manage artifact shares created by agents in their own spawn subtree. When enabled, agents can also revoke any existing artifact share, including links created by you, and read the URL of every existing artifact share, including links created by you or by another agent.") }}
                             </span>
                         </div>
                         <div class="setting-group">
                             <wa-button size="small" variant="neutral" appearance="accent" @click="showShareManager = true">
                                 <wa-icon name="share-nodes" slot="start"></wa-icon>
-                                Shared links
+                                {{ $t("Shared links") }}
                             </wa-button>
                         </div>
                     </section>
@@ -1705,7 +1709,7 @@ function onChangelogClose() {
                     <!-- Peers Section -->
                     <section v-if="activeSection === 'peers'" class="settings-section">
                         <div class="peer-help-heading">
-                            <h3 class="settings-section-title">Peers</h3>
+                            <h3 class="settings-section-title">{{ $t("Peers") }}</h3>
                             <PeerHelpLink />
                         </div>
                         <!-- Once the feature is usable, these are the daily
@@ -1717,14 +1721,14 @@ function onChangelogClose() {
                             <wa-button size="small" variant="neutral" appearance="accent" @click="openPeersManager">
                                 <wa-icon name="user-group" slot="start"></wa-icon>
                                 <span class="peer-action-label">
-                                    Manage peers
+                                    {{ $t("Manage peers") }}
                                     <PeerInboxBadge :count="peersStore.pendingRequests.length" inline />
                                 </span>
                             </wa-button>
                             <wa-button size="small" variant="neutral" appearance="accent" @click="openPeerInbox">
                                 <wa-icon name="envelope" slot="start"></wa-icon>
                                 <span class="peer-action-label">
-                                    Open inbox
+                                    {{ $t("Open inbox") }}
                                     <PeerInboxBadge :count="peersStore.pendingInboundMessages.length" inline />
                                 </span>
                             </wa-button>
@@ -1733,13 +1737,13 @@ function onChangelogClose() {
                              only meaningful when the actions are there. -->
                         <wa-divider v-if="hasPeerActions"></wa-divider>
                         <div class="setting-group">
-                            <label class="setting-group-label">Your name <wa-icon name="cloud" class="synced-icon"></wa-icon></label>
+                            <label class="setting-group-label">{{ $t("Your name") }} <wa-icon name="cloud" class="synced-icon"></wa-icon></label>
                             <div class="setting-input-apply-row">
                                 <wa-input
                                     :value="peerDisplayNameInput"
                                     @input="onPeerDisplayNameInputChange"
                                     @keydown.enter="onPeerDisplayNameApply"
-                                    placeholder="e.g. Stephane (laptop)"
+                                    :placeholder="$t(&quot;e.g. Stephane (laptop)&quot;)"
                                     size="small"
                                 ></wa-input>
                                 <wa-button
@@ -1748,16 +1752,15 @@ function onChangelogClose() {
                                     @click="onPeerDisplayNameApply"
                                 >
                                     <wa-icon :name="peerDisplayNameApplyIcon" slot="start"></wa-icon>
-                                    Apply
+                                    {{ $t("Apply") }}
                                 </wa-button>
                             </div>
                             <span class="setting-group-hint">
-                                Shown to peers in your pairing requests so they know who is asking.
-                                Empty uses your address's hostname.
+                                {{ $t("Shown to peers in your pairing requests so they know who is asking. Empty uses your address's hostname.") }}
                             </span>
                         </div>
                         <div class="setting-group">
-                            <label class="setting-group-label">Your address <wa-icon name="cloud" class="synced-icon"></wa-icon></label>
+                            <label class="setting-group-label">{{ $t("Your address") }} <wa-icon name="cloud" class="synced-icon"></wa-icon></label>
                             <div class="setting-input-apply-row">
                                 <wa-input
                                     ref="peerBaseUrlInputRef"
@@ -1773,25 +1776,24 @@ function onChangelogClose() {
                                     @click="onPeerBaseUrlApply"
                                 >
                                     <wa-icon :name="peerBaseUrlApplyIcon" slot="start"></wa-icon>
-                                    Apply
+                                    {{ $t("Apply") }}
                                 </wa-button>
                             </div>
-                            <wa-callout v-if="peerBaseUrlError" variant="danger" size="small">{{ peerBaseUrlError }}</wa-callout>
+                            <wa-callout v-if="peerBaseUrlError" variant="danger" size="small">{{ $t(peerBaseUrlError) }}</wa-callout>
                             <wa-callout v-if="peerBaseUrlWarning" variant="warning" size="small">{{ peerBaseUrlWarning }}</wa-callout>
                             <wa-callout v-if="peerBaseUrlConfirmation" variant="warning" size="small">
                                 <div class="peer-address-confirmation">
                                     <span>
-                                        Changing this address disables active Peer relationships and clears their credentials.
-                                        You must reconnect each Peer manually.
+                                        {{ $t("Changing this address disables active Peer relationships and clears their credentials. You must reconnect each Peer manually.") }}
                                     </span>
                                     <div class="peer-address-confirmation__actions">
-                                        <wa-button size="small" variant="brand" @click="confirmPeerBaseUrlApply">Continue</wa-button>
+                                        <wa-button size="small" variant="brand" @click="confirmPeerBaseUrlApply">{{ $t("Continue") }}</wa-button>
                                         <wa-button
                                             size="small"
                                             variant="neutral"
                                             appearance="outlined"
                                             @click="cancelPeerBaseUrlApply"
-                                        >Cancel</wa-button>
+                                        >{{ $t("Cancel") }}</wa-button>
                                     </div>
                                 </div>
                             </wa-callout>
@@ -1803,25 +1805,19 @@ function onChangelogClose() {
                                 type="button" class="settings-link-button"
                                 @click="prefillPeerBaseUrlFromPublic"
                             >
-                                Use the External address from General settings
+                                {{ $t("Use the External address from General settings") }}
                             </button>
                             <span class="setting-group-hint">
-                                Your address, advertised to peers. Empty disables peer messaging.
-                                A different address from External serves peer traffic only; the same
-                                address keeps the whole app reachable there.
-                                HTTPS strongly recommended. The host must be reachable
-                                machine-to-machine: a tunnel-level access gate (e.g. Cloudflare
-                                Access asking for an email or Google account) blocks peer calls —
-                                use a truly public hostname.
+                                {{ $t("Your address, advertised to peers. Empty disables peer messaging. A different address from External serves peer traffic only; the same address keeps the whole app reachable there. HTTPS strongly recommended. The host must be reachable machine-to-machine: a tunnel-level access gate (e.g. Cloudflare Access asking for an email or Google account) blocks peer calls — use a truly public hostname.") }}
                             </span>
                         </div>
                     </section>
 
                     <!-- Sessions Section -->
                     <section v-if="activeSection === 'sessions'" class="settings-section">
-                        <h3 class="settings-section-title">Sessions</h3>
+                        <h3 class="settings-section-title">{{ $t("Sessions") }}</h3>
                         <div class="setting-group">
-                            <label class="setting-group-label">Display mode</label>
+                            <label class="setting-group-label">{{ $t("Display mode") }}</label>
                             <wa-select
                                 :value.prop="displayMode"
                                 @change="onDisplayModeChange"
@@ -1835,50 +1831,50 @@ function onChangelogClose() {
                             </wa-select>
                         </div>
                         <div class="setting-group">
-                            <label class="setting-group-label">Diffs</label>
+                            <label class="setting-group-label">{{ $t("Diffs") }}</label>
                             <wa-switch
                                 :checked="showDiffs"
                                 @change="onShowDiffsChange"
                                 size="small"
-                            >Auto open edits</wa-switch>
+                            >{{ $t("Auto open edits") }}</wa-switch>
                             <wa-switch
                                 :checked="toolDiffWordWrap"
                                 @change="onToolDiffWordWrapChange"
                                 size="small"
-                            >Word wrap</wa-switch>
+                            >{{ $t("Word wrap") }}</wa-switch>
                             <wa-switch
                                 :checked="toolDiffSideBySide"
                                 @change="onToolDiffSideBySideChange"
                                 size="small"
-                            >Side by side</wa-switch>
-                            <span class="setting-group-hint">Inactive if the screen is too narrow.</span>
+                            >{{ $t("Side by side") }}</wa-switch>
+                            <span class="setting-group-hint">{{ $t("Inactive if the screen is too narrow.") }}</span>
                         </div>
                         <div class="setting-group">
-                            <label class="setting-group-label">Message timestamps</label>
+                            <label class="setting-group-label">{{ $t("Message timestamps") }}</label>
                             <wa-switch
                                 :checked="showMessageTimestamps"
                                 @change="onShowMessageTimestampsChange"
                                 size="small"
-                            >Show time under each message block</wa-switch>
+                            >{{ $t("Show time under each message block") }}</wa-switch>
                         </div>
                         <div class="setting-group">
-                            <label class="setting-group-label">Auto-unpin on archive <wa-icon name="cloud" class="synced-icon"></wa-icon></label>
+                            <label class="setting-group-label">{{ $t("Auto-unpin on archive") }} <wa-icon name="cloud" class="synced-icon"></wa-icon></label>
                             <wa-switch
                                 :checked="autoUnpinOnArchive"
                                 @change="onAutoUnpinOnArchiveChange"
                                 size="small"
-                            >Enabled</wa-switch>
+                            >{{ $t("Enabled") }}</wa-switch>
                         </div>
                         <div class="setting-group">
-                            <label class="setting-group-label">Compact session list</label>
+                            <label class="setting-group-label">{{ $t("Compact session list") }}</label>
                             <wa-switch
                                 :checked="compactSessionList"
                                 @change="onCompactSessionListChange"
                                 size="small"
-                            >Enabled</wa-switch>
+                            >{{ $t("Enabled") }}</wa-switch>
                         </div>
                         <div class="setting-group">
-                            <label class="setting-group-label">Session cache ({{ maxCachedSessions }})</label>
+                            <label class="setting-group-label">{{ $t("Session cache (") }}{{ maxCachedSessions }})</label>
                             <wa-slider
                                 :min.prop="1"
                                 :max.prop="50"
@@ -1887,15 +1883,15 @@ function onChangelogClose() {
                                 @input="onMaxCachedSessionsChange"
                                 size="small"
                             ></wa-slider>
-                            <span class="setting-group-hint">Number of sessions kept in memory for instant switching.</span>
+                            <span class="setting-group-hint">{{ $t("Number of sessions kept in memory for instant switching.") }}</span>
                         </div>
                     </section>
 
                     <!-- Layouts Section -->
                     <section v-if="activeSection === 'layouts'" class="settings-section">
-                        <h3 class="settings-section-title">Layouts <wa-icon name="cloud" class="synced-icon"></wa-icon></h3>
+                        <h3 class="settings-section-title">{{ $t("Layouts") }} <wa-icon name="cloud" class="synced-icon"></wa-icon></h3>
                         <div class="setting-group">
-                            <label class="setting-group-label">Default layout for new sessions</label>
+                            <label class="setting-group-label">{{ $t("Default layout for new sessions") }}</label>
                             <wa-select
                                 :value.prop="defaultLayoutId"
                                 @change="onDefaultLayoutChange"
@@ -1909,36 +1905,35 @@ function onChangelogClose() {
                                 >{{ l.name }}</wa-option>
                             </wa-select>
                             <span class="setting-group-hint">
-                                Save new layouts from a session: dock some panels, then open the layout
-                                menu (the <wa-icon name="chevron-down" class="inline-hint-icon"></wa-icon>
-                                button at the right of the tab bar) and choose “Save layout”.
+                                {{ $t("Save new layouts from a session: dock some panels, then open the layout menu (the") }} <wa-icon name="chevron-down" class="inline-hint-icon"></wa-icon>
+                                {{ $t("button at the right of the tab bar) and choose “Save layout”.") }}
                             </span>
                         </div>
                         <div class="setting-group">
                             <wa-button appearance="accent" size="small" @click="onManageLayouts">
                                 <wa-icon slot="start" name="sliders"></wa-icon>
-                                Manage layouts…
+                                {{ $t("Manage layouts…") }}
                             </wa-button>
                         </div>
                     </section>
 
                     <!-- Title Suggestion Section -->
                     <section v-if="activeSection === 'title'" class="settings-section">
-                        <h3 class="settings-section-title">Title suggestion <wa-icon name="cloud" class="synced-icon"></wa-icon></h3>
+                        <h3 class="settings-section-title">{{ $t("Title suggestion") }} <wa-icon name="cloud" class="synced-icon"></wa-icon></h3>
                         <div class="setting-group">
                             <wa-switch
                                 :checked="titleGenerationEnabled"
                                 @change="onTitleGenerationChange"
                                 size="small"
-                            >Enabled</wa-switch>
+                            >{{ $t("Enabled") }}</wa-switch>
                             <wa-switch
                                 v-if="titleGenerationEnabled"
                                 :checked="titleAutoApply"
                                 @change="onTitleAutoApplyChange"
                                 size="small"
-                            >Automatic titles</wa-switch>
+                            >{{ $t("Automatic titles") }}</wa-switch>
                             <wa-radio-group
-                                label="Model"
+                                :label="$t(&quot;Model&quot;)"
                                 name="title-suggestion-model"
                                 size="small"
                                 :value="titleSuggestionModel"
@@ -1948,40 +1943,37 @@ function onChangelogClose() {
                                 @keydown="onTitleSuggestionModelKeydown"
                             >
                                 <wa-radio :value="TITLE_SUGGESTION_MODEL.PROVIDER">
-                                    Match session provider — {{ TITLE_SUGGESTION_MODEL_LABELS[TITLE_SUGGESTION_MODEL.HAIKU] }} for Claude Code, {{ TITLE_SUGGESTION_MODEL_LABELS[TITLE_SUGGESTION_MODEL.LUNA] }} for Codex
+                                    {{ $t("Match session provider —") }} {{ TITLE_SUGGESTION_MODEL_LABELS[TITLE_SUGGESTION_MODEL.HAIKU] }} {{ $t("for Claude Code,") }} {{ TITLE_SUGGESTION_MODEL_LABELS[TITLE_SUGGESTION_MODEL.LUNA] }} {{ $t("for Codex") }}
                                 </wa-radio>
                                 <wa-radio
                                     :value="TITLE_SUGGESTION_MODEL.HAIKU"
                                     :disabled="!!disabledTitleSuggestionModels[TITLE_SUGGESTION_MODEL.HAIKU]"
                                 >
-                                    {{ TITLE_SUGGESTION_MODEL_LABELS[TITLE_SUGGESTION_MODEL.HAIKU] }} for every session
+                                    {{ TITLE_SUGGESTION_MODEL_LABELS[TITLE_SUGGESTION_MODEL.HAIKU] }} {{ $t("for every session") }}
                                     <span
                                         v-if="disabledTitleSuggestionModels[TITLE_SUGGESTION_MODEL.HAIKU]"
                                         class="radio-note"
-                                    >— {{ disabledTitleSuggestionModels[TITLE_SUGGESTION_MODEL.HAIKU] }}</span>
+                                    >{{ $t("—") }} {{ disabledTitleSuggestionModels[TITLE_SUGGESTION_MODEL.HAIKU] }}</span>
                                 </wa-radio>
                                 <wa-radio
                                     :value="TITLE_SUGGESTION_MODEL.LUNA"
                                     :disabled="!!disabledTitleSuggestionModels[TITLE_SUGGESTION_MODEL.LUNA]"
                                 >
-                                    {{ TITLE_SUGGESTION_MODEL_LABELS[TITLE_SUGGESTION_MODEL.LUNA] }} for every session
+                                    {{ TITLE_SUGGESTION_MODEL_LABELS[TITLE_SUGGESTION_MODEL.LUNA] }} {{ $t("for every session") }}
                                     <span
                                         v-if="disabledTitleSuggestionModels[TITLE_SUGGESTION_MODEL.LUNA]"
                                         class="radio-note"
-                                    >— {{ disabledTitleSuggestionModels[TITLE_SUGGESTION_MODEL.LUNA] }}</span>
+                                    >{{ $t("—") }} {{ disabledTitleSuggestionModels[TITLE_SUGGESTION_MODEL.LUNA] }}</span>
                                 </wa-radio>
                             </wa-radio-group>
                             <span v-if="titleGenerationEnabled" class="setting-group-hint">
-                                If the selected provider cannot be used — disabled, over quota, or
-                                failing — TwiCC generates the title with the other provider, when that
-                                one is enabled.
+                                {{ $t("If the selected provider cannot be used — disabled, over quota, or failing — TwiCC generates the title with the other provider, when that one is enabled.") }}
                                 <template v-if="titleSuggestionModelIsDisplaced">
-                                    Your choice is kept, and comes back as soon as you enable its
-                                    provider again.
+                                    {{ $t("Your choice is kept, and comes back as soon as you enable its provider again.") }}
                                 </template>
                             </span>
                             <div v-if="titleGenerationEnabled" class="title-prompt-section">
-                                <label class="setting-group-label">System prompt</label>
+                                <label class="setting-group-label">{{ $t("System prompt") }}</label>
                                 <wa-textarea
                                     :value.prop="titleSystemPromptInput"
                                     @input="onTitleSystemPromptChange"
@@ -1991,7 +1983,7 @@ function onChangelogClose() {
                                     class="title-prompt-textarea"
                                 ></wa-textarea>
                                 <div class="title-prompt-hint">
-                                    <span>Use <code>{text}</code> as placeholder. Press Apply to save.</span>
+                                    <span>{{ $t("Use") }} <code>{text}</code> {{ $t("as placeholder. Press Apply to save.") }}</span>
                                     <div class="title-prompt-actions">
                                         <wa-button
                                             v-if="!isDefaultPrompt"
@@ -1999,14 +1991,14 @@ function onChangelogClose() {
                                             appearance="outlined"
                                             size="small"
                                             @click.stop="resetTitleSystemPrompt"
-                                        >Reset to default</wa-button>
+                                        >{{ $t("Reset to default") }}</wa-button>
                                         <wa-button
                                             size="small"
                                             variant="neutral"
                                             @click.stop="onTitleSystemPromptApply"
                                         >
                                             <wa-icon :name="titleSystemPromptApplyIcon" slot="start"></wa-icon>
-                                            Apply
+                                            {{ $t("Apply") }}
                                         </wa-button>
                                     </div>
                                 </div>
@@ -2016,43 +2008,43 @@ function onChangelogClose() {
 
                     <!-- Editor Section -->
                     <section v-if="activeSection === 'editor'" class="settings-section">
-                        <h3 class="settings-section-title">Editor</h3>
+                        <h3 class="settings-section-title">{{ $t("Editor") }}</h3>
                         <div class="setting-group">
-                            <label class="setting-group-label">Display</label>
+                            <label class="setting-group-label">{{ $t("Display") }}</label>
                             <wa-switch
                                 :checked="editorWordWrap"
                                 @change="onEditorWordWrapChange"
                                 size="small"
-                            >Word wrap</wa-switch>
+                            >{{ $t("Word wrap") }}</wa-switch>
                             <wa-switch
                                 :checked="diffSideBySide"
                                 @change="onDiffSideBySideChange"
                                 size="small"
-                            >Diff side by side</wa-switch>
-                            <span class="setting-group-hint">Inactive if the screen is too narrow.</span>
+                            >{{ $t("Diff side by side") }}</wa-switch>
+                            <span class="setting-group-hint">{{ $t("Inactive if the screen is too narrow.") }}</span>
                         </div>
                     </section>
 
                     <!-- Terminal Section -->
                     <section v-if="activeSection === 'terminal'" class="settings-section">
-                        <h3 class="settings-section-title">Terminal</h3>
+                        <h3 class="settings-section-title">{{ $t("Terminal") }}</h3>
                         <div class="setting-group">
-                            <label class="setting-group-label">Persistent sessions (tmux) <wa-icon name="cloud" class="synced-icon"></wa-icon></label>
+                            <label class="setting-group-label">{{ $t("Persistent sessions (tmux)") }} <wa-icon name="cloud" class="synced-icon"></wa-icon></label>
                             <wa-switch
                                 :checked="terminalUseTmux"
                                 @change="onTmuxChange"
                                 size="small"
-                            >Enabled</wa-switch>
-                            <span class="setting-group-hint">Tmux sessions are destroyed when their agent session is archived.</span>
+                            >{{ $t("Enabled") }}</wa-switch>
+                            <span class="setting-group-hint">{{ $t("Tmux sessions are destroyed when their agent session is archived.") }}</span>
                         </div>
                         <div class="setting-group" v-if="terminalUseTmux">
-                            <label class="setting-group-label">Tmux config file <wa-icon name="cloud" class="synced-icon"></wa-icon></label>
+                            <label class="setting-group-label">{{ $t("Tmux config file") }} <wa-icon name="cloud" class="synced-icon"></wa-icon></label>
                             <div class="usage-file-input-row">
                                 <wa-input
                                     :value="tmuxConfigPathInput"
                                     @input="onTmuxConfigPathInputChange"
                                     @keydown.enter="onTmuxConfigPathApply"
-                                    placeholder="/path/to/tmux.conf (leave empty to ignore)"
+                                    :placeholder="$t(&quot;/path/to/tmux.conf (leave empty to ignore)&quot;)"
                                     size="small"
                                     :disabled="tmuxConfigValidating"
                                 ></wa-input>
@@ -2064,15 +2056,12 @@ function onChangelogClose() {
                                 >
                                     <wa-spinner v-if="tmuxConfigValidating" slot="start"></wa-spinner>
                                     <wa-icon v-else :name="tmuxConfigApplyIcon" slot="start"></wa-icon>
-                                    Apply
+                                    {{ $t("Apply") }}
                                 </wa-button>
                             </div>
                             <span class="setting-group-hint">
-                                TwiCC always runs tmux on a dedicated socket per instance and forces
-                                <code>mouse off</code> after session creation — these invariants are required for
-                                frontend selection and scroll to work. Your config is loaded first (so status bar,
-                                colors, bindings apply), then the mouse option is overridden at the session level.
-                                Leave empty to ignore any config. Applies to new terminals only.
+                                {{ $t("TwiCC always runs tmux on a dedicated socket per instance and forces") }}
+                                <code>mouse off</code> {{ $t("after session creation — these invariants are required for frontend selection and scroll to work. Your config is loaded first (so status bar, colors, bindings apply), then the mouse option is overridden at the session level. Leave empty to ignore any config. Applies to new terminals only.") }}
                             </span>
                             <wa-callout
                                 v-if="tmuxConfigValidation && !tmuxConfigValidation.valid"
@@ -2082,37 +2071,30 @@ function onChangelogClose() {
                             >{{ tmuxConfigValidation.message }}</wa-callout>
                         </div>
                         <div class="setting-group">
-                            <label class="setting-group-label">Copy on select</label>
+                            <label class="setting-group-label">{{ $t("Copy on select") }}</label>
                             <wa-switch
                                 :checked="terminalCopyOnSelect"
                                 @change="onCopyOnSelectChange"
                                 size="small"
-                            >Enabled</wa-switch>
+                            >{{ $t("Enabled") }}</wa-switch>
                             <span class="setting-group-hint">
-                                When enabled, selecting text in a terminal with the mouse copies it to
-                                the clipboard automatically (paste with
-                                <kbd>{{ isMac ? '⌘V' : 'Ctrl+V' }}</kbd>) — no need to click Copy. The
-                                selection stays visible.
+                                {{ $t("When enabled, selecting text in a terminal with the mouse copies it to the clipboard automatically (paste with") }}
+                                <kbd>{{ isMac ? $t("⌘V") : $t("Ctrl+V") }}</kbd>{{ $t(") — no need to click Copy. The selection stays visible.") }}
                                 <template v-if="isLinux">
-                                    The text goes to the regular clipboard, <strong>not</strong> the
-                                    mouse "primary" selection (middle-click paste): browsers can't write
-                                    to the primary selection, so middle-click won't paste it.
+                                    {{ $t("The text goes to the regular clipboard,") }} <strong>{{ $t("not") }}</strong> {{ $t("the mouse \"primary\" selection (middle-click paste): browsers can't write to the primary selection, so middle-click won't paste it.") }}
                                 </template>
                             </span>
                         </div>
                         <div class="setting-group" v-if="isMac">
-                            <label class="setting-group-label">Option key (⌥)</label>
+                            <label class="setting-group-label">{{ $t("Option key (⌥)") }}</label>
                             <wa-switch
                                 :checked="terminalMacOptionIsMeta"
                                 @change="onMacOptionIsMetaChange"
                                 size="small"
-                            >Use as Meta key</wa-switch>
+                            >{{ $t("Use as Meta key") }}</wa-switch>
                             <span class="setting-group-hint">
-                                When enabled, Option acts as the Meta key for shell shortcuts
-                                (<kbd>⌥B</kbd>/<kbd>⌥F</kbd> to move word by word, <kbd>⌥.</kbd> for the last
-                                argument), but characters typed with Option — such as <code>|</code>,
-                                <code>{</code> or <code>\</code> on international keyboard layouts — can no
-                                longer be entered. Stored per device; applies to open terminals immediately.
+                                {{ $t("When enabled, Option acts as the Meta key for shell shortcuts (") }}<kbd>{{ $t("⌥B") }}</kbd>/<kbd>{{ $t("⌥F") }}</kbd> {{ $t("to move word by word,") }} <kbd>⌥.</kbd> {{ $t("for the last argument), but characters typed with Option — such as") }} <code>|</code>,
+                                <code>{</code> {{ $t("or") }} <code>\</code> {{ $t("on international keyboard layouts — can no longer be entered. Stored per device; applies to open terminals immediately.") }}
                             </span>
                         </div>
                     </section>
@@ -2124,27 +2106,26 @@ function onChangelogClose() {
 
                     <!-- Providers quotas/usage Section -->
                     <section v-if="activeSection === 'usage'" class="settings-section">
-                        <h3 class="settings-section-title">Providers quotas/usage</h3>
+                        <h3 class="settings-section-title">{{ $t("Providers quotas/usage") }}</h3>
                         <div class="setting-group">
-                            <label class="setting-group-label">Show extra usage quota</label>
+                            <label class="setting-group-label">{{ $t("Show extra usage quota") }}</label>
                             <wa-switch
                                 :checked="extraUsageOnlyWhenNeeded"
                                 @change="onExtraUsageOnlyWhenNeededChange"
                                 size="small"
-                            >Only when needed</wa-switch>
+                            >{{ $t("Only when needed") }}</wa-switch>
                         </div>
                         <div class="setting-group">
-                            <label class="setting-group-label">When extra usage starts</label>
+                            <label class="setting-group-label">{{ $t("When extra usage starts") }}</label>
                             <wa-switch
                                 :checked="notifyOnExtraUsageStart"
                                 @change="onNotifyOnExtraUsageStartChange"
                                 size="small"
-                            >Notify me</wa-switch>
+                            >{{ $t("Notify me") }}</wa-switch>
                             <span class="setting-group-hint">
-                                Alerts you when a provider starts consuming its extra usage credits again
-                                after a quiet period. See the
-                                <a href="#" @click.prevent="selectSection('notifications')">Notifications</a>
-                                tab for sound, browser and pushed-device options.
+                                {{ $t("Alerts you when a provider starts consuming its extra usage credits again after a quiet period. See the") }}
+                                <a href="#" @click.prevent="selectSection('notifications')">{{ $t("Notifications") }}</a>
+                                {{ $t("tab for sound, browser and pushed-device options.") }}
                             </span>
                         </div>
                         <template v-for="(provider, idx) in usageProviders" :key="provider">
@@ -2158,14 +2139,14 @@ function onChangelogClose() {
                                     {{ getProviderLabel(provider) }}
                                 </h4>
                             <div v-if="supportsWakeup(provider)" class="setting-group">
-                                <label class="setting-group-label">Quota wake-up* <wa-icon name="cloud" class="synced-icon"></wa-icon></label>
+                                <label class="setting-group-label">{{ $t("Quota wake-up*") }} <wa-icon name="cloud" class="synced-icon"></wa-icon></label>
                                 <div class="wakeup-time-row">
                                     <wa-select
                                         :value="getWakeupHour(provider)"
                                         @change="onWakeupHourChange(provider, $event)"
                                         size="small"
                                     >
-                                        <wa-option value="">Off</wa-option>
+                                        <wa-option value="">{{ $t("Off") }}</wa-option>
                                         <wa-option v-for="opt in WAKEUP_HOUR_OPTIONS" :key="opt.value" :value="opt.value">{{ opt.label }}</wa-option>
                                     </wa-select>
                                     <span class="wakeup-time-colon" :class="{ 'is-off': !getWakeupHour(provider) }">:</span>
@@ -2185,7 +2166,7 @@ function onChangelogClose() {
                                     @change="onUsageFileEnabledChange(provider, $event)"
                                     size="small"
                                     :disabled="getDumpEnabled(provider)"
-                                >Read usage from file** <wa-icon name="cloud" class="synced-icon"></wa-icon></wa-switch>
+                                >{{ $t("Read usage from file**") }} <wa-icon name="cloud" class="synced-icon"></wa-icon></wa-switch>
                                 <template v-if="getReadEnabled(provider)">
                                     <div class="usage-file-input-row">
                                         <wa-input
@@ -2204,10 +2185,10 @@ function onChangelogClose() {
                                         >
                                             <wa-spinner v-if="usageFileValidating[provider]" slot="start"></wa-spinner>
                                             <wa-icon v-else :name="readApplyIcon(provider)" slot="start"></wa-icon>
-                                            Apply
+                                            {{ $t("Apply") }}
                                         </wa-button>
                                     </div>
-                                    <span class="setting-group-hint">Press Apply or Enter to validate and save the path.</span>
+                                    <span class="setting-group-hint">{{ $t("Press Apply or Enter to validate and save the path.") }}</span>
                                     <wa-callout
                                         v-if="usageFileValidation[provider] && !usageFileValidation[provider].valid"
                                         variant="danger"
@@ -2222,7 +2203,7 @@ function onChangelogClose() {
                                     @change="onUsageDumpEnabledChange(provider, $event)"
                                     size="small"
                                     :disabled="getReadEnabled(provider)"
-                                >Dump usage to file*** <wa-icon name="cloud" class="synced-icon"></wa-icon></wa-switch>
+                                >{{ $t("Dump usage to file***") }} <wa-icon name="cloud" class="synced-icon"></wa-icon></wa-switch>
                                 <template v-if="getDumpEnabled(provider)">
                                     <div class="usage-file-input-row">
                                         <wa-input
@@ -2241,10 +2222,10 @@ function onChangelogClose() {
                                         >
                                             <wa-spinner v-if="usageDumpValidating[provider]" slot="start"></wa-spinner>
                                             <wa-icon v-else :name="dumpApplyIcon(provider)" slot="start"></wa-icon>
-                                            Apply
+                                            {{ $t("Apply") }}
                                         </wa-button>
                                     </div>
-                                    <span class="setting-group-hint">Press Apply or Enter to validate and save the path.</span>
+                                    <span class="setting-group-hint">{{ $t("Press Apply or Enter to validate and save the path.") }}</span>
                                     <wa-callout
                                         v-if="usageDumpValidation[provider] && !usageDumpValidation[provider].valid"
                                         variant="danger"
@@ -2261,35 +2242,28 @@ function onChangelogClose() {
                              switches above, where the actual settings are stored. -->
                         <wa-divider></wa-divider>
                         <div class="setting-group usage-mode-explanation">
-                            <label class="setting-group-label">* About quota wake-up</label>
+                            <label class="setting-group-label">{{ $t("* About quota wake-up") }}</label>
                             <span class="setting-group-hint">
-                                A provider's 5-hour quota window starts on its first request and resets 5 hours
-                                later, so opening it earlier fits more windows into your working day. Pick a time
-                                and TwiCC sends a tiny throwaway request at that hour each day to start the window
-                                early — skipped if one is already running. It only fires while TwiCC is running at
-                                that time (no catch-up if it was off).
+                                {{ $t("A provider's 5-hour quota window starts on its first request and resets 5 hours later, so opening it earlier fits more windows into your working day. Pick a time and TwiCC sends a tiny throwaway request at that hour each day to start the window early — skipped if one is already running. It only fires while TwiCC is running at that time (no catch-up if it was off).") }}
                             </span>
                         </div>
                         <div class="setting-group usage-mode-explanation">
-                            <label class="setting-group-label">** About read mode</label>
+                            <label class="setting-group-label">{{ $t("** About read mode") }}</label>
                             <span class="setting-group-hint">
-                                If you already maintain a JSON file with usage data outside TwiCC (typically
-                                because the provider's API is rate-limited), point to it here and TwiCC will
-                                read from this file instead of calling the API directly.
+                                {{ $t("If you already maintain a JSON file with usage data outside TwiCC (typically because the provider's API is rate-limited), point to it here and TwiCC will read from this file instead of calling the API directly.") }}
                             </span>
                         </div>
                         <div class="setting-group usage-mode-explanation">
-                            <label class="setting-group-label">*** About dump mode</label>
+                            <label class="setting-group-label">{{ $t("*** About dump mode") }}</label>
                             <span class="setting-group-hint">
-                                Save the raw API response to a JSON file each time TwiCC fetches usage data.
-                                Useful if you want to share the data with other tools without extra API calls.
+                                {{ $t("Save the raw API response to a JSON file each time TwiCC fetches usage data. Useful if you want to share the data with other tools without extra API calls.") }}
                             </span>
                         </div>
                     </section>
 
                     <!-- Keyboard Shortcuts Section -->
                     <section v-if="activeSection === 'shortcuts'" class="settings-section shortcuts-section">
-                        <h3 class="settings-section-title">Keyboard shortcuts</h3>
+                        <h3 class="settings-section-title">{{ $t("Keyboard shortcuts") }}</h3>
                         <div v-for="group in shortcutGroups" :key="group.label" class="shortcut-group">
                             <h4 class="shortcut-group-title">{{ group.label }}</h4>
                             <div class="shortcut-list">
@@ -2315,13 +2289,13 @@ function onChangelogClose() {
             <wa-divider></wa-divider>
             <p class="settings-notice">
                 <wa-icon name="cloud" class="synced-icon"></wa-icon>
-                Sections and settings marked with a cloud icon are synced across all your devices.
+                {{ $t("Sections and settings marked with a cloud icon are synced across all your devices.") }}
             </p>
             <wa-divider></wa-divider>
             <footer v-if="currentVersion" class="settings-footer">
                 <span class="settings-footer-version">
                     <BrandLogo :size="16" class="settings-footer-logo" />
-                    <a href="https://github.com/twidi/twicc/" target="_blank" rel="noopener">TwiCC v{{ currentVersion }}</a><template v-if="store.isDevMode"> [dev]</template>
+                    <a href="https://github.com/twidi/twicc/" target="_blank" rel="noopener">{{ $t("TwiCC v") }}{{ currentVersion }}</a><template v-if="store.isDevMode"> {{ $t("[dev]") }}</template>
                     <template v-if="latestVersion">
                         &rarr;
                         <wa-button
@@ -2332,16 +2306,16 @@ function onChangelogClose() {
                             @click="onShowUpdateInstructions"
                         >
                             <wa-icon slot="start" name="arrow-up"></wa-icon>
-                            v{{ latestVersion.version }} available · How to update
+                            {{ $t("v") }}{{ latestVersion.version }} {{ $t("available · How to update") }}
                         </wa-button>
                     </template>
                 </span>
                 ·
-                <a href="#" class="settings-footer-changes" @click.prevent="openChangelog()">Changes</a>
+                <a href="#" class="settings-footer-changes" @click.prevent="openChangelog()">{{ $t("Changes") }}</a>
                 ·
                 <a :href="SPONSOR_URL" target="_blank" rel="noopener" class="settings-footer-sponsor">
                     <span class="settings-footer-sponsor-icon"></span>
-                    Sponsor
+                    {{ $t("Sponsor") }}
                 </a>
                 ·
                 <a
@@ -2366,7 +2340,7 @@ function onChangelogClose() {
                     name="repeat"
                     @click="cycleStatusProvider"
                 ></wa-icon>
-                <AppTooltip v-if="currentStatusDisplay && hasMultipleStatusProviders" :for="statusNextButtonId">Switch to the next provider</AppTooltip>
+                <AppTooltip v-if="currentStatusDisplay && hasMultipleStatusProviders" :for="statusNextButtonId">{{ $t("Switch to the next provider") }}</AppTooltip>
                 <wa-button
                     v-if="showLogout"
                     :id="logoutButtonId"

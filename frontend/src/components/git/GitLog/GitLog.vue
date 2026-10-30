@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { t as $t } from '../../../i18n/index.js'
+
 import { computed, provide, ref, useSlots } from 'vue'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
@@ -154,7 +156,7 @@ const indexCommit = computed<Commit | undefined>(() => {
     parents: [headCommit.value.hash],
     children: [],
     authorDate: today,
-    message: 'Uncommitted changes',
+    get message() { return $t("Uncommitted changes") },
     committerDate: today,
     isBranchTip: false,
   } as Commit

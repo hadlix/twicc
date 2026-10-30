@@ -1,3 +1,5 @@
+
+import { t as $t } from '../i18n/index.js'
 // frontend/src/stores/auth.js
 
 import { defineStore, acceptHMRUpdate } from 'pinia'
@@ -140,11 +142,11 @@ export const useAuthStore = defineStore('auth', {
                     }
                     return { success: false, error: data.error }
                 } else {
-                    return { success: false, error: data.error || 'Invalid password' }
+                    return { success: false, error: data.error || $t("Invalid password") }
                 }
             } catch (e) {
                 console.error('Login failed:', e)
-                return { success: false, error: 'Network error' }
+                return { success: false, get error() { return $t("Network error") } }
             }
         },
 

@@ -1,3 +1,5 @@
+
+import { t as $t } from '../i18n/index.js'
 import { reconcileSend, retainsAsyncQuestionSend, consumeAsyncQuestionSend, restoreAsyncQuestionSend } from './asyncQuestions.js'
 
 const clone = value => JSON.parse(JSON.stringify(value))
@@ -96,14 +98,14 @@ export function createAsyncQuestionActions({ saveMessage, getAll, getAllMessages
             let staged = false
             try {
                 await enqueue(sessionId, async () => {
-                    if (deletedSessions.has(sessionId)) throw new Error('Session was deleted')
+                    if (deletedSessions.has(sessionId)) throw new Error($t("Session was deleted"))
                     cancelDraftSave(sessionId)
                     const next = retryRequestId
                         ? { draft: this.localState.draftMessages[sessionId] || {}, questionDraft: this.localState.asyncQuestionDrafts[sessionId] || emptyDraft() }
                         : consumeAsyncQuestionSend(snapshot, this.localState.draftMessages[sessionId], this.localState.asyncQuestionDrafts[sessionId])
                     await stageSend(requestId, snapshot, next.draft, next.questionDraft)
                     staged = true
-                    if (deletedSessions.has(sessionId)) throw new Error('Session was deleted')
+                    if (deletedSessions.has(sessionId)) throw new Error($t("Session was deleted"))
                     if (!retryRequestId) {
                         const current = consumeAsyncQuestionSend(snapshot, this.localState.draftMessages[sessionId], this.localState.asyncQuestionDrafts[sessionId])
                         this.localState.draftMessages[sessionId] = current.draft
@@ -208,8 +210,8 @@ export function createAsyncQuestionActions({ saveMessage, getAll, getAllMessages
                         else if (['rejected', 'not_admitted'].includes(status) && entry.status !== 'accepted') {
                             const info = { code: status === 'not_admitted' ? 'async_questions_not_admitted' : 'send_failed',
                                 message: status === 'not_admitted'
-                                    ? 'This message was not sent. Edit or retry it.'
-                                    : 'The server rejected this message. Edit or retry it.' }
+                                    ? $t("This message was not sent. Edit or retry it.")
+                                    : $t("The server rejected this message. Edit or retry it.") }
                             if (!this.failInflightSend(id, info)) this._applySendFailure(id, entry, info)
                         }
                     }
@@ -364,7 +366,7 @@ export function createAsyncQuestionActions({ saveMessage, getAll, getAllMessages
             try {
                 await persist(this, sessionId)
                 if (!await send({ type: 'codex_dismiss_async_question', session_id: sessionId, item_id: itemId, request_id: requestId })) {
-                    throw new Error('WebSocket is disconnected')
+                    throw new Error($t("WebSocket is disconnected"))
                 }
             } catch (error) {
                 // A failed transaction retains source answers and releases only this request.

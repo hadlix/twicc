@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../i18n/index.js'
+
 import { computed, inject, useId } from 'vue'
 import { useDataStore } from '../stores/data'
 import { useArtifactBroker, inlineArtifactBrokerConfig } from '../composables/useArtifactBroker.js'
@@ -26,10 +28,10 @@ function openInArtifactsTab() {
     viewFileInFilesTab(artifactPath.value)
 }
 const actions = computed(() => [
-    { id: reloadButtonId, icon: 'rotate-right', label: 'Reload',
+    { id: reloadButtonId, icon: 'rotate-right', get label() { return $t("Reload") },
         action: () => props.runtime.reload(props.entry.artifactKey) },
     ...(viewFileInFilesTab && artifactPath.value
-        ? [{ id: openInTabButtonId, icon: 'shapes', label: 'Open in Artifacts tab', action: openInArtifactsTab }]
+        ? [{ id: openInTabButtonId, icon: 'shapes', get label() { return $t("Open in Artifacts tab") }, action: openInArtifactsTab }]
         : []),
 ])
 function toggleFullscreen() {

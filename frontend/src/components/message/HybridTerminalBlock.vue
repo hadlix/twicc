@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // HybridTerminalBlock.vue - Embedded terminal for hybrid CLI sessions.
 //
 // Sits in the session footer, above the message input. Shows the live claude
@@ -179,15 +181,15 @@ const terminalBlocked = computed(() => !!processState.value?.extra?.terminal_blo
 const attentionTerminalOnly = computed(() => pendingTerminalOnly.value || terminalBlocked.value)
 // Same wording the minimized bar used to carry, promoted to the callout.
 const attentionLabel = computed(() =>
-    pendingTerminalOnly.value ? 'Answer in the terminal' : 'Terminal blocked — click here to open'
+    pendingTerminalOnly.value ? $t("Answer in the terminal") : $t("Terminal blocked — click here to open")
 )
 
 // Open-header badge: while the terminal IS open, keep the same context — steer
 // an answerable request to the UI form, or note a block. Quiet (no pulse): the
 // terminal is already on screen.
 const headerBadgeLabel = computed(() => {
-    if (hybridPending.value) return pendingIsAnswerable.value ? 'Prefer answering in the UI' : 'Answer in the terminal'
-    if (terminalBlocked.value) return 'Terminal blocked'
+    if (hybridPending.value) return pendingIsAnswerable.value ? $t("Prefer answering in the UI") : $t("Answer in the terminal")
+    if (terminalBlocked.value) return $t("Terminal blocked")
     return ''
 })
 // Clicking the answerable badge brings the form back if the user minimized it,
@@ -245,7 +247,7 @@ useFooterBlockMotion({
         <!-- Open: header with window controls -->
         <div v-else-if="!isClosed" class="hybrid-terminal-header">
             <wa-icon name="terminal" class="hybrid-terminal-icon"></wa-icon>
-            <span class="hybrid-terminal-title">Claude CLI terminal</span>
+            <span class="hybrid-terminal-title">{{ $t("Claude CLI terminal") }}</span>
             <span
                 v-if="headerBadgeLabel"
                 class="hybrid-pending-badge"
@@ -264,7 +266,7 @@ useFooterBlockMotion({
             >
                 <wa-icon name="arrows-rotate" variant="classic"></wa-icon>
             </wa-button>
-            <AppTooltip v-if="everHadProcess" :for="refreshBtnId">Refresh the terminal</AppTooltip>
+            <AppTooltip v-if="everHadProcess" :for="refreshBtnId">{{ $t("Refresh the terminal") }}</AppTooltip>
             <wa-button
                 variant="neutral"
                 appearance="plain"
@@ -275,7 +277,7 @@ useFooterBlockMotion({
             >
                 <wa-icon name="window-minimize" variant="classic"></wa-icon>
             </wa-button>
-            <AppTooltip :for="closeBtnId">Hide the terminal (the CLI keeps running)</AppTooltip>
+            <AppTooltip :for="closeBtnId">{{ $t("Hide the terminal (the CLI keeps running)") }}</AppTooltip>
             <wa-button
                 variant="neutral"
                 appearance="plain"
@@ -286,7 +288,7 @@ useFooterBlockMotion({
             >
                 <wa-icon :name="isMaximized ? 'compress' : 'expand'" variant="classic"></wa-icon>
             </wa-button>
-            <AppTooltip :for="maximizeToggleId">{{ isMaximized ? 'Restore' : 'Maximize' }}</AppTooltip>
+            <AppTooltip :for="maximizeToggleId">{{ isMaximized ? $t("Restore") : $t("Maximize") }}</AppTooltip>
         </div>
 
         <!-- Terminal area: placeholder until the CLI runs (and again after a
@@ -295,7 +297,7 @@ useFooterBlockMotion({
         <div class="hybrid-terminal-body">
             <div v-if="!everHadProcess" class="hybrid-terminal-placeholder">
                 <wa-icon name="terminal"></wa-icon>
-                <span>The Claude CLI starts here when you send a message.</span>
+                <span>{{ $t("The Claude CLI starts here when you send a message.") }}</span>
             </div>
             <TerminalInstance
                 v-else

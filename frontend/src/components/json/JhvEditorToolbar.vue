@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 /**
  * JhvEditorToolbar — Toolbar wrapper for CodeMirror editors inside JsonHumanView.
  *
@@ -121,21 +123,21 @@ defineExpose({
                 >
                     <wa-icon name="magnifying-glass"></wa-icon>
                 </wa-button>
-                <AppTooltip :for="searchButtonId">Search</AppTooltip>
+                <AppTooltip :for="searchButtonId">{{ $t("Search") }}</AppTooltip>
             </div>
             <div class="jhv-toolbar-right">
                 <wa-switch
                     :checked="wordWrap"
                     size="small"
                     @change="onWordWrapToggle"
-                >Wrap</wa-switch>
+                >{{ $t("Wrap") }}</wa-switch>
                 <wa-switch
                     v-if="mode === 'diff' && canSideBySide"
                     :checked="sideBySide"
                     size="small"
                     class="jhv-toolbar-sbs"
                     @change="onSideBySideToggle"
-                >Side by side</wa-switch>
+                >{{ $t("Side by side") }}</wa-switch>
             </div>
         </div>
         <div ref="editorAreaRef" class="jhv-toolbar-body">

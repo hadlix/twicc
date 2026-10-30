@@ -1,3 +1,5 @@
+
+import { t as $t } from '../i18n/index.js'
 /**
  * The Settings form for the three public origins (External / Share / Peer).
  *
@@ -42,11 +44,11 @@ export const ORIGIN_SETTINGS_RESULT_EVENT = 'twicc:synced-settings-result'
 // browser, so "try again" is the whole truth. A send followed by a dropped
 // connection may well have been applied server-side — claiming otherwise would
 // be wrong half the time.
-export const NOT_CONNECTED_ERROR = 'Not connected to the server — try again.'
-export const CONNECTION_LOST_ERROR = 'Connection lost — this change may not have been saved. '
-    + 'Check after reconnecting.'
+export const NOT_CONNECTED_ERROR = $t("Not connected to the server — try again.")
+export const CONNECTION_LOST_ERROR = $t("Connection lost — this change may not have been saved. ")
+    + $t("Check after reconnecting.")
 
-export const PLAIN_HTTP_WARNING = 'Plain HTTP — tokens travel unencrypted. HTTPS is strongly recommended.'
+export const PLAIN_HTTP_WARNING = $t("Plain HTTP — tokens travel unencrypted. HTTPS is strongly recommended.")
 
 const STORE_GETTERS = {
     publicBaseUrl: 'getPublicBaseUrl',

@@ -1,3 +1,5 @@
+
+import { t as $t } from '../i18n/index.js'
 // Markdown rendering engine
 // Uses markdown-it-async + shiki (syntax highlighting) + DOMPurify (XSS protection)
 // Mermaid diagrams are rendered post-parse by the MarkdownContent component.
@@ -198,7 +200,7 @@ async function codeToHtmlWithFallback(code, options) {
         return await codeToHtml(code, options)
     } catch (error) {
         // If it's a language-not-found error, retry with 'text' (no highlighting)
-        if (error.message?.includes('is not included in this bundle')) {
+        if (error.message?.includes($t("is not included in this bundle"))) {
             return await codeToHtml(code, { ...options, lang: 'text' })
         }
         throw error

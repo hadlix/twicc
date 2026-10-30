@@ -1,3 +1,5 @@
+
+import { t as $t } from '../i18n/index.js'
 /**
  * The hard cap the backend enforces on a peer message title
  * (`peer_messages.PEER_MESSAGE_TITLE_MAX_CHARS`): an over-long title is
@@ -130,7 +132,7 @@ export function answeredByLabel(direction, latestReplyAuthor, peerLabel) {
     if (!latestReplyAuthor) return null
     const human = latestReplyAuthor === 'human'
     if (direction === 'out') {
-        return human ? `Answered by ${peerLabel}` : `Answered by ${peerLabel}'s agent`
+        return human ? $t("Answered by {p0}", { p0: (peerLabel) }) : $t("Answered by {p0}'s agent", { p0: (peerLabel) })
     }
-    return human ? 'Answered by you' : 'Answered by your agent'
+    return human ? $t("Answered by you") : $t("Answered by your agent")
 }

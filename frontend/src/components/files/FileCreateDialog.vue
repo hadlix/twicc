@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 import { ref, useId, nextTick } from 'vue'
 import { apiFetch } from '../../utils/api'
 
@@ -54,11 +56,11 @@ async function handleSave() {
 
     const trimmed = localName.value.trim()
     if (!trimmed) {
-        errorMessage.value = 'Name cannot be empty'
+        errorMessage.value = $t("Name cannot be empty")
         return
     }
     if (trimmed.includes('/') || trimmed.includes('\\')) {
-        errorMessage.value = 'Name cannot contain slashes'
+        errorMessage.value = $t("Name cannot contain slashes")
         return
     }
 
@@ -73,14 +75,14 @@ async function handleSave() {
             body: JSON.stringify({ parent_dir: parentDir.value, name: trimmed, kind: kind.value }),
         })
     } catch {
-        errorMessage.value = 'Network error. Please try again.'
+        errorMessage.value = $t("Network error. Please try again.")
         isSaving.value = false
         return
     }
 
     const data = await response.json().catch(() => ({}))
     if (!response.ok) {
-        errorMessage.value = data.error || `Failed to create (HTTP ${response.status})`
+        errorMessage.value = data.error || $t("Failed to create (HTTP {p0})", { p0: (response.status) })
         isSaving.value = false
         return
     }
@@ -96,32 +98,32 @@ defineExpose({ open, close })
 <template>
     <wa-dialog
         ref="dialogRef"
-        :label="kind === 'directory' ? 'New folder' : 'New file'"
+        :label="kind === 'directory' ? $t(&quot;New folder&quot;) : $t(&quot;New file&quot;)"
         class="create-dialog"
         @wa-show="syncFormState"
         @wa-after-show="focusInput"
     >
         <form :id="formId" class="dialog-content" @submit.prevent="handleSave">
             <div class="form-group">
-                <label class="form-label">Name</label>
+                <label class="form-label">{{ $t("Name") }}</label>
                 <wa-input
                     ref="nameInputRef"
                     :value.prop="localName"
                     @input="localName = $event.target.value"
-                    :placeholder="kind === 'directory' ? 'folder-name' : 'filename.ext'"
+                    :placeholder="kind === 'directory' ? $t(&quot;folder-name&quot;) : 'filename.ext'"
                 ></wa-input>
             </div>
             <wa-callout v-if="errorMessage" variant="danger" size="small">
-                {{ errorMessage }}
+                {{ $t(errorMessage) }}
             </wa-callout>
         </form>
         <div slot="footer" class="dialog-footer">
             <wa-button variant="neutral" appearance="outlined" @click="close" :disabled="isSaving">
-                Cancel
+                {{ $t("Cancel") }}
             </wa-button>
             <wa-button ref="saveButtonRef" type="submit" variant="brand" :disabled="isSaving">
                 <wa-spinner v-if="isSaving" slot="start"></wa-spinner>
-                Create
+                {{ $t("Create") }}
             </wa-button>
         </div>
     </wa-dialog>

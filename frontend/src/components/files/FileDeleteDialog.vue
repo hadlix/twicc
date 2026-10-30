@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 import { ref } from 'vue'
 import { apiFetch } from '../../utils/api'
 
@@ -47,14 +49,14 @@ async function handleDelete() {
             body: JSON.stringify({ path: targetPath.value }),
         })
     } catch {
-        errorMessage.value = 'Network error. Please try again.'
+        errorMessage.value = $t("Network error. Please try again.")
         isDeleting.value = false
         return
     }
 
     const data = await response.json().catch(() => ({}))
     if (!response.ok) {
-        errorMessage.value = data.error || `Failed to delete (HTTP ${response.status})`
+        errorMessage.value = data.error || $t("Failed to delete (HTTP {p0})", { p0: (response.status) })
         isDeleting.value = false
         return
     }
@@ -70,29 +72,29 @@ defineExpose({ open, close })
 <template>
     <wa-dialog
         ref="dialogRef"
-        :label="`Delete ${nodeType}`"
+        :label="$t(&quot;Delete {p0}&quot;, { p0: (nodeType) })"
         class="delete-dialog"
     >
         <div class="dialog-content">
             <p class="confirm-message">
-                Are you sure you want to delete
+                {{ $t("Are you sure you want to delete") }}
                 <strong>{{ targetName }}</strong>?
             </p>
             <p v-if="nodeType === 'directory'" class="warning-message">
                 <wa-icon name="triangle-exclamation"></wa-icon>
-                This will permanently delete the directory and all its contents.
+                {{ $t("This will permanently delete the directory and all its contents.") }}
             </p>
             <wa-callout v-if="errorMessage" variant="danger" size="small">
-                {{ errorMessage }}
+                {{ $t(errorMessage) }}
             </wa-callout>
         </div>
         <div slot="footer" class="dialog-footer">
             <wa-button variant="neutral" appearance="outlined" @click="close" :disabled="isDeleting">
-                Cancel
+                {{ $t("Cancel") }}
             </wa-button>
             <wa-button variant="danger" :disabled="isDeleting" @click="handleDelete">
                 <wa-spinner v-if="isDeleting" slot="start"></wa-spinner>
-                Delete
+                {{ $t("Delete") }}
             </wa-button>
         </div>
     </wa-dialog>

@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 import { computed, ref } from 'vue'
 import { useTipsStore } from '../../stores/tips'
 import { useSettingsStore } from '../../stores/settings'
@@ -27,10 +29,10 @@ function isSeen(key) {
 
 function seenLabel(key) {
     const iso = tipsStore.seenTips[key]
-    if (!iso) return 'Not yet seen'
+    if (!iso) return $t("Not yet seen")
     const ms = Date.parse(iso)
-    if (Number.isNaN(ms)) return 'Seen'
-    return `Seen ${formatRelative(ms)}`
+    if (Number.isNaN(ms)) return $t("Seen")
+    return $t("Seen {p0}", { p0: (formatRelative(ms)) })
 }
 
 function onToggle(value) {
@@ -68,10 +70,10 @@ function onResetCancel() {
                 :checked="tipsStore.enabled"
                 @change="onToggle($event.target.checked)"
             />
-            <span>Display tips automatically</span>
+            <span>{{ $t("Display tips automatically") }}</span>
         </label>
         <p v-if="!tipsStore.enabled" class="tips-hint">
-            Tips will only appear when you click them from the list below.
+            {{ $t("Tips will only appear when you click them from the list below.") }}
         </p>
 
         <div class="tips-reset">
@@ -80,22 +82,22 @@ function onResetCancel() {
                 :disabled="seenCount === 0"
                 @click="onResetClick"
             >
-                Reset all seen tips
+                {{ $t("Reset all seen tips") }}
             </wa-button>
             <wa-dialog v-if="confirmingReset" open @wa-after-hide="onResetCancel">
-                <span slot="label">Reset seen tips</span>
+                <span slot="label">{{ $t("Reset seen tips") }}</span>
                 <p>
-                    This will mark all tips as unseen. They may appear again on the next tick.
+                    {{ $t("This will mark all tips as unseen. They may appear again on the next tick.") }}
                 </p>
-                <wa-button slot="footer" @click="onResetCancel">Cancel</wa-button>
-                <wa-button slot="footer" variant="brand" @click="onResetConfirm">Reset</wa-button>
+                <wa-button slot="footer" @click="onResetCancel">{{ $t("Cancel") }}</wa-button>
+                <wa-button slot="footer" variant="brand" @click="onResetConfirm">{{ $t("Reset") }}</wa-button>
             </wa-dialog>
         </div>
 
-        <h4 class="tips-list-title">All tips</h4>
+        <h4 class="tips-list-title">{{ $t("All tips") }}</h4>
 
         <p v-if="availableTips.length === 0" class="tips-empty">
-            No tips available yet.
+            {{ $t("No tips available yet.") }}
         </p>
 
         <ul v-else class="tips-list">

@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // WorktreeSelectorRows.vue — renders, inside the sidebar project selector's
 // flat dropdown list, a collapsible "Worktrees (N)" entry for one parent
 // project, followed (when expanded) by that project's worktree entries.
@@ -47,7 +49,7 @@ const worktreeIds = computed(() => props.worktrees.map(w => w.id))
             <wa-icon slot="icon" name="check" style="visibility: hidden;"></wa-icon>
             <span class="selector-item-content" :style="{ paddingLeft: `${headerDepth * 12}px` }">
                 <wa-icon name="code-branch" class="worktrees-icon"></wa-icon>
-                Worktrees ({{ worktrees.length }})
+                {{ $t("Worktrees (") }}{{ worktrees.length }})
                 <wa-icon :name="expanded ? 'chevron-down' : 'chevron-right'" class="worktrees-toggle-caret"></wa-icon>
                 <span class="selector-item-indicators">
                     <AggregatedProcessIndicator :project-ids="worktreeIds" size="small" />

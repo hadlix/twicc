@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 /**
  * McpToast - actionable toast body for a pending external MCP connection
  * request. PeerToastContent is the reference: same structure (icon line, quiet
@@ -27,12 +29,12 @@ function review() {
     <div class="mcp-toast-content">
         <span class="mcp-toast-line">
             <wa-icon name="plug" class="mcp-toast-icon"></wa-icon>
-            <strong>{{ clientName || 'An external MCP client' }}</strong>
-            &nbsp;requests access to TwiCC
+            <strong>{{ clientName || $t("An external MCP client") }}</strong>
+            {{ $t("requests access to TwiCC") }}
         </span>
-        <span class="mcp-toast-hint">Review the request to enter its verification code.</span>
+        <span class="mcp-toast-hint">{{ $t("Review the request to enter its verification code.") }}</span>
         <div class="mcp-toast-actions">
-            <wa-button size="small" variant="brand" appearance="outlined" @click="review">Review</wa-button>
+            <wa-button size="small" variant="brand" appearance="outlined" @click="review">{{ $t("Review") }}</wa-button>
         </div>
     </div>
 </template>

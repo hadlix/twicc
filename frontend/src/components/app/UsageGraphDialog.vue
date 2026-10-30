@@ -1,4 +1,8 @@
 <script setup>
+import { getFormatLocale } from '../../i18n/index.js'
+
+import { t as $t } from '../../i18n/index.js'
+
 // UsageGraphDialog.vue - Dialog showing historical usage graphs (utilization & burn rate)
 // for 5-hour and 7-day quota periods. Uses SVG charts following the same approach
 // as ContributionSparklines.vue (gradient fills with polyline masks).
@@ -45,16 +49,16 @@ const errorMessage = ref('')
 // Shared across both tabs. Each step defines range_days, bucket_minutes, and label.
 
 const RANGE_STEPS = [
-    { days: 0.25, bucket: 0,    label: '6 hours' },
-    { days: 0.5,  bucket: 0,    label: '12 hours' },
-    { days: 1,    bucket: 0,    label: '1 day' },
-    { days: 3,    bucket: 0,    label: '3 days' },
-    { days: 7,    bucket: 0,    label: '1 week' },
-    { days: 14,   bucket: 30,   label: '2 weeks' },
-    { days: 30,   bucket: 60,   label: '1 month' },
-    { days: 90,   bucket: 300,  label: '3 months' },
-    { days: 182,  bucket: 720,  label: '6 months' },
-    { days: 365,  bucket: 1440, label: '1 year' },
+    { days: 0.25, bucket: 0,    get label() { return $t("6 hours") } },
+    { days: 0.5,  bucket: 0,    get label() { return $t("12 hours") } },
+    { days: 1,    bucket: 0,    get label() { return $t("1 day") } },
+    { days: 3,    bucket: 0,    get label() { return $t("3 days") } },
+    { days: 7,    bucket: 0,    get label() { return $t("1 week") } },
+    { days: 14,   bucket: 30,   get label() { return $t("2 weeks") } },
+    { days: 30,   bucket: 60,   get label() { return $t("1 month") } },
+    { days: 90,   bucket: 300,  get label() { return $t("3 months") } },
+    { days: 182,  bucket: 720,  get label() { return $t("6 months") } },
+    { days: 365,  bucket: 1440, get label() { return $t("1 year") } },
 ]
 const DEFAULT_RANGE_INDEX = 4 // 1 week
 const rangeIndex = ref(DEFAULT_RANGE_INDEX)
@@ -180,7 +184,7 @@ async function fetchData({ isInitial = false, before = null, rangeDays = null, s
         if (before) url += `&before=${encodeURIComponent(before)}`
         const res = await fetch(url)
         if (!res.ok) {
-            throw new Error('Failed to fetch usage history')
+            throw new Error($t("Failed to fetch usage history"))
         }
         const json = await res.json()
 
@@ -219,7 +223,7 @@ async function fetchData({ isInitial = false, before = null, rangeDays = null, s
         }
     } catch (e) {
         if (myGeneration !== _fetchGeneration) return
-        if (!silent) errorMessage.value = e.message || 'Failed to load usage history'
+        if (!silent) errorMessage.value = e.message || $t("Failed to load usage history")
     } finally {
         // Only clear loading state if this is still the current generation
         if (myGeneration === _fetchGeneration) {
@@ -417,7 +421,7 @@ const tStart = computed(() => tEnd.value - currentRange.value.days * 86400000)
 
 // ── Visible period label ───────────────────────────────────────────
 const visiblePeriodLabel = computed(() => {
-    const locale = navigator.language
+    const locale = getFormatLocale()
     const startDate = new Date(tStart.value)
     const endDate = new Date(tEnd.value)
     const now = new Date()
@@ -637,7 +641,7 @@ const fhCurves = computed(() => {
     if (fhShowTemporal.value) {
         curves.push({
             key: 'temporal_pct',
-            label: 'Time elapsed',
+            get label() { return $t("Time elapsed") },
             decimals: 0,
             points: fhTemporalPoints.value,
             gradientId: 'usage-temporal-gradient-fh',
@@ -649,7 +653,7 @@ const fhCurves = computed(() => {
     curves.push(
         {
             key: 'utilization',
-            label: 'Utilization',
+            get label() { return $t("Utilization") },
             decimals: 1,
             points: fhUtilPoints.value,
             gradientId: 'usage-util-gradient-fh',
@@ -659,7 +663,7 @@ const fhCurves = computed(() => {
         },
         {
             key: 'burn_rate',
-            label: 'Burn rate',
+            get label() { return $t("Burn rate") },
             decimals: 0,
             points: fhBurnPoints.value,
             gradientId: 'usage-burn-gradient-fh',
@@ -669,7 +673,7 @@ const fhCurves = computed(() => {
         },
         {
             key: 'recent_long',
-            label: 'Burn rate (last 1h)',
+            get label() { return $t("Burn rate (last 1h)") },
             decimals: 0,
             points: fhRecentLongPoints.value,
             gradientId: 'usage-recent-long-gradient-fh',
@@ -679,7 +683,7 @@ const fhCurves = computed(() => {
         },
         {
             key: 'recent_short',
-            label: 'Burn rate (last 30min)',
+            get label() { return $t("Burn rate (last 30min)") },
             decimals: 0,
             points: fhRecentShortPoints.value,
             gradientId: 'usage-recent-short-gradient-fh',
@@ -719,7 +723,7 @@ const sdCurves = computed(() => {
     if (sdShowTemporal.value) {
         curves.push({
             key: 'temporal_pct',
-            label: 'Time elapsed',
+            get label() { return $t("Time elapsed") },
             decimals: 0,
             points: sdTemporalPoints.value,
             gradientId: 'usage-temporal-gradient-sd',
@@ -731,7 +735,7 @@ const sdCurves = computed(() => {
     curves.push(
         {
             key: 'utilization',
-            label: 'Utilization',
+            get label() { return $t("Utilization") },
             decimals: 1,
             points: sdUtilPoints.value,
             gradientId: 'usage-util-gradient-sd',
@@ -741,7 +745,7 @@ const sdCurves = computed(() => {
         },
         {
             key: 'burn_rate',
-            label: 'Burn rate',
+            get label() { return $t("Burn rate") },
             decimals: 0,
             points: sdBurnPoints.value,
             gradientId: 'usage-burn-gradient-sd',
@@ -751,7 +755,7 @@ const sdCurves = computed(() => {
         },
         {
             key: 'recent_long',
-            label: 'Burn rate (last 24h)',
+            get label() { return $t("Burn rate (last 24h)") },
             decimals: 0,
             points: sdRecentLongPoints.value,
             gradientId: 'usage-recent-long-gradient-sd',
@@ -761,7 +765,7 @@ const sdCurves = computed(() => {
         },
         {
             key: 'recent_short',
-            label: 'Burn rate (last 12h)',
+            get label() { return $t("Burn rate (last 12h)") },
             decimals: 0,
             points: sdRecentShortPoints.value,
             gradientId: 'usage-recent-short-gradient-sd',
@@ -841,7 +845,7 @@ const sdHoveredData = computed(() => {
 function formatTimestamp(isoStr) {
     if (!isoStr) return ''
     const date = new Date(isoStr)
-    const locale = navigator.language
+    const locale = getFormatLocale()
     return date.toLocaleString(locale, {
         month: 'short',
         day: 'numeric',
@@ -868,13 +872,13 @@ function onTabShow(event) {
 </script>
 
 <template>
-    <wa-dialog ref="dialogRef" label="Usage History" class="usage-graph-dialog" without-header>
+    <wa-dialog ref="dialogRef" :label="$t(&quot;Usage History&quot;)" class="usage-graph-dialog" without-header>
         <div class="usage-graph-content">
             <div class="usage-graph-header">
                 <div class="usage-graph-header-left">
                     <h2 class="usage-graph-title">
                         <wa-icon name="chart-line"></wa-icon>
-                        Usage History
+                        {{ $t("Usage History") }}
                     </h2>
                     <wa-select
                         v-if="showProviderSelect"
@@ -907,7 +911,7 @@ function onTabShow(event) {
                     ></wa-slider>
                 </div>
                 <div class="usage-graph-cap-control">
-                    <span class="usage-graph-cap-label">Y axis max {{ yCap }}%</span>
+                    <span class="usage-graph-cap-label">{{ $t("Y axis max") }} {{ yCap }}%</span>
                     <wa-slider
                         :min.prop="100"
                         :max.prop="1000"
@@ -928,17 +932,17 @@ function onTabShow(event) {
             </div>
 
             <TabBar @wa-tab-show="onTabShow">
-                <wa-tab slot="nav" panel="five-hour" :active="activeTab === 'five-hour'">5h Quota</wa-tab>
-                <wa-tab slot="nav" panel="seven-day" :active="activeTab === 'seven-day'">7d Quota</wa-tab>
+                <wa-tab slot="nav" panel="five-hour" :active="activeTab === 'five-hour'">{{ $t("5h Quota") }}</wa-tab>
+                <wa-tab slot="nav" panel="seven-day" :active="activeTab === 'seven-day'">{{ $t("7d Quota") }}</wa-tab>
 
                 <!-- ═══ Five Hour Panel ═══ -->
                 <wa-tab-panel name="five-hour">
                     <div class="usage-chart-panel">
                         <div v-if="isLoading" class="usage-chart-loading">
                             <wa-spinner></wa-spinner>
-                            <span>Loading usage history…</span>
+                            <span>{{ $t("Loading usage history…") }}</span>
                         </div>
-                        <wa-callout v-else-if="errorMessage" variant="danger" size="small">{{ errorMessage }}</wa-callout>
+                        <wa-callout v-else-if="errorMessage" variant="danger" size="small">{{ $t(errorMessage) }}</wa-callout>
                         <template v-else-if="fiveHourData.length > 0">
                             <div class="usage-chart-wrapper" :class="{ 'is-refreshing': isRefreshing }">
                                 <div v-if="isRefreshing" class="usage-chart-refresh-indicator">
@@ -1027,13 +1031,13 @@ function onTabShow(event) {
                                 </div>
                                 <div class="usage-chart-legend-item">
                                     <span class="usage-chart-legend-ref"></span>
-                                    <span class="usage-chart-legend-text">100% threshold</span>
+                                    <span class="usage-chart-legend-text">{{ $t("100% threshold") }}</span>
                                 </div>
                             </div>
                         </template>
                         <div v-else class="usage-chart-empty">
                             <wa-icon name="chart-line"></wa-icon>
-                            <span>No data available for this period</span>
+                            <span>{{ $t("No data available for this period") }}</span>
                         </div>
                     </div>
                 </wa-tab-panel>
@@ -1043,9 +1047,9 @@ function onTabShow(event) {
                     <div class="usage-chart-panel">
                         <div v-if="isLoading" class="usage-chart-loading">
                             <wa-spinner></wa-spinner>
-                            <span>Loading usage history…</span>
+                            <span>{{ $t("Loading usage history…") }}</span>
                         </div>
-                        <wa-callout v-else-if="errorMessage" variant="danger" size="small">{{ errorMessage }}</wa-callout>
+                        <wa-callout v-else-if="errorMessage" variant="danger" size="small">{{ $t(errorMessage) }}</wa-callout>
                         <template v-else-if="sevenDayData.length > 0">
                             <div class="usage-chart-wrapper" :class="{ 'is-refreshing': isRefreshing }">
                                 <div v-if="isRefreshing" class="usage-chart-refresh-indicator">
@@ -1134,13 +1138,13 @@ function onTabShow(event) {
                                 </div>
                                 <div class="usage-chart-legend-item">
                                     <span class="usage-chart-legend-ref"></span>
-                                    <span class="usage-chart-legend-text">100% threshold</span>
+                                    <span class="usage-chart-legend-text">{{ $t("100% threshold") }}</span>
                                 </div>
                             </div>
                         </template>
                         <div v-else class="usage-chart-empty">
                             <wa-icon name="chart-line"></wa-icon>
-                            <span>No data available for this period</span>
+                            <span>{{ $t("No data available for this period") }}</span>
                         </div>
                     </div>
                 </wa-tab-panel>

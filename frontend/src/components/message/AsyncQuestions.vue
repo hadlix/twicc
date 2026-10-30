@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 import { computed } from 'vue'
 import { useDataStore } from '../../stores/data'
 import { toast } from '../../composables/useToast'
@@ -33,7 +35,7 @@ function updateChoices(batch, choices) {
     }
     store.setAsyncQuestionDraft(props.sessionId, record).catch(error => {
         console.warn('Failed to save question answers:', error?.name || 'Error')
-        toast.error('Failed to save question answers. Your answers remain in this browser.')
+        toast.error($t("Failed to save question answers. Your answers remain in this browser."))
     })
 }
 </script>
@@ -59,7 +61,7 @@ function updateChoices(batch, choices) {
                 @click="emit('dismiss', batch.item_id)"
             >
                 <wa-icon slot="start" name="ban" variant="classic"></wa-icon>
-                Dismiss
+                {{ $t("Dismiss") }}
             </wa-button>
         </div>
     </div>

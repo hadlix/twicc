@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { parse, compileScript } from '@vue/compiler-sfc'
 import * as Vue from 'vue'
+import * as i18n from '../../src/i18n/index.js'
 import { useVirtualScroll } from '../../src/composables/useVirtualScroll.js'
 import { createRowVisibilityObserver } from '../../src/utils/rowVisibilityObserver.js'
 import * as rangeUpdates from '../../src/utils/virtualScrollRangeUpdates.js'
@@ -11,6 +12,7 @@ export function compileComponent(url, dependencies = {}) {
     let code = compileScript(descriptor, { id: 'loading-test', inlineTemplate: true, templateOptions: { compilerOptions: { isCustomElement: tag => tag.startsWith('wa-') } } }).content
     const modules = { vue: Vue, ...dependencies }
     code = code.replace(/import\s+([\s\S]*?)\s+from\s+['"]([^'"]+)['"];?/g, (_, names, path) => {
+        if (path.endsWith('/i18n/index.js')) modules[path] = i18n
         if (!modules[path]) throw new Error(`Missing dependency ${path}`)
         if (names.startsWith('{')) return `const ${names.replace(/\bas\b/g, ':')} = modules[${JSON.stringify(path)}];`
         return `const ${names} = modules[${JSON.stringify(path)}];`

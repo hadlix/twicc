@@ -1,3 +1,5 @@
+
+import { t as $t } from '../../i18n/index.js'
 /**
  * Pure rules for Codex's multi-agent v2 control tools
  * (`collaboration__followup_task` / `collaboration__send_message` /
@@ -20,9 +22,9 @@ export const INTERRUPT_AGENT_TOOL_NAME = 'collaboration__interrupt_agent'
 // Control tool name -> header label, shown only on a control card (an
 // interaction is set).
 const HEADER_LABEL_BY_TOOL = {
-    [FOLLOWUP_TASK_TOOL_NAME]: 'Follow-up task',
-    [SEND_MESSAGE_TOOL_NAME]: 'Send message',
-    [INTERRUPT_AGENT_TOOL_NAME]: 'Interrupt agent',
+    get [FOLLOWUP_TASK_TOOL_NAME]() { return $t("Follow-up task") },
+    get [SEND_MESSAGE_TOOL_NAME]() { return $t("Send message") },
+    get [INTERRUPT_AGENT_TOOL_NAME]() { return $t("Interrupt agent") },
 }
 
 // The two collaboration tools whose ``message`` argument is Codex
@@ -58,5 +60,5 @@ export function agentControlExpectedCount(name, agentInteraction) {
  */
 export function maskEncryptedMessage(name, input) {
     if (!input || !ENCRYPTED_MESSAGE_TOOLS.has(name) || !('message' in input)) return input
-    return { ...input, message: 'encrypted message' }
+    return { ...input, get message() { return $t("encrypted message") } }
 }

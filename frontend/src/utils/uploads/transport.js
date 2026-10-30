@@ -1,3 +1,5 @@
+
+import { t as $t } from '../../i18n/index.js'
 // frontend/src/utils/uploads/transport.js
 // Transfer constants and the classification of server answers (spec §5.5,
 // §6.4 creation, §6.5 transfer). Pure.
@@ -7,7 +9,7 @@ export const TUS_VERSION = '1.0.0'
 export const CHUNK_SIZE = 8 * 1024 * 1024
 export const RETRY_DELAYS = Object.freeze([0, 1000, 3000, 5000, 10000, 20000, 30000, 60000])
 export const CREATION_TIMEOUT_MS = 30_000
-export const DISK_FULL_MESSAGE = 'Not enough disk space on the server.'
+export const DISK_FULL_MESSAGE = $t("Not enough disk space on the server.")
 
 /**
  * The tus URL of one upload.
@@ -99,7 +101,7 @@ export function tusShouldRetry(err) {
  */
 export function classifyTusError(err, record) {
     if (err?.originalRequest == null) {
-        return { action: 'pause', reason: 'error', message: 'The transfer could not start.' }
+        return { action: 'pause', reason: 'error', get message() { return $t("The transfer could not start.") } }
     }
     const info = tusErrorInfo(err)
     const { status, fromUpload } = info
@@ -111,7 +113,7 @@ export function classifyTusError(err, record) {
         return { action: 'pause', reason: 'error', message: record.error }
     }
     if (status === 500 && fromUpload) {
-        return { action: 'pause', reason: 'error', message: errorMessageOf(err) || 'Server error.' }
+        return { action: 'pause', reason: 'error', message: errorMessageOf(err) || $t("Server error.") }
     }
     if (retryable) return { action: 'pause', reason: 'network', message: null }
     return { action: 'pause', reason: 'error', message: errorMessageOf(err) || statusMessage(status) }
@@ -141,10 +143,10 @@ export function errorMessageOf(err) {
  * @returns {string}
  */
 export function statusMessage(status) {
-    if (!status) return 'The server did not answer.'
+    if (!status) return $t("The server did not answer.")
     if (status === 507) return DISK_FULL_MESSAGE
-    if (status === 410) return 'The upload no longer exists on the server.'
-    if (status === 404) return 'The upload was not found on the server.'
-    if (status === 409) return 'The server is busy with this upload. Try again later.'
-    return `The server answered with status ${status}.`
+    if (status === 410) return $t("The upload no longer exists on the server.")
+    if (status === 404) return $t("The upload was not found on the server.")
+    if (status === 409) return $t("The server is busy with this upload. Try again later.")
+    return $t("The server answered with status {p0}.", { p0: (status) })
 }

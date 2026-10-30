@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../i18n/index.js'
+
 // ArtifactsBrowserView.vue — the main pane in Artifacts mode. Renders a
 // selected bookmark's artifact in a render-only FilePane, with a header to
 // edit / remove the bookmark and jump to its source session. Orphan detection
@@ -195,24 +197,24 @@ function openInSession() {
         <!-- No bookmark selected -->
         <div v-if="bookmarkId == null" class="abv-empty panel-card">
             <wa-icon :name="ARTIFACT_ICON" class="abv-empty__icon"></wa-icon>
-            <div>Select an artifact</div>
+            <div>{{ $t("Select an artifact") }}</div>
             <ArtifactsHelpButton />
         </div>
 
         <!-- Loading (deep-link, not yet in the store) -->
         <div v-else-if="loading && !bookmark" class="abv-empty panel-card">
             <wa-spinner></wa-spinner>
-            <span>Loading…</span>
+            <span>{{ $t("Loading…") }}</span>
         </div>
 
         <!-- Unknown bookmark id -->
         <div v-else-if="notFound" class="abv-empty panel-card">
             <wa-callout variant="warning" size="small">
                 <wa-icon slot="icon" name="triangle-exclamation"></wa-icon>
-                This bookmark no longer exists.
+                {{ $t("This bookmark no longer exists.") }}
                 <div class="abv-callout-actions">
                     <wa-button size="small" variant="neutral" appearance="outlined" @click="backToList">
-                        Back to bookmarks
+                        {{ $t("Back to bookmarks") }}
                     </wa-button>
                 </div>
             </wa-callout>
@@ -232,12 +234,12 @@ function openInSession() {
                         :class="['abv-title-btn', 'reduced-height', { 'abv-title-btn--attention': pendingCount > 0 }]"
                         @click="openEdit"
                     >
-                        <wa-icon name="pencil" label="Edit artifact bookmark"></wa-icon>
+                        <wa-icon name="pencil" :label="$t(&quot;Edit artifact bookmark&quot;)"></wa-icon>
                     </wa-button>
                     <AppTooltip for="abv-edit-button">
                         {{ pendingCount > 0
-                            ? `${pendingCount} network host${pendingCount > 1 ? 's' : ''} awaiting your decision`
-                            : 'Edit artifact bookmark' }}
+                            ? $t("{p0} network host{p1} awaiting your decision", { p0: (pendingCount), p1: (pendingCount > 1 ? 's' : '') })
+                            : $t("Edit artifact bookmark") }}
                     </AppTooltip>
                     <wa-button
                         v-if="isHtml"
@@ -248,9 +250,9 @@ function openInSession() {
                         class="abv-title-btn reduced-height"
                         @click="reloadPreview"
                     >
-                        <wa-icon name="arrows-rotate" label="Reload"></wa-icon>
+                        <wa-icon name="arrows-rotate" :label="$t(&quot;Reload&quot;)"></wa-icon>
                     </wa-button>
-                    <AppTooltip v-if="isHtml" for="abv-refresh-button">Reload</AppTooltip>
+                    <AppTooltip v-if="isHtml" for="abv-refresh-button">{{ $t("Reload") }}</AppTooltip>
                 </div>
                 <div class="abv-header__actions">
                     <wa-button
@@ -264,16 +266,16 @@ function openInSession() {
                         :disabled="!sharingEnabled"
                         @click="openShare"
                     >
-                        <wa-icon name="share-nodes" label="Share"></wa-icon>
+                        <wa-icon name="share-nodes" :label="$t(&quot;Share&quot;)"></wa-icon>
                     </wa-button>
                     <AppTooltip for="abv-share-button">
                         {{ !sharingEnabled
-                            ? 'Configure a share host in Settings → Sharing to create links'
+                            ? $t("Configure a share host in Settings → Sharing to create links")
                             : outdatedShareCount > 0
-                                ? `Share artifact — ${outdatedShareCount} update${outdatedShareCount > 1 ? 's' : ''} to push`
+                                ? $t("Share artifact — {p0} update{p1} to push", { p0: (outdatedShareCount), p1: (outdatedShareCount > 1 ? 's' : '') })
                                 : activeShareCount > 0
-                                    ? `Share artifact (${activeShareCount} active link${activeShareCount > 1 ? 's' : ''})`
-                                    : 'Share artifact' }}
+                                    ? $t("Share artifact ({p0} active link{p1})", { p0: (activeShareCount), p1: (activeShareCount > 1 ? 's' : '') })
+                                    : $t("Share artifact") }}
                     </AppTooltip>
                     <wa-button
                         id="abv-open-session-button"
@@ -283,9 +285,9 @@ function openInSession() {
                         class="reduced-height"
                         @click="openInSession"
                     >
-                        <wa-icon name="house" label="Open in session"></wa-icon>
+                        <wa-icon name="house" :label="$t(&quot;Open in session&quot;)"></wa-icon>
                     </wa-button>
-                    <AppTooltip for="abv-open-session-button">Open in session</AppTooltip>
+                    <AppTooltip for="abv-open-session-button">{{ $t("Open in session") }}</AppTooltip>
                     <wa-button
                         id="abv-remove-button"
                         size="small"
@@ -294,9 +296,9 @@ function openInSession() {
                         class="reduced-height"
                         @click="removeArtifactBookmark"
                     >
-                        <wa-icon name="trash" label="Remove"></wa-icon>
+                        <wa-icon name="trash" :label="$t(&quot;Remove&quot;)"></wa-icon>
                     </wa-button>
-                    <AppTooltip for="abv-remove-button">Remove bookmark</AppTooltip>
+                    <AppTooltip for="abv-remove-button">{{ $t("Remove bookmark") }}</AppTooltip>
                 </div>
             </header>
 
@@ -304,16 +306,16 @@ function openInSession() {
             <div v-if="available === false" class="abv-missing panel-card">
                 <wa-callout variant="warning">
                     <wa-icon slot="icon" name="file-circle-exclamation"></wa-icon>
-                    <strong>This artifact is no longer available.</strong>
-                    <div>The file <code>{{ bookmark.relative_path }}</code> was moved, renamed, or deleted.</div>
+                    <strong>{{ $t("This artifact is no longer available.") }}</strong>
+                    <div>{{ $t("The file") }} <code>{{ bookmark.relative_path }}</code> {{ $t("was moved, renamed, or deleted.") }}</div>
                     <div class="abv-callout-actions">
                         <wa-button size="small" variant="danger" appearance="outlined" @click="removeArtifactBookmark">
                             <wa-icon slot="start" name="trash"></wa-icon>
-                            Remove bookmark
+                            {{ $t("Remove bookmark") }}
                         </wa-button>
                         <wa-button size="small" variant="neutral" appearance="outlined" @click="openInSession">
                             <wa-icon slot="start" name="arrow-up-right-from-square"></wa-icon>
-                            Open the session that created it
+                            {{ $t("Open the session that created it") }}
                         </wa-button>
                     </div>
                 </wa-callout>

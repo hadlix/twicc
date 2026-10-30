@@ -1,9 +1,11 @@
+
+import { t as $t } from '../i18n/index.js'
 import { defineStore } from 'pinia'
 
 // The synthetic "no docks" layout. Injected in code (never stored in layouts.json), always present
 // in every selector, not editable / overwritable / deletable. Its intention is the empty one.
 export const SINGLE_PANE_ID = 'single-pane'
-export const SINGLE_PANE_NAME = 'Single pane'
+export const SINGLE_PANE_NAME = $t("Single pane")
 
 // Keep only the template keys a named layout carries (the structure). Runtime fields
 // (activeByGroup / activeSide / activeResize) and the transient `maximized` are session-only and

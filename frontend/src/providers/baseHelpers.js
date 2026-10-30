@@ -1,3 +1,5 @@
+
+import { t as $t } from '../i18n/index.js'
 import { ephemeralPromptText } from './ephemeralContent.js'
 import { effortIconSrc } from '../utils/effortIcon'
 
@@ -700,8 +702,8 @@ export class BaseProviderHelpers {
         if (!storedModel) return null
         const resolved = this.resolveToAvailableModel(storedModel)
         if (resolved === storedModel) return null
-        return `${this.getModelLabelWithVersion(storedModel)} is no longer available `
-            + `— falling back to ${this.getModelLabelWithVersion(resolved)}.`
+        return $t("{p0} is no longer available ", { p0: (this.getModelLabelWithVersion(storedModel)) })
+            + $t("— falling back to {p0}.", { p0: (this.getModelLabelWithVersion(resolved)) })
     }
 
     // ─── Runtime context-max resolution ──────────────────────────────────
@@ -759,14 +761,14 @@ export class BaseProviderHelpers {
      */
     getFieldLabel(field) {
         const defaults = {
-            selected_model: 'Model',
+            get selected_model() { return $t("Model") },
             permission_mode: 'Permission',
-            permission_mode_if_untrusted: 'Permission (untrusted)',
+            get permission_mode_if_untrusted() { return $t("Permission (untrusted)") },
             effort: 'Effort',
-            thinking_enabled: 'Thinking',
-            claude_in_chrome: 'Claude built-in Chrome MCP',
-            fast_mode: 'Fast mode',
-            context_max: 'Context',
+            get thinking_enabled() { return $t("Thinking") },
+            get claude_in_chrome() { return $t("Claude built-in Chrome MCP") },
+            get fast_mode() { return $t("Fast mode") },
+            get context_max() { return $t("Context") },
         }
         return defaults[field] ?? field
     }
@@ -810,7 +812,7 @@ export class BaseProviderHelpers {
         if (field === 'permission_mode' && context?.untrusted) {
             const allowed = this.getUntrustedPermissionModes()
             if (allowed.length && !allowed.includes(choiceValue)) {
-                return 'Unavailable on untrusted projects.'
+                return $t("Unavailable on untrusted projects.")
             }
         }
         return null
@@ -851,7 +853,7 @@ export class BaseProviderHelpers {
             && context?.clampedPermissionMode != null) {
             const label = this.getChoiceLabel('permission_mode', context.clampedPermissionMode)
                 ?? String(context.clampedPermissionMode)
-            return `Clamped to ${label} — untrusted project.`
+            return $t("Clamped to {p0} — untrusted project.", { p0: (label) })
         }
         return null
     }
@@ -950,7 +952,7 @@ export class BaseProviderHelpers {
         // when off. ``groupWithPrevious`` suppresses the summary separator.
         if (this.supportsAgentSetting('thinking_enabled')) {
             const on = eff('thinking_enabled') === true
-            parts.push({ field: 'thinking_enabled', on, forced: forced('thinking_enabled'), label: on ? 'Thinking' : 'No thinking', groupWithPrevious: true })
+            parts.push({ field: 'thinking_enabled', on, forced: forced('thinking_enabled'), label: on ? $t("Thinking") : $t("No thinking"), groupWithPrevious: true })
         }
 
         // Permission mode — label prefixed by the coloured mode glyph (same
@@ -972,13 +974,13 @@ export class BaseProviderHelpers {
 
         // Fast mode — only when on.
         if (this.supportsAgentSetting('fast_mode') && eff('fast_mode')) {
-            parts.push({ field: 'fast_mode', on: true, forced: forced('fast_mode'), label: 'Fast mode' })
+            parts.push({ field: 'fast_mode', on: true, forced: forced('fast_mode'), get label() { return $t("Fast mode") } })
         }
 
         // Chrome MCP — kept last.
         if (this.supportsAgentSetting('claude_in_chrome')) {
             const on = eff('claude_in_chrome') === true
-            parts.push({ field: 'claude_in_chrome', on, forced: forced('claude_in_chrome'), label: on ? 'Chrome MCP' : 'No Chrome MCP' })
+            parts.push({ field: 'claude_in_chrome', on, forced: forced('claude_in_chrome'), label: on ? $t("Chrome MCP") : $t("No Chrome MCP") })
         }
 
         return parts
@@ -1035,18 +1037,18 @@ export class BaseProviderHelpers {
      * Default uses the provider's ``label`` for the agent's display name.
      */
     getStartupWarningText(context) {
-        const label = this.constructor.label ?? 'Agent'
+        const label = this.constructor.label ?? $t("Agent")
         const prefix = context?.processStateName === 'assistant_turn'
-            ? `Once ${label} finishes its current work, the`
+            ? $t("Once {p0} finishes its current work, the", { p0: (label) })
             : 'The'
         if (context?.hasCrons) {
-            const suffix = context.hasMessageText ? ', after which your message will be sent.' : '.'
-            return `${prefix} ${label} process will be stopped to apply these settings, then resumed to restart the current cron jobs${suffix}`
+            const suffix = context.hasMessageText ? $t(", after which your message will be sent.") : '.'
+            return $t("{p0} {p1} process will be stopped to apply these settings, then resumed to restart the current cron jobs{p2}", { p0: (prefix), p1: (label), p2: (suffix) })
         }
         const suffix = context?.hasMessageText
-            ? 'Your message will be sent after the process restarts.'
-            : 'Your next message will resume the session.'
-        return `${prefix} ${label} process will be stopped to apply these settings. ${suffix}`
+            ? $t("Your message will be sent after the process restarts.")
+            : $t("Your next message will resume the session.")
+        return $t("{p0} {p1} process will be stopped to apply these settings. {p2}", { p0: (prefix), p1: (label), p2: (suffix) })
     }
 
     /**
@@ -1057,10 +1059,10 @@ export class BaseProviderHelpers {
      * uses the provider's ``label`` for the agent's display name.
      */
     getIdleWarningText(context) {
-        const label = this.constructor.label ?? 'Agent'
+        const label = this.constructor.label ?? $t("Agent")
         return context?.hasMessageText
-            ? `Once ${label} finishes its current work, your changes will take effect and your message will be sent.`
-            : `Once ${label} finishes its current work, the new settings will take effect.`
+            ? $t("Once {p0} finishes its current work, your changes will take effect and your message will be sent.", { p0: (label) })
+            : $t("Once {p0} finishes its current work, the new settings will take effect.", { p0: (label) })
     }
 
     /**
@@ -1105,7 +1107,7 @@ export class BaseProviderHelpers {
         return {
             value: entry.selected_model,
             label: baseLabel,
-            labelWithSuffix: disabled ? `${baseLabel} (not available)` : baseLabel,
+            labelWithSuffix: disabled ? $t("{p0} (not available)", { p0: (baseLabel) }) : baseLabel,
             disabled,
             description: disabled ? (entry.disable_reason || null) : null,
         }

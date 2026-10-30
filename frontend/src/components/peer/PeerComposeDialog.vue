@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 /**
  * PeerComposeDialog — the owner writes a peer message directly.
  *
@@ -107,7 +109,7 @@ function errorText(payload) {
     if (Array.isArray(errors) && errors.length) {
         return errors.map(e => e.message || e.code).join(' — ')
     }
-    return payload?.error || 'Request failed.'
+    return payload?.error || $t("Request failed.")
 }
 
 async function handleSend() {
@@ -115,11 +117,11 @@ async function handleSend() {
     const cleanTitle = title.value.trim()
     const cleanText = text.value.trim()
     if (!selectedPeerId.value) {
-        error.value = 'Pick a peer.'
+        error.value = $t("Pick a peer.")
         return
     }
     if (!cleanTitle || !cleanText) {
-        error.value = 'Title and message are both required.'
+        error.value = $t("Title and message are both required.")
         return
     }
     busy.value = true
@@ -158,7 +160,7 @@ async function handleSend() {
         proposedTitle.value = ''
         emit('close')
     } catch {
-        error.value = 'Request failed.'
+        error.value = $t("Request failed.")
     } finally {
         busy.value = false
     }
@@ -220,7 +222,7 @@ function onAfterShow(event) {
 <template>
     <wa-dialog
         ref="dialogRef" :open="open"
-        label="Send a message to a peer"
+        :label="$t(&quot;Send a message to a peer&quot;)"
         style="--width: min(560px, calc(100vw - 2rem))"
         @wa-show="onShow"
         @wa-after-show="onAfterShow"
@@ -228,7 +230,7 @@ function onAfterShow(event) {
     >
         <form :id="formId" class="pc-form" @submit.prevent="handleSend">
             <p v-if="isReply" class="pc-reply">
-                <span class="pc-reply__label">In reply to their</span>
+                <span class="pc-reply__label">{{ $t("In reply to their") }}</span>
                 <span v-if="replyToTitle" class="pc-reply__title">“{{ replyToTitle }}”</span>
             </p>
             <!-- The answered message's fate rides with the reply. Radios: three
@@ -236,17 +238,17 @@ function onAfterShow(event) {
                  changes nothing. -->
             <wa-radio-group
                 v-if="canResolveAnswered"
-                size="small" label="The message you are answering"
+                size="small" :label="$t(&quot;The message you are answering&quot;)"
                 :value="resolution" :disabled="busy"
                 @change="resolution = $event.target.value"
             >
-                <wa-radio value="open">Keep it open — it still awaits your decision</wa-radio>
-                <wa-radio value="done">Mark it done — you dealt with it yourself, no agent needed</wa-radio>
-                <wa-radio value="refused">Refuse it</wa-radio>
+                <wa-radio value="open">{{ $t("Keep it open — it still awaits your decision") }}</wa-radio>
+                <wa-radio value="done">{{ $t("Mark it done — you dealt with it yourself, no agent needed") }}</wa-radio>
+                <wa-radio value="refused">{{ $t("Refuse it") }}</wa-radio>
             </wa-radio-group>
 
             <wa-select
-                v-model="selectedPeerId" size="small" label="Peer"
+                v-model="selectedPeerId" size="small" :label="$t(&quot;Peer&quot;)"
                 :disabled="isReply || busy"
             >
                 <wa-option
@@ -254,12 +256,12 @@ function onAfterShow(event) {
                     :value="peer.id" :label="peersStore.peerLabel(peer.id)"
                 >{{ peersStore.peerLabel(peer.id) }}</wa-option>
             </wa-select>
-            <p v-if="!activePeers.length" class="pc-hint">No active peer to write to.</p>
+            <p v-if="!activePeers.length" class="pc-hint">{{ $t("No active peer to write to.") }}</p>
 
             <!-- A reply inherits its thread's project: no select for it. -->
             <wa-select
                 v-if="!isReply"
-                v-model="selectedProjectId" size="small" label="Project"
+                v-model="selectedProjectId" size="small" :label="$t(&quot;Project&quot;)"
                 hint="Optional — where this message counts in the inbox"
                 :disabled="busy"
             >
@@ -270,46 +272,44 @@ function onAfterShow(event) {
                     :icon-url="projectIconUrl"
                     :color="projectDotColor"
                 />
-                <wa-option value="">None</wa-option>
+                <wa-option value="">{{ $t("None") }}</wa-option>
                 <ProjectSelectOptions :projects="selectableProjects" include-worktrees />
             </wa-select>
 
             <wa-input
                 ref="titleInputRef"
-                size="small" label="Title" :maxlength="PEER_MESSAGE_TITLE_MAX_CHARS"
-                placeholder="One line, like an email subject"
+                size="small" :label="$t(&quot;Title&quot;)" :maxlength="PEER_MESSAGE_TITLE_MAX_CHARS"
+                :placeholder="$t(&quot;One line, like an email subject&quot;)"
                 :value="title" :disabled="busy"
                 @input="title = $event.target.value"
             ></wa-input>
 
             <wa-textarea
                 ref="textInputRef"
-                size="small" label="Message" rows="6"
-                placeholder="Sent exactly as written — the receiving side sees it comes directly from you"
+                size="small" :label="$t(&quot;Message&quot;)" rows="6"
+                :placeholder="$t(&quot;Sent exactly as written — the receiving side sees it comes directly from you&quot;)"
                 :value="text" :disabled="busy"
                 @input="text = $event.target.value"
             ></wa-textarea>
 
             <p class="pc-hint">
-                Text only, sent in your name — no attachments, and nothing is kept if
-                you close. For attachments, or to have the message composed for you,
-                ask an agent to send it.
+                {{ $t("Text only, sent in your name — no attachments, and nothing is kept if you close. For attachments, or to have the message composed for you, ask an agent to send it.") }}
             </p>
 
-            <wa-callout v-if="error" variant="danger" size="small">{{ error }}</wa-callout>
+            <wa-callout v-if="error" variant="danger" size="small">{{ $t(error) }}</wa-callout>
             <wa-callout v-if="confirmingDiscard" variant="warning" size="small">
                 <div class="pc-confirm-body">
-                    <span>Discard this message? Nothing is saved.</span>
+                    <span>{{ $t("Discard this message? Nothing is saved.") }}</span>
                     <span class="pc-confirm__actions">
-                        <wa-button size="small" variant="danger" @click="discard">Discard</wa-button>
-                        <wa-button size="small" appearance="outlined" @click="confirmingDiscard = false">Keep writing</wa-button>
+                        <wa-button size="small" variant="danger" @click="discard">{{ $t("Discard") }}</wa-button>
+                        <wa-button size="small" appearance="outlined" @click="confirmingDiscard = false">{{ $t("Keep writing") }}</wa-button>
                     </span>
                 </div>
             </wa-callout>
         </form>
 
         <div slot="footer" class="pc-footer">
-            <wa-button :disabled="busy" @click="attemptClose">Cancel</wa-button>
+            <wa-button :disabled="busy" @click="attemptClose">{{ $t("Cancel") }}</wa-button>
             <wa-button
                 ref="sendButtonRef"
                 variant="brand" type="submit"
@@ -317,7 +317,7 @@ function onAfterShow(event) {
                 :loading="busy"
             >
                 <wa-icon name="paper-plane" slot="start"></wa-icon>
-                Send
+                {{ $t("Send") }}
             </wa-button>
         </div>
     </wa-dialog>

@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../../../i18n/index.js'
+
 // Failure banner shown under a failed-send bubble (messaging pattern: an
 // undeliverable message stays in the conversation flow, marked failed, with
 // Retry / Edit / Delete actions). Provider-agnostic — the bubble itself is
@@ -53,7 +55,7 @@ const composerReadyAgain = computed(() =>
 
 const displayMessage = computed(() =>
     composerReadyAgain.value
-        ? 'The Claude CLI terminal was blocked and is ready again — retry to send your message.'
+        ? $t("The Claude CLI terminal was blocked and is ready again — retry to send your message.")
         : (failedSend.value?.message || '')
 )
 
@@ -157,7 +159,7 @@ async function retry() {
         })
         store.removeFailedSend(props.sessionId, entry.requestId)
     } catch {
-        toast.error('Failed to save the retry. Your message remains available for recovery.')
+        toast.error($t("Failed to save the retry. Your message remains available for recovery."))
     }
 }
 
@@ -196,7 +198,7 @@ async function edit() {
             store.removeFailedSend(props.sessionId, entry.requestId)
         }
     } catch {
-        toast.error('Failed to restore the message. Your message remains available for recovery.')
+        toast.error($t("Failed to restore the message. Your message remains available for recovery."))
     }
 }
 
@@ -225,10 +227,10 @@ function discard() {
         <div class="failed-send-content">
             <div class="failed-send-message">{{ displayMessage }}</div>
             <div v-if="nothingLeftToSend" class="failed-send-note">
-                Its attachments were too large to preserve, and it carried no text — nothing is left to retry.
+                {{ $t("Its attachments were too large to preserve, and it carried no text — nothing is left to retry.") }}
             </div>
             <div v-else-if="failedSend.mediasDropped" class="failed-send-note">
-                Its attachments were too large to preserve — only the text can be retried or edited.
+                {{ $t("Its attachments were too large to preserve — only the text can be retried or edited.") }}
             </div>
             <div class="failed-send-actions">
                 <wa-button
@@ -239,7 +241,7 @@ function discard() {
                     @click="guarded(retry)"
                 >
                     <wa-icon slot="start" name="rotate-right"></wa-icon>
-                    Retry
+                    {{ $t("Retry") }}
                 </wa-button>
                 <wa-button
                     v-if="insertTextAtCursor"
@@ -250,10 +252,10 @@ function discard() {
                     @click="guarded(edit)"
                 >
                     <wa-icon slot="start" name="pen"></wa-icon>
-                    Edit
+                    {{ $t("Edit") }}
                 </wa-button>
                 <wa-button size="small" variant="neutral" appearance="plain" :disabled="actionInProgress || uncertain" @click="discard">
-                    Delete
+                    {{ $t("Delete") }}
                 </wa-button>
             </div>
         </div>

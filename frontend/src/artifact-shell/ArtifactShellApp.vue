@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../i18n/index.js'
+
 // Root of the dedicated artifact page's trusted shell (design §5/§9). It iframes
 // the artifact's inner document and mounts the *same* broker host + consent
 // prompt the in-SPA preview uses, through the shared `useArtifactBroker`
@@ -102,14 +104,14 @@ onMounted(() => {
          navigation, popups and modals do not. Same-origin kept (localStorage
          works; design §13). -->
     <div v-if="updated" class="share-update-banner">
-        This artifact was updated — <a href="#" @click.prevent="reloadPage">Reload</a>
+        {{ $t("This artifact was updated —") }} <a href="#" @click.prevent="reloadPage">{{ $t("Reload") }}</a>
     </div>
     <iframe
         ref="iframeRef"
         :src="innerDocUrl"
         class="artifact-frame"
         sandbox="allow-scripts allow-same-origin allow-forms"
-        title="Artifact"
+        :title="$t(&quot;Artifact&quot;)"
     ></iframe>
     <!-- Share mode gets the same "Shared with TwiCC" footer as the session/doc
          share viewers (one component); the in-app owner page (a plain tool view) does not. -->
@@ -117,10 +119,9 @@ onMounted(() => {
     <!-- Share mode never prompts (server enforces the owner allowlist, D6). -->
     <ArtifactBrokerPrompt v-if="mode !== 'share'" :prompt="brokerPrompt" @decision="onBrokerDecision" />
     <div v-if="blockedHosts.length" class="share-blocked-banner">
-        This artifact tried to reach <code>{{ blockedHosts.join(', ') }}</code> —
-        {{ blockedHosts.length > 1 ? 'these hosts are' : 'this host is' }} not authorized
-        by the share owner, so parts of the page may not work.
-        <a href="#" @click.prevent="blockedHosts = []">Dismiss</a>
+        {{ $t("This artifact tried to reach") }} <code>{{ blockedHosts.join(', ') }}</code> {{ $t("—") }}
+        {{ blockedHosts.length > 1 ? $t("these hosts are") : $t("this host is") }} {{ $t("not authorized by the share owner, so parts of the page may not work.") }}
+        <a href="#" @click.prevent="blockedHosts = []">{{ $t("Dismiss") }}</a>
     </div>
 </template>
 

@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../../i18n/index.js'
+
 // Save the current session's layout to the named-layouts catalog: either overwrite an existing
 // named layout, or create a new one (name prefilled "Default"). On save it can also set the layout
 // as the default for new sessions at one or more scopes — worktree / project / global — each an
@@ -97,19 +99,19 @@ async function handleSave() {
         if (isNew.value) {
             const trimmed = newName.value.trim()
             if (!trimmed) {
-                errorMessage.value = 'Name cannot be empty.'
+                errorMessage.value = $t("Name cannot be empty.")
                 return
             }
             const dup = existingLayouts.value.some((l) => l.name.trim().toLowerCase() === trimmed.toLowerCase())
             if (dup) {
-                errorMessage.value = `A layout named "${trimmed}" already exists.`
+                errorMessage.value = $t("A layout named \"{p0}\" already exists.", { p0: (trimmed) })
                 return
             }
             savedId.value = layoutsStore.upsertLayout({ name: trimmed, intention: props.intention })
         } else {
             const existing = layoutsStore.getLayoutById(target.value)
             if (!existing) {
-                errorMessage.value = 'That layout no longer exists.'
+                errorMessage.value = $t("That layout no longer exists.")
                 return
             }
             savedId.value = layoutsStore.upsertLayout({ id: existing.id, name: existing.name, intention: props.intention })
@@ -117,7 +119,7 @@ async function handleSave() {
     }
     const id = savedId.value
     if (!id) {
-        errorMessage.value = 'Could not save the layout.'
+        errorMessage.value = $t("Could not save the layout.")
         return
     }
 
@@ -136,12 +138,12 @@ async function handleSave() {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ default_layout_id: id }),
                 })
-                if (!res.ok) throw new Error('project update failed')
+                if (!res.ok) throw new Error($t("project update failed"))
                 dataStore.updateProject(await res.json())
             }
         }
     } catch {
-        errorMessage.value = 'Could not set all defaults. Please retry.'
+        errorMessage.value = $t("Could not set all defaults. Please retry.")
         isSaving.value = false
         return
     }
@@ -157,38 +159,38 @@ defineExpose({ open, close })
 <template>
     <wa-dialog
         ref="dialogRef"
-        label="Save layout"
+        :label="$t(&quot;Save layout&quot;)"
         class="layout-save-dialog"
         @wa-show="handleDialogShow"
         @wa-after-show="handleDialogAfterShow"
     >
         <form :id="formId" class="dialog-content" @submit.prevent="handleSave">
             <div class="form-group">
-                <label class="form-label">Save to</label>
+                <label class="form-label">{{ $t("Save to") }}</label>
                 <wa-select
                     :value.prop="target"
                     @change="target = $event.target.value"
                     size="small"
                 >
-                    <wa-option :value="NEW">New layout…</wa-option>
-                    <wa-option v-for="l in existingLayouts" :key="l.id" :value="l.id" :label="`Overwrite “${l.name}”`">
-                        Overwrite “{{ l.name }}”
+                    <wa-option :value="NEW">{{ $t("New layout…") }}</wa-option>
+                    <wa-option v-for="l in existingLayouts" :key="l.id" :value="l.id" :label="$t(&quot;Overwrite “{p0}”&quot;, { p0: (l.name) })">
+                        {{ $t("Overwrite “") }}{{ l.name }}”
                     </wa-option>
                 </wa-select>
             </div>
 
             <div v-if="isNew" class="form-group">
-                <label class="form-label">Name</label>
+                <label class="form-label">{{ $t("Name") }}</label>
                 <wa-input
                     ref="nameInputRef"
                     :value.prop="newName"
                     @input="newName = $event.target.value"
-                    placeholder="Layout name"
+                    :placeholder="$t(&quot;Layout name&quot;)"
                 ></wa-input>
             </div>
 
             <div v-if="props.scopes.length" class="form-group">
-                <label class="form-label">Set as default for new sessions</label>
+                <label class="form-label">{{ $t("Set as default for new sessions") }}</label>
                 <wa-checkbox
                     v-for="s in props.scopes"
                     :key="s.key"
@@ -196,21 +198,20 @@ defineExpose({ open, close })
                     :disabled="isSaving"
                     @change="checked[s.key] = $event.target.checked"
                 >{{ s.label }}
-                    <span class="scope-current">(current{{ s.inherited ? ' (inherited)' : '' }}: {{ s.currentName }})</span>
+                    <span class="scope-current">{{ $t("(current") }}{{ s.inherited ? $t(" (inherited)") : '' }}: {{ s.currentName }})</span>
                 </wa-checkbox>
                 <p class="dialog-help">
-                    The global default can also be changed later in Settings → Layouts, and the
-                    {{ hasWorktreeScope ? 'project / worktree defaults' : 'project default' }} in a
-                    project's edit dialog.
+                    {{ $t("The global default can also be changed later in Settings → Layouts, and the") }}
+                    {{ hasWorktreeScope ? $t("project / worktree defaults") : $t("project default") }} {{ $t("in a project's edit dialog.") }}
                 </p>
             </div>
 
-            <wa-callout v-if="errorMessage" variant="danger" size="small">{{ errorMessage }}</wa-callout>
+            <wa-callout v-if="errorMessage" variant="danger" size="small">{{ $t(errorMessage) }}</wa-callout>
         </form>
 
         <div slot="footer" class="dialog-footer">
-            <wa-button variant="neutral" appearance="outlined" :disabled="isSaving" @click="close">Cancel</wa-button>
-            <wa-button ref="saveButtonRef" type="submit" variant="brand" :loading="isSaving">Save</wa-button>
+            <wa-button variant="neutral" appearance="outlined" :disabled="isSaving" @click="close">{{ $t("Cancel") }}</wa-button>
+            <wa-button ref="saveButtonRef" type="submit" variant="brand" :loading="isSaving">{{ $t("Save") }}</wa-button>
         </div>
     </wa-dialog>
 </template>

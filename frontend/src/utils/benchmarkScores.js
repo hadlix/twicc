@@ -1,3 +1,5 @@
+
+import { t as $t } from '../i18n/index.js'
 /**
  * Model × effort scores — the "target ability" model.
  *
@@ -51,13 +53,13 @@ export const EVAL_LABELS = {
 // Task types, in display order. ``evals: null`` = the Intelligence Index, with
 // Terminal-Bench 4.0 cost and time.
 export const TASK_TYPES = [
-    { id: 'general', label: 'General (Intelligence Index)', evals: null },
-    { id: 'coding', label: 'Coding & terminal', evals: ['terminalbench_4_0', 'scicode'] },
-    { id: 'office', label: 'Office & knowledge work', evals: ['aa_briefcase', 'gdpval_aa', 'gdp_pdf'] },
-    { id: 'automation', label: 'Automation & tools', evals: ['automationbench_aa'] },
-    { id: 'science', label: 'Science & reasoning', evals: ['humanitys_last_exam', 'critpt', 'scicode'] },
-    { id: 'knowledge', label: 'Factual knowledge', evals: ['aa_omniscience'] },
-    { id: 'longdocs', label: 'Long documents', evals: ['aa_lcr'] },
+    { id: 'general', get label() { return $t("General (Intelligence Index)") }, evals: null },
+    { id: 'coding', get label() { return $t("Coding & terminal") }, evals: ['terminalbench_4_0', 'scicode'] },
+    { id: 'office', get label() { return $t("Office & knowledge work") }, evals: ['aa_briefcase', 'gdpval_aa', 'gdp_pdf'] },
+    { id: 'automation', get label() { return $t("Automation & tools") }, evals: ['automationbench_aa'] },
+    { id: 'science', get label() { return $t("Science & reasoning") }, evals: ['humanitys_last_exam', 'critpt', 'scicode'] },
+    { id: 'knowledge', get label() { return $t("Factual knowledge") }, evals: ['aa_omniscience'] },
+    { id: 'longdocs', get label() { return $t("Long documents") }, evals: ['aa_lcr'] },
 ]
 
 // Evaluation scores not already a 0..1 rate: Elo as Artificial Analysis converts
@@ -68,7 +70,7 @@ const EVAL_NORMALIZERS = {
     aa_omniscience: s => (s + 100) / 200,
 }
 
-const DASH = '—'
+const DASH = $t("—")
 
 const isNum = v => typeof v === 'number' && Number.isFinite(v)
 
@@ -246,7 +248,7 @@ export function formatCost(x) {
 export function formatTime(seconds) {
     if (!isNum(seconds)) return DASH
     const s = Math.round(seconds * 10) / 10
-    return s < 60 ? `${s.toFixed(1)} s` : `${(s / 60).toFixed(1)} min`
+    return s < 60 ? `${s.toFixed(1)} s` : $t("{p0} min", { p0: ((s / 60).toFixed(1)) })
 }
 
 /**
@@ -263,29 +265,29 @@ export function formatBenchmarkDetails(row, scored, taskType) {
     const one = x => (isNum(x) ? x.toFixed(1) : DASH)
     return [
         {
-            label: 'Score',
+            get label() { return $t("Score") },
             value: isNum(scored?.score) ? String(scored.score) : DASH,
-            description: 'Our score for this task: 100 = best choice.',
+            get description() { return $t("Our score for this task: 100 = best choice.") },
         },
         {
-            label: type.evals ? `${type.label} score` : 'Intelligence Index',
+            label: type.evals ? $t("{p0} score", { p0: (type.label) }) : 'Intelligence Index',
             value: one(m.ability),
-            description: "The couple's ability on this task type (0–100).",
+            get description() { return $t("The couple's ability on this task type (0–100).") },
         },
         {
-            label: 'Target',
+            get label() { return $t("Target") },
             value: one(scored?.target),
-            description: 'The level set by Task difficulty.',
+            get description() { return $t("The level set by Task difficulty.") },
         },
         {
-            label: 'Cost / task',
+            get label() { return $t("Cost / task") },
             value: formatCost(m.cost),
-            description: 'Average cost of one task.',
+            get description() { return $t("Average cost of one task.") },
         },
         {
-            label: 'Time / task',
+            get label() { return $t("Time / task") },
             value: formatTime(m.time),
-            description: 'Average decode time of one task.',
+            get description() { return $t("Average decode time of one task.") },
         },
     ]
 }

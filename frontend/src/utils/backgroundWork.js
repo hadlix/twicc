@@ -1,3 +1,5 @@
+
+import { t as $t } from '../i18n/index.js'
 // frontend/src/utils/backgroundWork.js
 //
 // Wording and decisions for the work an agent leaves running after its turn
@@ -21,7 +23,7 @@ import { PROCESS_STATE, PROCESS_STATE_NAMES } from '../constants.js'
  * @returns {string}
  */
 export function pluralize(count, singular, pluralForm = `${singular}s`) {
-    return `${count} ${count === 1 ? singular : pluralForm}`
+    return `${count} ${$t(count === 1 ? singular : pluralForm)}`
 }
 
 /**
@@ -65,7 +67,7 @@ export function activeCronCount(processState) {
  * @returns {string}
  */
 export function backgroundShellsRunningPhrase(shellCount) {
-    return `${pluralize(shellCount, 'background shell')} running`
+    return $t("{p0} running", { p0: (pluralize(shellCount, 'background shell')) })
 }
 
 /**
@@ -78,7 +80,7 @@ export function backgroundShellsRunningPhrase(shellCount) {
  */
 export function processStateTooltip(providerLabel, processState) {
     const state = processState?.state
-    let text = `${providerLabel} state: ${PROCESS_STATE_NAMES[state] ?? state}`
+    let text = $t("{p0} state: {p1}", { p0: (providerLabel), p1: (PROCESS_STATE_NAMES[state] ?? state) })
     const shells = userTurnBackgroundShellCount(processState)
     if (shells) text += ` — ${backgroundShellsRunningPhrase(shells)}`
     const crons = activeCronCount(processState)
@@ -111,7 +113,7 @@ export function aggregatedBackgroundSuffix({ shells = 0, crons = 0 } = {}) {
  * @returns {string}
  */
 export function idleWithShellsSuffix(sessionCount) {
-    return sessionCount > 0 ? `, ${sessionCount} with background shells` : ''
+    return sessionCount > 0 ? $t(", {p0} with background shells", { p0: (sessionCount) }) : ''
 }
 
 /**
@@ -142,7 +144,7 @@ export function buildBackgroundWorkStatusLines(processState, nowSeconds) {
     const lines = []
     const shells = backgroundShellCount(processState)
     if (shells) {
-        lines.push({ kind: 'shells', text: `${pluralize(shells, 'background shell')} still running` })
+        lines.push({ kind: 'shells', get text() { return $t("{p0} still running", { p0: (pluralize(shells, 'background shell')) }) } })
     }
     const crons = activeCronCount(processState)
     if (crons) {
@@ -156,7 +158,7 @@ export function buildBackgroundWorkStatusLines(processState, nowSeconds) {
         const label = pluralize(crons, 'active cron')
         lines.push({
             kind: 'crons',
-            text: nextFire === null ? label : `${label} — next run at ${formatClockTime(nextFire)}`,
+            text: nextFire === null ? label : $t("{p0} — next run at {p1}", { p0: (label), p1: (formatClockTime(nextFire)) }),
         })
     }
     return lines
@@ -200,9 +202,9 @@ export function getStopConfirmation(processState) {
  * @returns {string}
  */
 export function stopConfirmationTitle({ cronCount = 0, shellCount = 0 } = {}) {
-    if (cronCount && shellCount) return 'Background work will be lost'
-    if (shellCount) return 'Background shells will be killed'
-    return 'Active crons will be lost'
+    if (cronCount && shellCount) return $t("Background work will be lost")
+    if (shellCount) return $t("Background shells will be killed")
+    return $t("Active crons will be lost")
 }
 
 /**
@@ -212,7 +214,7 @@ export function stopConfirmationTitle({ cronCount = 0, shellCount = 0 } = {}) {
  * @returns {string}
  */
 export function backgroundShellsKillSentence(shellCount) {
-    return `Stopping will kill ${pluralize(shellCount, 'background shell')}.`
+    return $t("Stopping will kill {p0}.", { p0: (pluralize(shellCount, 'background shell')) })
 }
 
 /**
@@ -228,13 +230,13 @@ export function backgroundShellsKillSentence(shellCount) {
 export function batchStopConfirmationMessage({ mode, processCount = 0, cronCount = 0, shellCount = 0 }) {
     const parts = []
     if (mode === 'archive' && processCount > 0) {
-        parts.push(`${pluralize(processCount, 'running process', 'running processes')} will be stopped.`)
+        parts.push($t("{p0} will be stopped.", { p0: (pluralize(processCount, 'running process', 'running processes')) }))
     }
     if (shellCount > 0) {
-        parts.push(`${pluralize(shellCount, 'background shell')} will be killed.`)
+        parts.push($t("{p0} will be killed.", { p0: (pluralize(shellCount, 'background shell')) }))
     }
     if (cronCount > 0) {
-        parts.push(`${pluralize(cronCount, 'active cron job')} will be cancelled.`)
+        parts.push($t("{p0} will be cancelled.", { p0: (pluralize(cronCount, 'active cron job')) }))
     }
     return parts.join(' ')
 }
@@ -249,8 +251,8 @@ export function batchStopConfirmationMessage({ mode, processCount = 0, cronCount
  * @returns {string}
  */
 export function archiveStopLabel(prefix, providerLabel, shellCount) {
-    const shells = shellCount > 0 ? ` and kill ${pluralize(shellCount, 'background shell')}` : ''
-    return `${prefix} (it will stop the ${providerLabel} process${shells})`
+    const shells = shellCount > 0 ? $t(" and kill {p0}", { p0: (pluralize(shellCount, 'background shell')) }) : ''
+    return $t("{p0} (it will stop the {p1} process{p2})", { p0: (prefix), p1: (providerLabel), p2: (shells) })
 }
 
 /**
@@ -268,8 +270,8 @@ export function startupSettingsDeferredText({ label, shellCount, hasMessageText,
     const shells = pluralize(shellCount, 'background shell')
     const verb = shellCount === 1 ? 'ends' : 'end'
     const wait = working
-        ? `once ${label} finishes its current work and the ${shells} ${verb}`
-        : `once the ${shells} ${verb}`
-    const text = `The restart these settings need will happen ${wait}, or when you stop the ${label} process.`
-    return hasMessageText ? `${text} Your message will be sent now, before the restart.` : text
+        ? $t("once {p0} finishes its current work and the {p1} {p2}", { p0: (label), p1: (shells), p2: (verb) })
+        : $t("once the {p0} {p1}", { p0: (shells), p1: (verb) })
+    const text = $t("The restart these settings need will happen {p0}, or when you stop the {p1} process.", { p0: (wait), p1: (label) })
+    return hasMessageText ? $t("{p0} Your message will be sent now, before the restart.", { p0: (text) }) : text
 }

@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 /**
  * SessionSwitcher — the overlay panel for the Ctrl+` session switcher.
  *
@@ -28,7 +30,7 @@ const route = useRoute()
 const store = useDataStore()
 const { visible, mode, items, cursor, pointTo, commitTo, cancel } = useSessionSwitcher()
 
-const modeLabel = computed(() => (mode.value === 'list' ? 'Displayed sessions' : 'Recent sessions'))
+const modeLabel = computed(() => (mode.value === 'list' ? $t("Displayed sessions") : $t("Recent sessions")))
 
 /**
  * Color for the project dot: the project's own color, or — for a worktree with
@@ -42,7 +44,7 @@ function projectDotColor(session) {
 }
 
 function displayName(session) {
-    if (session.draft && !session.title) return 'New session'
+    if (session.draft && !session.title) return $t("New session")
     return session.title || session.id
 }
 
@@ -109,7 +111,7 @@ useGlideInk({
                 <div class="switcher-panel glass-surface" role="listbox" :aria-label="modeLabel">
                     <div class="switcher-header">
                         <span class="switcher-mode">{{ modeLabel }}</span>
-                        <span class="switcher-hint"><kbd>⇧</kbd> to switch</span>
+                        <span class="switcher-hint"><kbd>⇧</kbd> {{ $t("to switch") }}</span>
                     </div>
                     <div ref="listRef" class="switcher-list">
                         <span ref="listInkRef" class="glide-ink" aria-hidden="true"></span>
@@ -135,26 +137,26 @@ useGlideInk({
                             <wa-icon
                                 v-if="row.session.archived"
                                 name="box-archive"
-                                label="Archived"
+                                :label="$t(&quot;Archived&quot;)"
                                 class="session-state-icon session-state-icon--archived"
                             ></wa-icon>
                             <wa-icon
                                 v-if="row.session.ephemeral && !row.session.archived"
                                 name="ghost"
-                                label="Ephemeral session"
+                                :label="$t(&quot;Ephemeral session&quot;)"
                                 class="session-state-icon session-state-icon--ephemeral"
                                 :class="row.session.ephemeralPhase"
                             ></wa-icon>
                             <wa-icon
                                 v-if="row.isDraft && !row.session.archived"
                                 name="file-pen"
-                                label="Draft"
+                                :label="$t(&quot;Draft&quot;)"
                                 class="session-state-icon session-state-icon--draft"
                             ></wa-icon>
                             <wa-icon
                                 v-if="row.session.stale"
                                 name="link-slash"
-                                label="Session files deleted"
+                                :label="$t(&quot;Session files deleted&quot;)"
                                 class="session-state-icon session-state-icon--stale"
                             ></wa-icon>
                             <span class="switcher-name">{{ row.name }}</span>

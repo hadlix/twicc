@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 defineProps({
     loading: {
         type: Boolean,
@@ -19,7 +21,7 @@ function handleRetry() {
             <wa-icon slot="icon" name="triangle-exclamation"></wa-icon>
             <div class="error-content">
                 <div class="error-message">
-                    <slot>An error occurred while loading data</slot>
+                    <slot>{{ $t("An error occurred while loading data") }}</slot>
                 </div>
                 <wa-button
                     variant="danger"
@@ -30,7 +32,7 @@ function handleRetry() {
                     @click="handleRetry"
                 >
                     <wa-icon slot="start" name="arrow-rotate-right"></wa-icon>
-                    Retry
+                    {{ $t("Retry") }}
                 </wa-button>
             </div>
         </wa-callout>

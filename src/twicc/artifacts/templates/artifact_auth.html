@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ ui_language }}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>TwiCC — Password required</title>
+<title>{{ ui.page_title }}</title>
 <script>
 /* Pick the saved colour scheme before paint to avoid a flash. Dark is the
    default; switch to light only when the stored setting (or, when "system", the
@@ -59,13 +59,13 @@ button:hover{filter:brightness(1.08)}
       </g>
     </svg>
     <h1 class="title">TwiCC</h1>
-    <p class="sub">Password required to view this artifact</p>
+    <p class="sub">{{ ui.artifact_intro }}</p>
   </div>
   <input type="hidden" name="redirect" value="{{ redirect }}">
-  <label for="pw">Password</label>
-  <input id="pw" type="password" name="password" placeholder="Enter password" autofocus autocomplete="current-password">
-  {% if error %}<p class="err">Incorrect password. Try again.</p>{% endif %}
-  <button type="submit">Sign in</button>
+  <label for="pw">{{ ui.password }}</label>
+  <input id="pw" type="password" name="password" placeholder="{{ ui.placeholder }}" autofocus autocomplete="current-password">
+  {% if error %}<p class="err">{{ ui.incorrect }}</p>{% endif %}
+  <button type="submit">{{ ui.sign_in }}</button>
 </form>
 </body>
 </html>

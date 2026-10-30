@@ -1,3 +1,5 @@
+
+import { t as $t } from '../../i18n/index.js'
 // frontend/src/utils/uploads/display.js
 // Display helpers of the in-tab indicator (spec §6.6, §6.7). Pure: the
 // components only call them.
@@ -22,22 +24,22 @@ import { bytesDone, isStalled } from './rules.js'
 export function entryActions(entry, ctx) {
     const record = entry.server
     if (entry.localState === 'cancelling') {
-        return { text: 'Cancelling', error: null, buttons: [] }
+        return { get text() { return $t("Cancelling") }, error: null, buttons: [] }
     }
     if (record?.state === 'finalizing') {
-        return { text: 'Finalizing', error: null, buttons: [] }
+        return { get text() { return $t("Finalizing") }, error: null, buttons: [] }
     }
     if (entry.localState === 'queued') {
-        return { text: 'Queued', error: null, buttons: ['cancel'] }
+        return { get text() { return $t("Queued") }, error: null, buttons: ['cancel'] }
     }
     if (entry.localState === 'paused') {
-        return { text: 'Paused', error: null, buttons: ['retry', 'cancel'] }
+        return { get text() { return $t("Paused") }, error: null, buttons: ['retry', 'cancel'] }
     }
     if (!entry.local && record?.state === 'active' && record.offset === record.size) {
         return { text: null, error: record.error || null, buttons: ['retryFinalization', 'cancel'] }
     }
     if (isStalled(entry, ctx)) {
-        return { text: 'Interrupted', error: null, buttons: ['resume', 'cancel'] }
+        return { get text() { return $t("Interrupted") }, error: null, buttons: ['resume', 'cancel'] }
     }
     return { text: null, error: null, buttons: ['cancel'] }
 }

@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../../../../i18n/index.js'
+
 import { computed, nextTick, onMounted, ref, useId, watch } from 'vue'
 import AppTooltip from '../../../../ui/AppTooltip.vue'
 import { usePendingRequestSubmitShortcut } from '../../../../../composables/usePendingRequestSubmitShortcut'
@@ -25,7 +27,7 @@ const actionLabel = computed(() => ({
     networkAccess: 'Network access',
     mcpToolCall: 'MCP tool call',
     requestPermissions: 'Additional permissions',
-}[actionType.value] || 'Action'))
+}[actionType.value] || $t("Action")))
 
 const riskVariant = computed(() => {
     if (input.value.riskLevel === 'critical' || input.value.riskLevel === 'high') return 'danger'
@@ -71,10 +73,10 @@ usePendingRequestSubmitShortcut((event) => {
     <div v-scroll-shadow class="auto-review-denial-body">
         <div class="denial-section">
             <div class="denial-summary">
-                <span class="summary-label">Auto-review denied this action</span>
+                <span class="summary-label">{{ $t("Auto-review denied this action") }}</span>
                 <wa-badge variant="neutral">{{ actionLabel }}</wa-badge>
                 <wa-badge v-if="input.riskLevel" :variant="riskVariant">
-                    {{ input.riskLevel }} risk
+                    {{ input.riskLevel }} {{ $t("risk") }}
                 </wa-badge>
             </div>
 
@@ -84,36 +86,36 @@ usePendingRequestSubmitShortcut((event) => {
             </div>
 
             <div v-if="commandText" class="detail-row">
-                <span class="summary-label">Command</span>
+                <span class="summary-label">{{ $t("Command") }}</span>
                 <code>{{ commandText }}</code>
             </div>
             <div v-if="action.cwd" class="detail-row">
-                <span class="summary-label">cwd</span>
+                <span class="summary-label">{{ $t("cwd") }}</span>
                 <code>{{ action.cwd }}</code>
             </div>
 
             <div v-if="actionType === 'networkAccess'" class="detail-row">
-                <span class="summary-label">Target</span>
+                <span class="summary-label">{{ $t("Target") }}</span>
                 <code>{{ action.target || action.host }}</code>
                 <span v-if="action.protocol || action.port" class="quiet">
-                    {{ action.protocol || '' }}<template v-if="action.port"> · port {{ action.port }}</template>
+                    {{ action.protocol || '' }}<template v-if="action.port"> {{ $t("· port") }} {{ action.port }}</template>
                 </span>
             </div>
 
             <template v-if="actionType === 'applyPatch'">
-                <span class="summary-label">Files</span>
+                <span class="summary-label">{{ $t("Files") }}</span>
                 <ul class="file-list">
                     <li v-for="file in action.files || []" :key="file"><code>{{ file }}</code></li>
                 </ul>
             </template>
 
             <div v-if="actionType === 'mcpToolCall'" class="detail-row">
-                <span class="summary-label">Tool</span>
+                <span class="summary-label">{{ $t("Tool") }}</span>
                 <code>{{ action.server }} · {{ action.toolTitle || action.toolName }}</code>
             </div>
 
             <details v-if="actionType === 'requestPermissions' || actionType === 'unknown'">
-                <summary class="summary-label">Details</summary>
+                <summary class="summary-label">{{ $t("Details") }}</summary>
                 <pre>{{ JSON.stringify(action.permissions || action, null, 2) }}</pre>
             </details>
         </div>
@@ -128,9 +130,9 @@ usePendingRequestSubmitShortcut((event) => {
                 @click="keepDenied"
             >
                 <wa-icon slot="start" name="xmark" variant="classic"></wa-icon>
-                Keep denied
+                {{ $t("Keep denied") }}
             </wa-button>
-            <AppTooltip :for="keepDeniedButtonId">Keep Auto-review's decision. Codex may use another approach.</AppTooltip>
+            <AppTooltip :for="keepDeniedButtonId">{{ $t("Keep Auto-review's decision. Codex may use another approach.") }}</AppTooltip>
 
             <wa-button
                 :id="approveButtonId"
@@ -142,9 +144,9 @@ usePendingRequestSubmitShortcut((event) => {
                 @click="approve"
             >
                 <wa-icon slot="start" name="check" variant="classic"></wa-icon>
-                Approve and retry
+                {{ $t("Approve and retry") }}
             </wa-button>
-            <AppTooltip :for="approveButtonId">Approve this exact action and ask Codex to retry it.</AppTooltip>
+            <AppTooltip :for="approveButtonId">{{ $t("Approve this exact action and ask Codex to retry it.") }}</AppTooltip>
         </div>
     </div>
 </template>

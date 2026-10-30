@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // SessionsSidebarControls.vue — the sidebar's second header row in Sessions
 // mode: the session-list options dropdown and the filter input. Extracted from ProjectView.vue
 // so Artifacts mode can swap in its own controls (ArtifactBookmarksSidebarControls)
@@ -69,27 +71,27 @@ defineExpose({ focus })
                 value="show-archived"
                 :checked="showArchivedSessions"
             >
-                Show archived sessions
+                {{ $t("Show archived sessions") }}
             </wa-dropdown-item>
             <wa-dropdown-item value="archive-older">
                 <wa-icon slot="icon" name="box-archive"></wa-icon>
-                {{ trimmedSearchQuery ? 'Archive filtered sessions older than…' : 'Archive sessions older than…' }}
-                <wa-dropdown-item slot="submenu" value="archive-older-24h">24 hours</wa-dropdown-item>
-                <wa-dropdown-item slot="submenu" value="archive-older-3d">3 days</wa-dropdown-item>
-                <wa-dropdown-item slot="submenu" value="archive-older-7d">7 days</wa-dropdown-item>
-                <wa-dropdown-item slot="submenu" value="archive-older-10d">10 days</wa-dropdown-item>
-                <wa-dropdown-item slot="submenu" value="archive-older-20d">20 days</wa-dropdown-item>
-                <wa-dropdown-item slot="submenu" value="archive-older-30d">30 days</wa-dropdown-item>
-                <wa-dropdown-item slot="submenu" value="archive-older-2m">2 months</wa-dropdown-item>
-                <wa-dropdown-item slot="submenu" value="archive-older-3m">3 months</wa-dropdown-item>
-                <wa-dropdown-item slot="submenu" value="archive-older-6m">6 months</wa-dropdown-item>
+                {{ trimmedSearchQuery ? $t("Archive filtered sessions older than…") : $t("Archive sessions older than…") }}
+                <wa-dropdown-item slot="submenu" value="archive-older-24h">{{ $t("24 hours") }}</wa-dropdown-item>
+                <wa-dropdown-item slot="submenu" value="archive-older-3d">{{ $t("3 days") }}</wa-dropdown-item>
+                <wa-dropdown-item slot="submenu" value="archive-older-7d">{{ $t("7 days") }}</wa-dropdown-item>
+                <wa-dropdown-item slot="submenu" value="archive-older-10d">{{ $t("10 days") }}</wa-dropdown-item>
+                <wa-dropdown-item slot="submenu" value="archive-older-20d">{{ $t("20 days") }}</wa-dropdown-item>
+                <wa-dropdown-item slot="submenu" value="archive-older-30d">{{ $t("30 days") }}</wa-dropdown-item>
+                <wa-dropdown-item slot="submenu" value="archive-older-2m">{{ $t("2 months") }}</wa-dropdown-item>
+                <wa-dropdown-item slot="submenu" value="archive-older-3m">{{ $t("3 months") }}</wa-dropdown-item>
+                <wa-dropdown-item slot="submenu" value="archive-older-6m">{{ $t("6 months") }}</wa-dropdown-item>
             </wa-dropdown-item>
             <wa-dropdown-item
                 type="checkbox"
                 value="compact-view"
                 :checked="compactView"
             >
-                Compact view
+                {{ $t("Compact view") }}
             </wa-dropdown-item>
             <!-- Multi-select needs Shift/Ctrl modifier clicks, which
                  have no touch equivalent yet — hide it on touch devices. -->
@@ -99,7 +101,7 @@ defineExpose({ focus })
                 value="multi-select"
                 :checked="multiSelectActive"
             >
-                Multi-select mode
+                {{ $t("Multi-select mode") }}
             </wa-dropdown-item>
             <wa-divider></wa-divider>
             <wa-dropdown-item
@@ -107,18 +109,18 @@ defineExpose({ focus })
                 value="show-active"
                 :checked="showActiveAcrossFilters"
             >
-                <div>Show active sessions across projects</div>
-                <div class="session-option-hint">All with a running process or unread content</div>
+                <div>{{ $t("Show active sessions across projects") }}</div>
+                <div class="session-option-hint">{{ $t("All with a running process or unread content") }}</div>
             </wa-dropdown-item>
         </wa-dropdown>
-        <AppTooltip for="session-options-button">Session list options</AppTooltip>
+        <AppTooltip for="session-options-button">{{ $t("Session list options") }}</AppTooltip>
 
         <!-- Search/filter input -->
         <wa-input
             ref="searchInputRef"
             :value="searchQuery"
             @input="emit('update:searchQuery', $event.target.value)"
-            placeholder="Filter sessions..."
+            :placeholder="$t(&quot;Filter sessions...&quot;)"
             size="small"
             with-clear
             class="session-search"

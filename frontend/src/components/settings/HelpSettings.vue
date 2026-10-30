@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // Settings → Help panel. Sibling of TipsSettings.vue. Lists every help page
 // available for the current environment and lets the user reopen any of them
 // (always without the "Don't show this again" switch — manual opens never
@@ -35,15 +37,13 @@ function onClickHelp(key) {
 <template>
     <div class="help-settings">
         <p class="help-hint">
-            Help pages open by themselves the first time you reach a feature,
-            and you can reopen any of them from the list below. There are only
-            a few for now — the list will grow as the app evolves.
+            {{ $t("Help pages open by themselves the first time you reach a feature, and you can reopen any of them from the list below. There are only a few for now — the list will grow as the app evolves.") }}
         </p>
 
-        <h4 class="help-list-title">All help</h4>
+        <h4 class="help-list-title">{{ $t("All help") }}</h4>
 
         <p v-if="availableHelp.length === 0" class="help-empty">
-            No help available yet.
+            {{ $t("No help available yet.") }}
         </p>
 
         <ul v-else class="help-list">

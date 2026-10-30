@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../../../../i18n/index.js'
+
 import { computed, ref, nextTick, onMounted } from 'vue'
 import { useDataStore } from '../../../../../stores/data'
 import { useDetailsClosing } from '../../../../../composables/useDetailsClosing'
@@ -84,7 +86,7 @@ function onAfterHide() {
             @wa-after-hide.self="onAfterHide"
         >
             <span slot="summary" class="items-details-summary">
-                <strong class="items-details-summary-name">Proposed plan</strong>
+                <strong class="items-details-summary-name">{{ $t("Proposed plan") }}</strong>
             </span>
             <div v-if="isOpen || isClosing()" class="proposed-plan-body">
                 <MarkdownContent :source="segments.plan" :inline-context="segmentInlineTextContext(inlineContext, segments.planOffset)" />

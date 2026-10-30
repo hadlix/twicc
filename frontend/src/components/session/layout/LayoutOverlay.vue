@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../../i18n/index.js'
+
 // A peek overlay (90% of the inner area) for an edge whose dock(s) couldn't fit as a column
 // or are collapsed-to-overlay. Backdrop closes it; the gutter stays visible above. Its body
 // is a Teleport target registered under 'overlay' (only the overlay-active panel targets it).
@@ -75,8 +77,8 @@ function onShow(event) { emit('select', event.detail.name) }
                         class="overlay-close reduced-height"
                         appearance="plain"
                         size="small"
-                        title="Close"
-                        aria-label="Close overlay"
+                        :title="$t(&quot;Close&quot;)"
+                        :aria-label="$t(&quot;Close overlay&quot;)"
                         @click.stop="emit('close')"
                     >
                         <wa-icon name="xmark"></wa-icon>

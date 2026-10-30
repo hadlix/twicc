@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 /**
  * DirectoryPickerPopup - A popup file tree for selecting directories.
  *
@@ -68,7 +70,7 @@ async function fetchTree(dirPath) {
     )
     if (!res.ok) {
         const data = await res.json().catch(() => ({}))
-        throw new Error(data.error || 'Failed to load directory')
+        throw new Error(data.error || $t("Failed to load directory"))
     }
     return await res.json()
 }
@@ -154,7 +156,7 @@ async function openPopup() {
             tree.value = data
         }
     } catch (e) {
-        error.value = e.message || 'Failed to load directory'
+        error.value = e.message || $t("Failed to load directory")
     } finally {
         loading.value = false
     }
@@ -189,7 +191,7 @@ async function toggleHidden() {
     try {
         tree.value = await fetchTree(rootPath.value)
     } catch (e) {
-        error.value = e.message || 'Failed to load directory'
+        error.value = e.message || $t("Failed to load directory")
     } finally {
         loading.value = false
     }
@@ -208,7 +210,7 @@ async function navigateUp() {
         rootPath.value = parentPath
         tree.value = data
     } catch (e) {
-        error.value = e.message || 'Failed to load directory'
+        error.value = e.message || $t("Failed to load directory")
     } finally {
         loading.value = false
     }
@@ -303,7 +305,7 @@ onBeforeUnmount(() => {
             class="browse-button"
             @click="openPopup"
         >
-            <wa-icon name="folder-open" label="Browse directories"></wa-icon>
+            <wa-icon name="folder-open" :label="$t(&quot;Browse directories&quot;)"></wa-icon>
         </wa-button>
 
         <wa-popup
@@ -327,7 +329,7 @@ onBeforeUnmount(() => {
                         :disabled="!rootPath || rootPath === '/'"
                         @click="navigateUp"
                     >
-                        <wa-icon name="arrow-up" label="Go to parent directory"></wa-icon>
+                        <wa-icon name="arrow-up" :label="$t(&quot;Go to parent directory&quot;)"></wa-icon>
                     </wa-button>
                     <span class="picker-path" :title="rootPath">{{ rootPath || '...' }}</span>
                     <wa-button
@@ -336,10 +338,10 @@ onBeforeUnmount(() => {
                         size="small"
                         class="hidden-toggle"
                         :class="{ 'hidden-toggle-active': showHidden }"
-                        :title="showHidden ? 'Hide hidden directories' : 'Show hidden directories'"
+                        :title="showHidden ? $t(&quot;Hide hidden directories&quot;) : $t(&quot;Show hidden directories&quot;)"
                         @click="toggleHidden"
                     >
-                        <wa-icon :name="showHidden ? 'eye' : 'eye-slash'" label="Toggle hidden directories"></wa-icon>
+                        <wa-icon :name="showHidden ? 'eye' : 'eye-slash'" :label="$t(&quot;Toggle hidden directories&quot;)"></wa-icon>
                     </wa-button>
                 </div>
 

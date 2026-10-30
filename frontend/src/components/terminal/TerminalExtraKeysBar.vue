@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 import { ref, computed, watch } from 'vue'
 import { formatCombo } from '../../utils/terminalComboNotation'
 import { useDataStore } from '../../stores/data'
@@ -32,10 +34,10 @@ const emit = defineEmits([
 const BUILT_IN_TABS = {
     essentials: {
         keys: [
-            { label: 'ESC', key: 'Escape' },
-            { label: 'TAB', key: 'Tab' },
-            { label: 'CTRL', key: 'ctrl', modifier: true },
-            { label: 'ALT', key: 'alt', modifier: true },
+            { get label() { return $t("ESC") }, key: 'Escape' },
+            { get label() { return $t("TAB") }, key: 'Tab' },
+            { get label() { return $t("CTRL") }, key: 'ctrl', modifier: true },
+            { get label() { return $t("ALT") }, key: 'alt', modifier: true },
             { label: '←', key: 'ArrowLeft', arrow: true },
             { label: '↑', key: 'ArrowUp', arrow: true },
             { label: '↓', key: 'ArrowDown', arrow: true },
@@ -48,19 +50,19 @@ const BUILT_IN_TABS = {
     },
     more: {
         keys: [
-            { label: 'SHIFT', key: 'shift', modifier: true },
-            { label: 'HOME', key: 'Home', wide: true },
-            { label: 'END', key: 'End', wide: true },
-            { label: 'PGUP', key: 'PageUp', wide: true },
-            { label: 'PGDN', key: 'PageDown', wide: true },
-            { label: 'DEL', key: 'Delete' },
-            { label: 'INS', key: 'Insert' },
+            { get label() { return $t("SHIFT") }, key: 'shift', modifier: true },
+            { get label() { return $t("HOME") }, key: 'Home', wide: true },
+            { get label() { return $t("END") }, key: 'End', wide: true },
+            { get label() { return $t("PGUP") }, key: 'PageUp', wide: true },
+            { get label() { return $t("PGDN") }, key: 'PageDown', wide: true },
+            { get label() { return $t("DEL") }, key: "Delete" },
+            { get label() { return $t("INS") }, key: 'Insert' },
             { label: '\\', key: '\\' },
             { label: '_', key: '_' },
             { label: '*', key: '*' },
             { label: '&', key: '&' },
             { label: '.', key: '.' },
-            { label: 'PASTE', key: 'paste', paste: true, wide: true },
+            { get label() { return $t("PASTE") }, key: 'paste', paste: true, wide: true },
         ],
     },
     fkeys: {
@@ -72,11 +74,11 @@ const BUILT_IN_TABS = {
 }
 
 const TAB_LABELS = {
-    essentials: 'Essentials',
-    more: 'More',
-    fkeys: 'F-keys',
-    custom: 'Custom',
-    snippets: 'Snippets',
+    get essentials() { return $t("Essentials") },
+    get more() { return $t("More") },
+    get fkeys() { return $t("F-keys") },
+    get custom() { return $t("Custom") },
+    get snippets() { return $t("Snippets") },
 }
 
 const tabIds = computed(() => {
@@ -279,12 +281,12 @@ function keyClasses(keyDef) {
                         </template>
                     </GroupedSnippetEntries>
                 </template>
-                <span v-else class="empty-tab-text">No custom combos</span>
+                <span v-else class="empty-tab-text">{{ $t("No custom combos") }}</span>
                 <button
                     class="extra-key manage-key"
                     @pointerdown.prevent="emit('manage-combos')"
                 >
-                    ⚙ Manage
+                    {{ $t("⚙ Manage") }}
                 </button>
             </template>
 
@@ -349,24 +351,24 @@ function keyClasses(keyDef) {
                                         <wa-icon name="chevron-up"></wa-icon>
                                     </button>
                                     <template v-if="!snippet._disabled">
-                                        <wa-dropdown-item disabled class="dropdown-label">Send to tab</wa-dropdown-item>
+                                        <wa-dropdown-item disabled class="dropdown-label">{{ $t("Send to tab") }}</wa-dropdown-item>
                                         <wa-dropdown-item
                                             v-for="term in terminals"
                                             :key="term.index"
                                             :value="String(term.index)"
                                         >
-                                            {{ term.label }}<template v-if="term.index === activeTerminalIndex"> (current)</template>
+                                            {{ term.label }}<template v-if="term.index === activeTerminalIndex"> {{ $t("(current)") }}</template>
                                         </wa-dropdown-item>
                                         <wa-divider></wa-divider>
                                         <wa-dropdown-item value="new">
                                             <wa-icon slot="icon" name="plus"></wa-icon>
-                                            New tab
+                                            {{ $t("New tab") }}
                                         </wa-dropdown-item>
                                         <wa-divider></wa-divider>
                                     </template>
                                     <wa-dropdown-item value="edit">
                                         <wa-icon slot="icon" name="pen-to-square"></wa-icon>
-                                        Edit before sending
+                                        {{ $t("Edit before sending") }}
                                     </wa-dropdown-item>
                                 </wa-dropdown>
                             </div>
@@ -376,12 +378,12 @@ function keyClasses(keyDef) {
                         </template>
                     </GroupedSnippetEntries>
                 </template>
-                <span v-else class="empty-tab-text">No snippets</span>
+                <span v-else class="empty-tab-text">{{ $t("No snippets") }}</span>
                 <button
                     class="extra-key manage-key"
                     @pointerdown.prevent="emit('manage-snippets')"
                 >
-                    ⚙ Manage
+                    {{ $t("⚙ Manage") }}
                 </button>
             </template>
         </div>

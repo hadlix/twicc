@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../i18n/index.js'
+
 import { computed, inject, onBeforeUnmount, onMounted, ref, unref, watch } from 'vue'
 import { focusInlineConversation } from './geometry.js'
 import { INLINE_ARTIFACT_CONTEXT } from './context.js'
@@ -17,9 +19,9 @@ const runtime = computed(() => unref(provided)?.runtime ?? null)
 const entry = computed(() => runtime.value?.entries.get(props.artifactKey))
 const current = computed(() => entry.value?.present && entry.value.descriptor.publicationKey === props.publicationKey)
 const frameStatus = computed(() => {
-    if (props.status === 'not_included') return 'Inline artifact not included'
-    if (props.status === 'error' || entry.value?.loadState === 'error') return 'Inline artifact unavailable'
-    return 'Loading inline artifact'
+    if (props.status === 'not_included') return $t("Inline artifact not included")
+    if (props.status === 'error' || entry.value?.loadState === 'error') return $t("Inline artifact unavailable")
+    return $t("Loading inline artifact")
 })
 const placeholder = ref(null)
 const intersecting = ref(false)

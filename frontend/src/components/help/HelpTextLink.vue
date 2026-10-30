@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // A small inline text link that opens a help page on click — the text-link
 // sibling of HelpIconButton (same showHelp wiring, no "Don't show again"
 // switch). Drop it next to a title/label whose feature has a help page:
@@ -7,7 +9,7 @@ import { showHelp } from './showHelp'
 
 const props = defineProps({
     helpKey: { type: String, required: true },
-    label: { type: String, default: 'Learn more' },
+    label: { type: String, get default() { return $t("Learn more") } },
 })
 
 function onActivate() {

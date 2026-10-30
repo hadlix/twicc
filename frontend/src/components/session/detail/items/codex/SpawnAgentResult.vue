@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../../../../i18n/index.js'
+
 /**
  * Renders the final result of a Codex `spawn_agent` tool call.
  *
@@ -29,7 +31,7 @@ defineProps({
 <template>
     <div class="spawn-agent-result">
         <div v-if="nickname" class="spawn-agent-meta">
-            Subagent: <strong>{{ nickname }}</strong>
+            {{ $t("Subagent:") }} <strong>{{ nickname }}</strong>
         </div>
         <MarkdownContent v-if="message" :source="message" :show-toolbar="false" />
         <div v-else-if="statusLabel" class="spawn-agent-status-only">

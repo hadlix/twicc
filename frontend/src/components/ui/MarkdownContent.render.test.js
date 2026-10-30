@@ -387,11 +387,12 @@ const templateCode = template.code.replace(/import \{([^}]+)\} from "vue"/g,
 const templateRender = new Function('Vue', `${templateCode}; return render`)(Vue)
 async function renderArtifactMarkdown(h, navigateToInlinePublication = null) {
     const app = Vue.createSSRApp({ render: templateRender, setup: () => ({
-        blocks: h.blocks, artifactPlacement: h.artifactPlacement, showRaw: false, showToolbar: false,
+        $t: globalThis.$t, blocks: h.blocks, artifactPlacement: h.artifactPlacement, showRaw: false, showToolbar: false,
         showTocDetails: false, source: h.props.source, highlightTerms: [], handleLinkClick() {},
         navigateToInlinePublication,
     }) })
     app.component('InlineArtifactBlock', { props: ['status'], render() { return Vue.h('div', { 'data-artifact-state': this.status }) } })
+    app.config.globalProperties.$t = globalThis.$t
     app.directive('highlight', {})
     return renderToString(app)
 }

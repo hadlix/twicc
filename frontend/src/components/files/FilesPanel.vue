@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 import { changeAffectsHtmlPage } from '../../inline-artifacts/fileRelevance.js'
 import { ref, computed, watch, nextTick, onMounted, onActivated, onDeactivated, onBeforeUnmount } from 'vue'
 import { apiFetch } from '../../utils/api'
@@ -355,16 +357,16 @@ async function fetchTree(dirPath) {
             if (res.status === 404 && selectedRootKey.value) {
                 missingRoots.value = new Set([...missingRoots.value, selectedRootKey.value])
                 routeRootIssue.value = makeRouteIssue(
-                    'Root ',
+                    $t("Root "),
                     props.routeRootKey || selectedRootKey.value,
-                    ' is no longer available.',
+                    $t(" is no longer available."),
                 )
                 tree.value = null
                 loadedDirectory.value = null
                 return
             }
 
-            error.value = data.error || `HTTP ${res.status}`
+            error.value = data.error || $t("HTTP {p0}", { p0: (res.status) })
             tree.value = null
             loadedDirectory.value = null
             return
@@ -756,7 +758,7 @@ watch(
 
         const requestedRoot = roots.find(root => root.key === routeRootKey)
         if (!requestedRoot) {
-            routeRootIssue.value = makeRouteIssue('Root ', routeRootKey, ' is not available.')
+            routeRootIssue.value = makeRouteIssue($t("Root "), routeRootKey, $t(" is not available."))
             if (selectedRootKey.value !== null) {
                 syncingFromRoute = true
                 selectedRootKey.value = null
@@ -769,7 +771,7 @@ watch(
         }
 
         if (missingRoots.value.has(routeRootKey)) {
-            routeRootIssue.value = makeRouteIssue('Root ', routeRootKey, ' is no longer available.')
+            routeRootIssue.value = makeRouteIssue($t("Root "), routeRootKey, $t(" is no longer available."))
             if (selectedRootKey.value !== routeRootKey) {
                 syncingFromRoute = true
                 selectedRootKey.value = routeRootKey
@@ -814,7 +816,7 @@ watch(
         if (routeFilePath == null) {
             selectedBookmarkId.value = null
             routeFileIssue.value = routeFilePath === null
-                ? makeRouteIssue('Requested bookmark id is invalid.')
+                ? makeRouteIssue($t("Requested bookmark id is invalid."))
                 : null
         } else if (bookmark) {
             selectedBookmarkId.value = bookmark.id
@@ -822,9 +824,9 @@ watch(
         } else {
             selectedBookmarkId.value = null
             routeFileIssue.value = makeRouteIssue(
-                'Bookmarked artifact ',
+                $t("Bookmarked artifact "),
                 routeFilePath,
-                ' is no longer available in this session scope.',
+                $t(" is no longer available in this session scope."),
             )
         }
         await nextTick()
@@ -862,7 +864,7 @@ watch(
                 syncingFromRoute = false
             }
             if (routeFilePath === null) {
-                routeFileIssue.value = makeRouteIssue('Requested file path is invalid.')
+                routeFileIssue.value = makeRouteIssue($t("Requested file path is invalid."))
             } else {
                 routeFileIssue.value = null
             }
@@ -883,9 +885,9 @@ watch(
         } else {
             clearSelectedFile()
             routeFileIssue.value = makeRouteIssue(
-                'File ',
+                $t("File "),
                 routeFilePath,
-                ' is no longer available in this root.',
+                $t(" is no longer available in this root."),
             )
         }
         await nextTick()
@@ -1151,7 +1153,7 @@ defineExpose({ revealFile, setRootByPath, onArtifactFilesChanged, reloadAll })
                         value="show-hidden"
                         :checked="showHidden"
                     >
-                        Show hidden files
+                        {{ $t("Show hidden files") }}
                     </wa-dropdown-item>
                     <wa-dropdown-item
                         v-if="isGit"
@@ -1159,13 +1161,13 @@ defineExpose({ revealFile, setRootByPath, onArtifactFilesChanged, reloadAll })
                         value="show-ignored"
                         :checked="showIgnored"
                     >
-                        Show git ignored files
+                        {{ $t("Show git ignored files") }}
                     </wa-dropdown-item>
                     <!-- Root selector — hidden for a single fixed root (e.g. Artifacts) -->
                     <template v-if="showRootSelector">
                         <wa-divider></wa-divider>
                         <wa-dropdown-item disabled class="dropdown-header">
-                            Root:
+                            {{ $t("Root:") }}
                         </wa-dropdown-item>
                         <wa-dropdown-item
                             v-for="root in availableRoots"
@@ -1181,7 +1183,7 @@ defineExpose({ revealFile, setRootByPath, onArtifactFilesChanged, reloadAll })
                             </div>
                             <div v-else>{{ root.label }}</div>
                             <div class="root-path">{{ root.path }}</div>
-                            <div v-if="missingRoots.has(root.key)" class="root-missing">Directory no longer exists</div>
+                            <div v-if="missingRoots.has(root.key)" class="root-missing">{{ $t("Directory no longer exists") }}</div>
                         </wa-dropdown-item>
                     </template>
                     <wa-divider></wa-divider>
@@ -1221,7 +1223,7 @@ defineExpose({ revealFile, setRootByPath, onArtifactFilesChanged, reloadAll })
                     :frame-suppressed="treeOverlayOpen"
                 />
                 <div v-show="!hasContentSelection" class="panel-placeholder">
-                    {{ artifactBookmarkSessionId || artifactBookmarks.length ? 'Select an artifact' : 'Select a file' }}
+                    {{ artifactBookmarkSessionId || artifactBookmarks.length ? $t("Select an artifact") : $t("Select a file") }}
                 </div>
             </div>
         </div>

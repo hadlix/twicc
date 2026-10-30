@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // WorktreeButton.vue - Compact "session in a worktree" control for the project
 // rows of the "New session" dropdowns. Two variants, picked from the project's
 // cached git_root (read reactively from the store — never re-checked per
@@ -71,7 +73,7 @@ async function onRefresh(e) {
     try {
         const res = await apiFetch(`/api/projects/${props.projectId}/resolve-git/`, { method: 'POST' })
         if (!res.ok) {
-            toast.error('Could not check this folder for a git repository.')
+            toast.error($t("Could not check this folder for a git repository."))
             return
         }
         const { git_root } = await res.json()
@@ -79,15 +81,15 @@ async function onRefresh(e) {
             // Mirror the broadcast locally so the control flips to the worktree
             // button immediately (reveal-just: the user clicks it to create).
             data.updateProject({ id: props.projectId, git_root })
-            toast.success('Git repository found.')
+            toast.success($t("Git repository found."))
         } else {
             // Still not a git repo — inline red ✕ feedback for a few seconds,
             // plus a toast so the result is unmissable.
             flashNoGit()
-            toast.info('No git repository found in this folder.')
+            toast.info($t("No git repository found in this folder."))
         }
     } catch {
-        toast.error('Could not check this folder for a git repository.')
+        toast.error($t("Could not check this folder for a git repository."))
     } finally {
         refreshing.value = false
     }
@@ -101,10 +103,10 @@ async function onRefresh(e) {
             appearance="plain"
             size="small"
             class="worktree-button-trigger"
-            title="New session in a worktree"
+            :title="$t(&quot;New session in a worktree&quot;)"
             @click="onCreate"
         >
-            <wa-icon name="code-branch" label="Worktree"></wa-icon>
+            <wa-icon name="code-branch" :label="$t(&quot;Worktree&quot;)"></wa-icon>
             <wa-icon name="plus"></wa-icon>
         </wa-button>
         <wa-button
@@ -113,10 +115,10 @@ async function onRefresh(e) {
             size="small"
             class="worktree-button-trigger worktree-button-trigger--nogit"
             :class="{ 'is-flashing': noGitFlash }"
-            title="Not a git repository — re-check (e.g. after git init)"
+            :title="$t(&quot;Not a git repository — re-check (e.g. after git init)&quot;)"
             @click="onRefresh"
         >
-            <wa-icon name="code-branch" label="Not a git repository" class="nogit-icon"></wa-icon>
+            <wa-icon name="code-branch" :label="$t(&quot;Not a git repository&quot;)" class="nogit-icon"></wa-icon>
             <wa-icon
                 :name="noGitFlash ? 'xmark' : 'arrows-rotate'"
                 class="refresh-icon"

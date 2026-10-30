@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // A session's workflow runs: fetch the persisted Workflow rows (the 3-state view
 // envelope) and render them as a tab bar — one tab per run, labelled with the
 // title-cased workflow name + a status icon (spinner running, check/xmark done).
@@ -98,7 +100,7 @@ async function load() {
         const url = `/api/projects/${encodeURIComponent(props.projectId)}`
             + `/sessions/${encodeURIComponent(props.sessionId)}/workflows/`
         const response = await fetch(url, { signal: controller.signal })
-        if (!response.ok) throw new Error(`HTTP ${response.status}`)
+        if (!response.ok) throw new Error($t("HTTP {p0}", { p0: (response.status) }))
         const data = await response.json()
         const ids = new Set(data.map(w => w.run_id))
         // Runs that appeared since the last successful load (newest-first in
@@ -127,7 +129,7 @@ async function load() {
         maybeSynthesize(data)
     } catch (e) {
         if (e.name === 'AbortError') return
-        error.value = e.message || 'Failed to load workflows'
+        error.value = e.message || $t("Failed to load workflows")
     } finally {
         loading.value = false
     }
@@ -322,10 +324,10 @@ onBeforeUnmount(() => {
     <div class="workflows-pane">
         <div v-if="error" class="workflows-state workflows-error">
             <wa-icon name="triangle-exclamation"></wa-icon>
-            <span>{{ error }}</span>
+            <span>{{ $t(error) }}</span>
         </div>
-        <div v-else-if="loading && !hasLoaded" class="workflows-state">Loading…</div>
-        <div v-else-if="!rows.length" class="workflows-state">No workflows for this session.</div>
+        <div v-else-if="loading && !hasLoaded" class="workflows-state">{{ $t("Loading…") }}</div>
+        <div v-else-if="!rows.length" class="workflows-state">{{ $t("No workflows for this session.") }}</div>
         <TabBar v-else class="workflows-tabs" :active="activeRunId" @wa-tab-show.stop="onTabShow">
             <wa-tab v-for="row in rows" :key="row.run_id" slot="nav" :panel="row.run_id" class="workflow-tab">
                 <span class="workflow-tab-name">{{ row.name }}</span>

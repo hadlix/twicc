@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 /**
  * TelemetryPayloadDialog - Shows the last anonymous telemetry payload sent
  * to the backend's collector, or a live preview when nothing has been sent
@@ -62,7 +64,7 @@ function onHide(e) {
     <wa-dialog
         ref="dialogRef"
         :open="open"
-        label="Telemetry payload"
+        :label="$t(&quot;Telemetry payload&quot;)"
         class="telemetry-payload-dialog"
         @wa-hide="onHide"
     >
@@ -70,11 +72,11 @@ function onHide(e) {
             <wa-spinner></wa-spinner>
         </div>
         <template v-else>
-            <p v-if="payload === null" class="muted">Nothing to send yet.</p>
+            <p v-if="payload === null" class="muted">{{ $t("Nothing to send yet.") }}</p>
             <template v-else>
                 <p class="telemetry-payload-heading">
-                    <template v-if="preview">Preview — not sent yet</template>
-                    <template v-else>Last sent {{ formattedSentAt }}</template>
+                    <template v-if="preview">{{ $t("Preview — not sent yet") }}</template>
+                    <template v-else>{{ $t("Last sent") }} {{ formattedSentAt }}</template>
                 </p>
                 <div class="telemetry-payload-json">
                     <JsonViewer
@@ -88,7 +90,7 @@ function onHide(e) {
         </template>
 
         <div slot="footer" class="dialog-footer">
-            <wa-button @click="emit('close')">Close</wa-button>
+            <wa-button @click="emit('close')">{{ $t("Close") }}</wa-button>
         </div>
     </wa-dialog>
 </template>

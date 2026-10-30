@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../../i18n/index.js'
+
 /**
  * SessionList - Virtual-scrolled list of sessions for a project.
  *
@@ -141,7 +143,7 @@ const sessions = computed(previous => {
 
     const next = allSessions.value.filter(session => {
         const displayName = (session.draft && !session.title)
-            ? 'New session'
+            ? $t("New session")
             : (session.title || session.id)
         return matchQuery(query, displayName)
     })
@@ -168,24 +170,24 @@ const separatorBeforeIds = computed(() => {
     // id -> { sectionKey, entry } — entry is the separator to render before the
     // section's first visible session.
     const classified = new Map()
-    if (extra) classified.set(extra.id, { sectionKey: 'extra', entry: { label: 'Selected' } })
+    if (extra) classified.set(extra.id, { sectionKey: 'extra', entry: { get label() { return $t("Selected") } } })
     for (const s of crossFilterPinned) {
-        classified.set(s.id, { sectionKey: 'xpinned', entry: { label: 'Pinned elsewhere' } })
+        classified.set(s.id, { sectionKey: 'xpinned', entry: { get label() { return $t("Pinned elsewhere") } } })
     }
     for (const s of crossFilterActive) {
-        classified.set(s.id, { sectionKey: 'xactive', entry: { label: 'Active elsewhere' } })
+        classified.set(s.id, { sectionKey: 'xactive', entry: { get label() { return $t("Active elsewhere") } } })
     }
     for (const s of natural) {
         let sectionKey, entry
         if (s.ephemeral && !s.draft) {
             sectionKey = 'n-ephemeral'
-            entry = { label: 'Ephemeral' }
+            entry = { get label() { return $t("Ephemeral") } }
         } else if (s.pinned) {
             sectionKey = 'n-pinned'
-            entry = { label: 'Pinned' }
+            entry = { get label() { return $t("Pinned") } }
         } else if (processStates[s.id] != null) {
             sectionKey = 'n-active'
-            entry = { label: 'Active' }
+            entry = { get label() { return $t("Active") } }
         } else {
             const bucket = dateBucketSeparator(s.mtime, nowMs)
             sectionKey = `n-${bucket.key}`
@@ -794,12 +796,12 @@ defineExpose({
     <div class="session-list-container" :class="{ 'session-list-container--compact': compactView }">
         <!-- Empty state: no sessions at all -->
         <div v-if="allSessions.length === 0 && !isLoading" class="empty-state" :class="{ 'pagination-empty': hasMore }">
-            No sessions
+            {{ $t("No sessions") }}
         </div>
 
         <!-- Empty state: no matching sessions (search returned nothing) -->
         <div v-else-if="displayItems.length === 0 && !isLoading" class="empty-state" :class="{ 'pagination-empty': hasMore }">
-            No matching sessions
+            {{ $t("No matching sessions") }}
         </div>
 
         <!-- Session list with virtual scroller -->
@@ -849,7 +851,7 @@ defineExpose({
             :style="paginationNoProgress && !loadMoreError ? { position: 'absolute', insetInline: 0, bottom: 0, zIndex: 1 } : null"
         >
             <wa-callout :variant="loadMoreError ? 'danger' : 'neutral'">
-                <span>{{ loadMoreError ? 'Failed to load more sessions' : 'No additional sessions received' }}</span>
+                <span>{{ loadMoreError ? $t("Failed to load more sessions") : $t("No additional sessions received") }}</span>
                 <wa-button
                     slot="footer"
                     :variant="loadMoreError ? 'danger' : 'neutral'"
@@ -859,7 +861,7 @@ defineExpose({
                     @click="handleRetry"
                 >
                     <wa-icon name="arrow-rotate-right" slot="start"></wa-icon>
-                    Retry
+                    {{ $t("Retry") }}
                 </wa-button>
             </wa-callout>
         </div>

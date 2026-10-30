@@ -1,3 +1,4 @@
+import { t as $t, getFormatLocale } from '../../i18n/index.js'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
@@ -20,7 +21,7 @@ function setup({ workspace = null, projects = [], worktrees = [] } = {}) {
         isNewSessionWorktreesExpanded, handleNewSessionSelect, handleProjectResolved,
         openWorktreeDialog, dropdownRef, createProjectDialogRef, worktreeDialogRef,
     })`, {
-        computed, ref, splitProjectsByPriority, buildProjectTree, flattenProjectTree,
+        $t, computed, ref, splitProjectsByPriority, buildProjectTree, flattenProjectTree,
         defineOptions: () => {}, defineEmits: () => (...args) => emitted.push(args),
         useDataStore: () => ({ getListableProjects: projects, getWorktreesOf: () => worktrees }),
         useSettingsStore: () => settings,
@@ -187,12 +188,13 @@ test('compiled picker keeps dialog controls outside the native Web Awesome split
         id: 'data-v-picker-group', compilerOptions: { mode: 'function', isCustomElement: tag => tag.startsWith('wa-') } })
     assert.deepEqual(compiled.errors, [])
     const render = new Function('Vue', compiled.code)(Vue)
-    const picker = { setup: () => state, render }
+    const picker = { setup: () => ({ ...state, $t }), render }
     const dialog = { render: () => Vue.h('wa-dialog', [Vue.h('wa-button')]) }
     const app = createApp({ render: () => Vue.h('wa-button-group', [
         Vue.h('wa-button', { id: 'main' }),
         Vue.h(picker, {}, { trigger: () => Vue.h('wa-button', { id: 'arrow', slot: 'trigger' }) }),
     ]) })
+    app.config.globalProperties.$t = $t
     for (const name of ['ProjectEditDialog', 'WorktreeDialog']) app.component(name, dialog)
     for (const name of ['ProjectBadge', 'WorktreeButton', 'WorktreePickerRows']) {
         app.component(name, { render: () => null })

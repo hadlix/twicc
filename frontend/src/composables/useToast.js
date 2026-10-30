@@ -1,3 +1,4 @@
+import { t as $t } from '../i18n/index.js'
 /**
  * useToast composable - Simplified API for toast notifications
  *
@@ -48,8 +49,8 @@ const SessionToastContent = defineAsyncComponent(() => import('../components/ses
  */
 function success(message, options = {}) {
     const pushOptions = {
-        message,
-        title: options.title,
+        message: $t(message),
+        title: options.title ? $t(options.title) : options.title,
     }
     // Only set duration if explicitly provided, otherwise use Notivue's default
     if (options.duration !== undefined) {
@@ -65,8 +66,8 @@ function success(message, options = {}) {
  */
 function error(message, options = {}) {
     const pushOptions = {
-        message,
-        title: options.title,
+        message: $t(message),
+        title: options.title ? $t(options.title) : options.title,
     }
     // Only set duration if explicitly provided, otherwise use Notivue's default
     if (options.duration !== undefined) {
@@ -82,8 +83,8 @@ function error(message, options = {}) {
  */
 function warning(message, options = {}) {
     const pushOptions = {
-        message,
-        title: options.title,
+        message: $t(message),
+        title: options.title ? $t(options.title) : options.title,
     }
     // Only set duration if explicitly provided, otherwise use Notivue's default
     if (options.duration !== undefined) {
@@ -99,8 +100,8 @@ function warning(message, options = {}) {
  */
 function info(message, options = {}) {
     const pushOptions = {
-        message,
-        title: options.title,
+        message: $t(message),
+        title: options.title ? $t(options.title) : options.title,
     }
     // Only set duration if explicitly provided, otherwise use Notivue's default
     if (options.duration !== undefined) {

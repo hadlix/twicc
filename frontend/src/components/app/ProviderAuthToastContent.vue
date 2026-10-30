@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 /**
  * ProviderAuthToastContent — rich content for the persistent
  * "<provider> CLI not authenticated" toast.
@@ -64,7 +66,7 @@ const canDisable = computed(() => canDisableProvider(props.provider))
 
 function disableProvider() {
     setProviderEnabled(props.provider, false)
-    toast.success(`${getProviderLabel(props.provider)} provider disabled`, { duration: 2000 })
+    toast.success($t("{p0} provider disabled", { p0: (getProviderLabel(props.provider)) }), { duration: 2000 })
     // This toast disappears on its own: the provider leaves
     // ``enabledProviders``, which flips the ``shouldShow`` watcher in
     // App.vue and pushes the toast out.
@@ -72,14 +74,14 @@ function disableProvider() {
 
 function copyLoginCommand() {
     navigator.clipboard.writeText(props.loginCommand)
-    toast.success('Command copied to clipboard', { duration: 2000 })
+    toast.success($t("Command copied to clipboard"), { duration: 2000 })
 }
 </script>
 
 <template>
     <div class="provider-auth-toast-content">
         <p class="provider-auth-toast-message">
-            Run <code class="copyable" title="Click to copy" @click="copyLoginCommand">{{ loginCommand }}</code> to enable sending messages.
+            {{ $t("Run") }} <code class="copyable" :title="$t(&quot;Click to copy&quot;)" @click="copyLoginCommand">{{ loginCommand }}</code> {{ $t("to enable sending messages.") }}
         </p>
         <div class="provider-auth-toast-actions">
             <wa-button
@@ -90,14 +92,14 @@ function copyLoginCommand() {
                 @click="disableProvider"
             >
                 <wa-icon slot="start" name="power-off"></wa-icon>
-                Disable provider
+                {{ $t("Disable provider") }}
             </wa-button>
             <wa-button size="small" variant="brand" appearance="outlined" @click="launchInTerminal">
                 <wa-icon slot="start" name="terminal"></wa-icon>
-                Launch in terminal
+                {{ $t("Launch in terminal") }}
             </wa-button>
             <wa-button size="small" variant="brand" appearance="outlined" :disabled="checking" @click="checkAgain">
-                Check again
+                {{ $t("Check again") }}
             </wa-button>
         </div>
     </div>

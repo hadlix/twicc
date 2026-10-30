@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 /**
  * StopProcessConfirmDialog - Confirmation dialog shown when stopping a process
  * that has active crons and/or background shells.
@@ -84,26 +86,25 @@ function handleCancel() {
             </wa-callout>
             <wa-callout v-if="shown.cronCount > 0" variant="warning" size="small" open>
                 <p>
-                    This session has
-                    <strong>{{ shown.cronCount }} active cron{{ shown.cronCount > 1 ? 's' : '' }}</strong>.
+                    {{ $t("This session has") }}
+                    <strong>{{ shown.cronCount }} {{ $t("active cron") }}{{ shown.cronCount > 1 ? $t("s") : '' }}</strong>.
                 </p>
                 <p>
-                    Stopping the process manually will cancel all active crons. They will not be
-                    restored automatically when the process restarts.
+                    {{ $t("Stopping the process manually will cancel all active crons. They will not be restored automatically when the process restarts.") }}
                 </p>
                 <p>
-                    You can always ask the agent to set them up again later.
+                    {{ $t("You can always ask the agent to set them up again later.") }}
                 </p>
             </wa-callout>
         </div>
 
         <div slot="footer" class="dialog-footer">
             <wa-button variant="neutral" appearance="outlined" @click="handleCancel">
-                Cancel, keep the process
+                {{ $t("Cancel, keep the process") }}
             </wa-button>
             <wa-button variant="danger" appearance="filled" @click="handleConfirm">
                 <wa-icon slot="start" name="ban"></wa-icon>
-                {{ mode === 'archive' ? 'Stop and archive' : 'Stop the process' }}
+                {{ mode === 'archive' ? $t("Stop and archive") : $t("Stop the process") }}
             </wa-button>
         </div>
     </wa-dialog>

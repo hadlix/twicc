@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // Compact counts of uncommitted (or per-commit) file changes: modified / added / deleted /
 // conflicted, each shown only when non-zero. Renders nothing when every count is zero. Shared by
 // the Git panel header and the Git tab label (center strip, dock tab bars, gutter chips).
@@ -26,22 +28,22 @@ const hasStats = computed(() => {
     <span v-if="hasStats" class="status-badges">
         <span v-if="stats.modified > 0" class="status-badge modified">
             <span class="status-count">{{ stats.modified }}</span>
-            <img :src="pencilIcon" class="status-icon" alt="modified">
+            <img :src="pencilIcon" class="status-icon" :alt="$t(&quot;modified&quot;)">
         </span>
 
         <span v-if="stats.added > 0" class="status-badge added">
             <span class="status-count">{{ stats.added }}</span>
-            <img :src="plusIcon" class="status-icon" alt="added">
+            <img :src="plusIcon" class="status-icon" :alt="$t(&quot;added&quot;)">
         </span>
 
         <span v-if="stats.deleted > 0" class="status-badge deleted">
             <span class="status-count">{{ stats.deleted }}</span>
-            <img :src="minusIcon" class="status-icon" alt="deleted">
+            <img :src="minusIcon" class="status-icon" :alt="$t(&quot;deleted&quot;)">
         </span>
 
         <span v-if="stats.conflicted > 0" class="status-badge conflicted">
             <span class="status-count">{{ stats.conflicted }}</span>
-            <wa-icon name="triangle-exclamation" class="status-icon" label="conflicts"></wa-icon>
+            <wa-icon name="triangle-exclamation" class="status-icon" :label="$t(&quot;conflicts&quot;)"></wa-icon>
         </span>
     </span>
 </template>

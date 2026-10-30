@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../i18n/index.js'
+
 // JsonTestView.vue - Temporary test page for JsonHumanView component.
 // Access at /json-test
 
@@ -18,16 +20,16 @@ function onUpdate(index, newValue) {
 
 const testCases = reactive([
     {
-        title: 'Bash tool (with override: command → string-code)',
+        get title() { return $t("Bash tool (with override: command → string-code)") },
         json: {
             command: 'git log --oneline -10 && echo "done"',
-            description: 'Show recent git commits',
+            get description() { return $t("Show recent git commits") },
             timeout: 5000
         },
         overrides: { command: { valueType: 'string-code' } }
     },
     {
-        title: 'Write tool (with override: content → string-code, language from sibling path)',
+        get title() { return $t("Write tool (with override: content → string-code, language from sibling path)") },
         json: {
             file_path: '/home/user/project/src/utils/helpers.py',
             content: 'import os\nimport sys\nfrom pathlib import Path\n\n\ndef find_project_root(start_dir: str) -> Path:\n    """Walk up the directory tree to find the project root."""\n    current = Path(start_dir).resolve()\n    while current != current.parent:\n        if (current / "pyproject.toml").exists():\n            return current\n        current = current.parent\n    raise FileNotFoundError("No project root found")\n'
@@ -35,7 +37,7 @@ const testCases = reactive([
         overrides: { content: { valueType: 'string-code', language: 'python' } }
     },
     {
-        title: 'Edit tool (diff + language from sibling path)',
+        get title() { return $t("Edit tool (diff + language from sibling path)") },
         json: {
             file_path: '/home/user/project/src/main.py',
             old_string: 'def process(data):\n    return data',
@@ -47,7 +49,7 @@ const testCases = reactive([
         }
     },
     {
-        title: 'Grep tool',
+        get title() { return $t("Grep tool") },
         json: {
             pattern: 'import\\s+asyncio',
             path: '/home/user/project/src',
@@ -57,14 +59,14 @@ const testCases = reactive([
         },
     },
     {
-        title: 'WebFetch tool',
+        get title() { return $t("WebFetch tool") },
         json: {
             url: 'https://docs.python.org/3/library/asyncio.html',
             prompt: 'Extract the main concepts and API overview for asyncio'
         },
     },
     {
-        title: 'WebSearch tool',
+        get title() { return $t("WebSearch tool") },
         json: {
             query: 'Vue 3 recursive components best practices 2026',
             allowed_domains: ['vuejs.org', 'stackoverflow.com'],
@@ -72,7 +74,7 @@ const testCases = reactive([
         }
     },
     {
-        title: 'AskUserQuestion tool (what the user sees in ask_user_question mode)',
+        get title() { return $t("AskUserQuestion tool (what the user sees in ask_user_question mode)") },
         json: {
             questions: [
                 {
@@ -80,16 +82,16 @@ const testCases = reactive([
                     header: 'Database',
                     multiSelect: false,
                     options: [
-                        { label: 'PostgreSQL', description: 'Reliable, feature-rich relational database' },
-                        { label: 'SQLite', description: 'Lightweight, file-based, good for prototyping' },
-                        { label: 'MongoDB', description: 'Document-oriented NoSQL database' }
+                        { get label() { return $t("PostgreSQL") }, get description() { return $t("Reliable, feature-rich relational database") } },
+                        { get label() { return $t("SQLite") }, get description() { return $t("Lightweight, file-based, good for prototyping") } },
+                        { get label() { return $t("MongoDB") }, get description() { return $t("Document-oriented NoSQL database") } }
                     ]
                 }
             ]
         }
     },
     {
-        title: 'TodoWrite tool',
+        get title() { return $t("TodoWrite tool") },
         json: {
             todos: [
                 { content: 'Implement user authentication', status: 'completed', activeForm: 'Implementing user authentication' },
@@ -99,7 +101,7 @@ const testCases = reactive([
         }
     },
     {
-        title: 'NotebookEdit tool',
+        get title() { return $t("NotebookEdit tool") },
         json: {
             notebook_path: '/home/user/notebooks/analysis.ipynb',
             new_source: 'import pandas as pd\nimport matplotlib.pyplot as plt\n\ndf = pd.read_csv("data.csv")\ndf.describe()',
@@ -109,7 +111,7 @@ const testCases = reactive([
         overrides: { new_source: { valueType: 'string-code', language: 'python' } }
     },
     {
-        title: 'Read tool (simple)',
+        get title() { return $t("Read tool (simple)") },
         json: {
             file_path: '/home/user/project/README.md',
             offset: 0,
@@ -117,14 +119,14 @@ const testCases = reactive([
         },
     },
     {
-        title: 'Glob tool',
+        get title() { return $t("Glob tool") },
         json: {
             pattern: '**/*.{ts,tsx}',
             path: '/home/user/project/src'
         }
     },
     {
-        title: 'Unknown MCP tool with nested objects',
+        get title() { return $t("Unknown MCP tool with nested objects") },
         json: {
             query: 'SELECT u.name, u.email FROM users u JOIN orders o ON u.id = o.user_id WHERE o.total > 100',
             database: 'production',
@@ -140,7 +142,7 @@ const testCases = reactive([
         }
     },
     {
-        title: 'Scalars and edge cases',
+        get title() { return $t("Scalars and edge cases") },
         json: {
             a_null_value: null,
             a_boolean_true: true,
@@ -155,21 +157,21 @@ const testCases = reactive([
         }
     },
     {
-        title: 'String with markdown content',
+        get title() { return $t("String with markdown content") },
         json: {
             description: '## Overview\n\nThis module provides **async utilities** for the project.\n\n### Features\n\n- Connection pooling with `asyncio`\n- Automatic retry on failure\n- Configurable timeouts\n\n### Usage\n\n```python\nfrom utils import connect\n\nasync def main():\n    db = await connect("postgres://localhost/mydb")\n    result = await db.query("SELECT 1")\n```\n\n> Note: Requires Python 3.11+\n\n| Feature | Status |\n|---------|--------|\n| Pooling | Done |\n| Retry   | WIP  |\n| Timeout | Done |\n',
             version: '1.2.0'
         }
     },
     {
-        title: 'Plain multi-line string (NOT markdown)',
+        get title() { return $t("Plain multi-line string (NOT markdown)") },
         json: {
             stack_trace: 'Traceback (most recent call last):\n  File "/app/main.py", line 42, in handle_request\n    result = await process(data)\n  File "/app/process.py", line 15, in process\n    return transform(data)\n  File "/app/transform.py", line 8, in transform\n    raise ValueError("Invalid input format")\nValueError: Invalid input format',
             exit_code: 1
         }
     },
     {
-        title: 'Long single-line string (should wrap naturally)',
+        get title() { return $t("Long single-line string (should wrap naturally)") },
         json: {
             prompt: 'You are a helpful assistant that analyzes code repositories. Given a repository URL, clone it, analyze the structure, identify the main programming languages used, count the lines of code per language, and provide a summary of the architecture including entry points, key modules, and dependency relationships between components.',
             temperature: 0.7
@@ -177,21 +179,21 @@ const testCases = reactive([
     },
     // ─── Sibling path language detection test cases ──────────────────────────
     {
-        title: 'Sibling path detection: content + file_path (auto → string-code with JS highlighting)',
+        get title() { return $t("Sibling path detection: content + file_path (auto → string-code with JS highlighting)") },
         json: {
             file_path: '/home/user/project/src/utils/api.js',
             content: 'export async function fetchData(url) {\n    const response = await fetch(url)\n    if (!response.ok) {\n        throw new Error(`HTTP ${response.status}`)\n    }\n    return response.json()\n}\n'
         },
     },
     {
-        title: 'Sibling path detection: content + path (auto → string-code with Rust highlighting)',
+        get title() { return $t("Sibling path detection: content + path (auto → string-code with Rust highlighting)") },
         json: {
             path: '/home/user/project/src/main.rs',
             content: 'use std::io;\n\nfn main() -> io::Result<()> {\n    let mut input = String::new();\n    io::stdin().read_line(&mut input)?;\n    println!("Hello, {}!", input.trim());\n    Ok(())\n}\n'
         },
     },
     {
-        title: 'Sibling path detection: diff pairs + file_path (auto → string-code for old/new)',
+        get title() { return $t("Sibling path detection: diff pairs + file_path (auto → string-code for old/new)") },
         json: {
             file_path: '/home/user/project/src/components/Header.vue',
             old_string: '<template>\n    <header>\n        <h1>{{ title }}</h1>\n    </header>\n</template>',
@@ -199,16 +201,16 @@ const testCases = reactive([
         },
     },
     {
-        title: 'Sibling path detection: unknown extension (auto → string-code, no highlighting)',
+        get title() { return $t("Sibling path detection: unknown extension (auto → string-code, no highlighting)") },
         json: {
             file_path: '/home/user/project/config.obscure',
             content: 'setting1 = value1\nsetting2 = value2\nsetting3 = value3\n'
         },
     },
     {
-        title: 'Sibling path detection: no path key (content stays string-multiline)',
+        get title() { return $t("Sibling path detection: no path key (content stays string-multiline)") },
         json: {
-            description: 'Some tool without a path',
+            get description() { return $t("Some tool without a path") },
             content: 'This is plain text content\nwith multiple lines\nbut no sibling path key.\n'
         },
     },
@@ -217,8 +219,8 @@ const testCases = reactive([
 
 <template>
     <div class="json-test-page">
-        <h1>JsonHumanView Test Page</h1>
-        <p class="subtitle">Rendering various JSON structures with the JsonHumanView component</p>
+        <h1>{{ $t("JsonHumanView Test Page") }}</h1>
+        <p class="subtitle">{{ $t("Rendering various JSON structures with the JsonHumanView component") }}</p>
 
         <div
             v-for="(testCase, index) in testCases"
@@ -234,7 +236,7 @@ const testCases = reactive([
                     @click="toggleEdit(index)"
                 >
                     <wa-icon :name="editingStates[index] ? 'eye' : 'pen'" variant="classic" slot="start"></wa-icon>
-                    {{ editingStates[index] ? 'Read' : 'Edit' }}
+                    {{ editingStates[index] ? $t("Read") : $t("Edit") }}
                 </wa-button>
             </h2>
             <div class="test-render">
@@ -246,7 +248,7 @@ const testCases = reactive([
                 />
             </div>
             <details class="test-raw">
-                <summary>Raw JSON{{ editingStates[index] ? ' (live)' : '' }}</summary>
+                <summary>{{ $t("Raw JSON") }}{{ editingStates[index] ? $t(" (live)") : '' }}</summary>
                 <pre>{{ JSON.stringify(testCase.json, null, 2) }}</pre>
             </details>
         </div>

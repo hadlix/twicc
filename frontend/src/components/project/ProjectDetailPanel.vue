@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // ProjectDetailPanel.vue - Detail panel shown when no session is selected.
 // Delegates header display to ProjectDetailHeader, then shows tabbed content.
 
@@ -163,9 +165,9 @@ const filesAvailableRoots = computed(() => {
     // All-projects mode
     if (props.projectId === ALL_PROJECTS_ID) {
         if (!homeDir.value) return []
-        const roots = [{ key: 'home', label: 'Home directory', path: homeDir.value }]
+        const roots = [{ key: 'home', get label() { return $t("Home directory") }, path: homeDir.value }]
         if (homeDir.value !== '/') {
-            roots.push({ key: 'root', label: 'System root', path: '/' })
+            roots.push({ key: 'root', get label() { return $t("System root") }, path: '/' })
         }
         return roots
     }
@@ -175,7 +177,7 @@ const filesAvailableRoots = computed(() => {
         const roots = []
         const lca = terminalCwd.value  // reuse the LCA already computed for terminal
         if (!lca) return []
-        roots.push({ key: 'common', label: 'Common directory', path: lca })
+        roots.push({ key: 'common', get label() { return $t("Common directory") }, path: lca })
 
         // Add unique project directories that differ from LCA
         const seen = new Set([lca])
@@ -234,13 +236,13 @@ const hasGitRepo = computed(() => {
 
 const TABS = computed(() => {
     const tabs = [
-        { id: 'stats', label: 'Stats', icon: 'chart-simple' },
-        { id: 'files', label: 'Files', icon: 'folder' },
+        { id: 'stats', get label() { return $t("Stats") }, icon: 'chart-simple' },
+        { id: 'files', get label() { return $t("Files") }, icon: 'folder' },
     ]
     if (hasGitRepo.value) {
-        tabs.push({ id: 'git', label: 'Git', icon: 'code-branch' })
+        tabs.push({ id: 'git', get label() { return $t("Git") }, icon: 'code-branch' })
     }
-    tabs.push({ id: 'terminal', label: 'Terminal', icon: 'terminal' })
+    tabs.push({ id: 'terminal', get label() { return $t("Terminal") }, icon: 'terminal' })
     return tabs
 })
 

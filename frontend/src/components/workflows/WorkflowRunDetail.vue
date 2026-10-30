@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // Structured body of one workflow run, rendered inside the run's wa-details.
 // Works identically for a running run (STATE 1, synthetic) and a finished one
 // (STATE 2, the real wf_*.json envelope); the differences are sourced per field:
@@ -172,7 +174,7 @@ const phaseRows = computed(() =>
         const cost = props.phasesCost?.[String(i + 1)]
         return {
             key: `${i}:${title}`,
-            title: title || `Phase ${i + 1}`,
+            title: title || $t("Phase {p0}", { p0: (i + 1) }),
             detail,
             // Prefer the back's stamped phase.state; fall back to local derivation.
             statusKind: phaseStateByIndex.value[i + 1] || phaseStatusOf(list),
@@ -196,8 +198,8 @@ const unassignedRow = computed(() => {
     const costs = list.map((a) => a.cost).filter((c) => typeof c === 'number')
     return {
         key: '__unassigned__',
-        title: 'Unassigned',
-        detail: 'Agents not matched to a phase',
+        get title() { return $t("Unassigned") },
+        get detail() { return $t("Agents not matched to a phase") },
         statusKind: phaseStatusOf(list),
         agentCount: list.length,
         cost: costs.length ? costs.reduce((sum, c) => sum + c, 0) : null,
@@ -314,7 +316,7 @@ function agentsLabel(n) {
                 <wa-icon name="stopwatch"></wa-icon>
                 <span v-if="durationSec != null">{{ formatDuration(durationSec) }}</span>
                 <ProcessDuration v-else-if="statusKind === 'running' && startTimeSec != null" :state-changed-at="startTimeSec" />
-                <span v-else>—</span>
+                <span v-else>{{ $t("—") }}</span>
             </span>
             <span class="wf-info-item">
                 <wa-icon name="robot"></wa-icon>
@@ -329,9 +331,9 @@ function agentsLabel(n) {
              budget cap). Counts come straight from raw_json.phaseCompletion. -->
         <wa-callout v-if="incompleteRun" variant="warning" size="small" class="wf-incomplete">
             <wa-icon slot="icon" name="triangle-exclamation"></wa-icon>
-            This workflow is marked completed, but only
-            <strong>{{ phaseCompletion.completed }} of its {{ phaseCompletion.total }} phases</strong>
-            completed — it may have stopped early.
+            {{ $t("This workflow is marked completed, but only") }}
+            <strong>{{ phaseCompletion.completed }} {{ $t("of its") }} {{ phaseCompletion.total }} {{ $t("phases") }}</strong>
+            {{ $t("completed — it may have stopped early.") }}
         </wa-callout>
 
         <!-- Interrupted run (a terminal status that isn't a success, e.g. killed).
@@ -340,20 +342,19 @@ function agentsLabel(n) {
              the runId + journal, so a resume continues the same run). -->
         <wa-callout v-else-if="interruptedRun" variant="warning" size="small" class="wf-incomplete">
             <wa-icon slot="icon" name="circle-stop"></wa-icon>
-            This workflow was <strong>interrupted</strong> before completing — it did not run to the end.
-            You can ask the agent to try resuming it if needed.
+            {{ $t("This workflow was") }} <strong>{{ $t("interrupted") }}</strong> {{ $t("before completing — it did not run to the end. You can ask the agent to try resuming it if needed.") }}
         </wa-callout>
 
         <!-- Phase detection unavailable: the script couldn't be executed to build
              templates, so agents can't be tagged to a phase (all Unassigned). -->
         <wa-callout v-if="detectionUnavailable" variant="warning" size="small" class="wf-incomplete">
             <wa-icon slot="icon" name="triangle-exclamation"></wa-icon>
-            Agent <strong>phases couldn't be detected</strong> for this workflow — its agents are grouped under Unassigned.
+            {{ $t("Agent") }} <strong>{{ $t("phases couldn't be detected") }}</strong> {{ $t("for this workflow — its agents are grouped under Unassigned.") }}
         </wa-callout>
 
         <!-- Section 2 — full description (untruncated, unlike the title) -->
         <div v-if="summary" class="wf-section">
-            <div class="wf-description-label">Description</div>
+            <div class="wf-description-label">{{ $t("Description") }}</div>
             <p class="wf-description">{{ summary }}</p>
         </div>
 
@@ -368,7 +369,7 @@ function agentsLabel(n) {
             >
                 <span slot="summary" class="items-details-summary">
                     <span class="items-details-summary-left">
-                        <strong class="items-details-summary-name">Arguments</strong>
+                        <strong class="items-details-summary-name">{{ $t("Arguments") }}</strong>
                     </span>
                 </span>
                 <div v-if="argsOpen || isClosing('args')" class="wf-row-body wf-args-body">
@@ -380,7 +381,7 @@ function agentsLabel(n) {
 
         <!-- Section 4 — phases (+ the unassigned bucket, last, when non-empty) -->
         <div v-if="displayRows.length" class="wf-section">
-            <div class="wf-section-label">Phases</div>
+            <div class="wf-section-label">{{ $t("Phases") }}</div>
             <wa-details
                 v-for="ph in displayRows"
                 :key="ph.key"
@@ -395,7 +396,7 @@ function agentsLabel(n) {
                     <span class="items-details-summary-left">
                         <strong class="items-details-summary-name">{{ ph.title }}</strong>
                         <template v-if="ph.detail">
-                            <span class="items-details-summary-separator"> — </span>
+                            <span class="items-details-summary-separator"> {{ $t("—") }} </span>
                             <span class="items-details-summary-description">{{ ph.detail }}</span>
                         </template>
                     </span>
@@ -441,7 +442,7 @@ function agentsLabel(n) {
                                 >
                                     <wa-icon v-if="ag.active" slot="start" name="robot" class="robot-working"></wa-icon>
                                     <wa-icon v-else-if="ag.statusKind === 'interrupted'" slot="start" name="circle-stop" class="wf-agent-interrupted"></wa-icon>
-                                    View Agent
+                                    {{ $t("View Agent") }}
                                 </wa-button>
                             </span>
                             <div v-if="open.has('agent:' + ag.agentId) || isClosing('agent:' + ag.agentId)" class="wf-agent-body">
@@ -468,7 +469,7 @@ function agentsLabel(n) {
                                 >
                                     <span slot="summary" class="items-details-summary">
                                         <span class="items-details-summary-left">
-                                            <strong class="items-details-summary-name">Prompt</strong>
+                                            <strong class="items-details-summary-name">{{ $t("Prompt") }}</strong>
                                         </span>
                                     </span>
                                     <div v-if="open.has('prompt:' + ag.agentId) || isClosing('prompt:' + ag.agentId)" class="wf-row-body wf-args-body">
@@ -486,7 +487,7 @@ function agentsLabel(n) {
                                 >
                                     <span slot="summary" class="items-details-summary">
                                         <span class="items-details-summary-left">
-                                            <strong class="items-details-summary-name">Result</strong>
+                                            <strong class="items-details-summary-name">{{ $t("Result") }}</strong>
                                         </span>
                                     </span>
                                     <div v-if="open.has('result:' + ag.agentId) || isClosing('result:' + ag.agentId)" class="wf-row-body wf-args-body">
@@ -512,7 +513,7 @@ function agentsLabel(n) {
             >
                 <span slot="summary" class="items-details-summary">
                     <span class="items-details-summary-left">
-                        <strong class="items-details-summary-name">Result</strong>
+                        <strong class="items-details-summary-name">{{ $t("Result") }}</strong>
                     </span>
                 </span>
                 <div v-if="resultOpen || isClosing('run-result')" class="wf-row-body wf-result-body">

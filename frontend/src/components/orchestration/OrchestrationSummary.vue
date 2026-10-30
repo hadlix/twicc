@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // The four summary tiles under the Orchestration header: the number of nodes, one icon row per non-empty
 // state (with a donut when there are several), total cost, cumulative duration. Counts are over the displayed nodes (descendants only for
 // sessions); cost and cumulative duration are passed in already resolved. Every tile is centred both ways.
@@ -19,15 +21,15 @@ const props = defineProps({
 const total = computed(() => BUCKET_ORDER.reduce((n, bucket) => n + props.counts[bucket], 0))
 
 const SESSION_STATES = [
-    { bucket: 'working', icon: 'robot', label: 'Working', color: BUCKET_COLORS.working },
-    { bucket: 'awaiting', icon: 'hand', label: 'Awaiting', color: BUCKET_COLORS.awaiting },
-    { bucket: 'idle', icon: 'check', label: 'Idle', color: BUCKET_COLORS.idle },
-    { bucket: 'stopped', icon: 'circle-stop', label: 'Stopped', color: BUCKET_COLORS.stopped },
+    { bucket: 'working', icon: 'robot', get label() { return $t("Working") }, color: BUCKET_COLORS.working },
+    { bucket: 'awaiting', icon: 'hand', get label() { return $t("Awaiting") }, color: BUCKET_COLORS.awaiting },
+    { bucket: 'idle', icon: 'check', get label() { return $t("Idle") }, color: BUCKET_COLORS.idle },
+    { bucket: 'stopped', icon: 'circle-stop', get label() { return $t("Stopped") }, color: BUCKET_COLORS.stopped },
 ]
 // A subagent is running or done (stopped, grey like a stopped session).
 const AGENT_STATES = [
-    { bucket: 'working', icon: 'robot', label: 'Running', color: BUCKET_COLORS.working },
-    { bucket: 'stopped', icon: 'circle-stop', label: 'Done', color: BUCKET_COLORS.stopped },
+    { bucket: 'working', icon: 'robot', get label() { return $t("Running") }, color: BUCKET_COLORS.working },
+    { bucket: 'stopped', icon: 'circle-stop', get label() { return $t("Done") }, color: BUCKET_COLORS.stopped },
 ]
 const stateRows = computed(() => (props.kind === 'agents' ? AGENT_STATES : SESSION_STATES)
     .map(state => ({ ...state, count: props.counts[state.bucket] }))
@@ -48,7 +50,7 @@ const donut = computed(() => {
     return `conic-gradient(${stops.join(', ')})`
 })
 
-const countLabel = computed(() => (props.kind === 'agents' ? 'Subagents' : 'Spawned sessions'))
+const countLabel = computed(() => (props.kind === 'agents' ? $t("Subagents") : $t("Spawned sessions")))
 const cumulative = computed(() => (props.cumulativeSeconds == null ? '-' : formatDuration(props.cumulativeSeconds)))
 </script>
 
@@ -59,7 +61,7 @@ const cumulative = computed(() => (props.cumulativeSeconds == null ? '-' : forma
             <span class="osum-value">{{ total }}</span>
         </div>
         <div class="osum-tile">
-            <span class="osum-label">State</span>
+            <span class="osum-label">{{ $t("State") }}</span>
             <span class="osum-states-group">
                 <span v-if="stateRows.length > 1" class="osum-donut" :style="{ background: donut }" aria-hidden="true"></span>
                 <span v-if="stateRows.length" class="osum-states">
@@ -80,11 +82,11 @@ const cumulative = computed(() => (props.cumulativeSeconds == null ? '-' : forma
             </span>
         </div>
         <div v-if="showCosts" class="osum-tile">
-            <span class="osum-label">Total cost</span>
+            <span class="osum-label">{{ $t("Total cost") }}</span>
             <span class="osum-value"><CostDisplay :cost="cost" /></span>
         </div>
         <div class="osum-tile">
-            <span class="osum-label">Cumulative time</span>
+            <span class="osum-label">{{ $t("Cumulative time") }}</span>
             <span class="osum-value">{{ cumulative }}</span>
         </div>
     </div>

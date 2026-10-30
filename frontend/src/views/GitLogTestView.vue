@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../i18n/index.js'
+
 import { ref, computed, watchEffect } from 'vue'
 import {
     GitLog,
@@ -21,10 +23,10 @@ const colorScheme = computed(() => (isDark.value ? 'dark' : 'light'))
 // ---------------------------------------------------------------------------
 
 const PALETTE_OPTIONS = [
-    { label: 'Rainbow Light', value: 'rainbow-light' },
-    { label: 'Rainbow Dark', value: 'rainbow-dark' },
-    { label: 'Neon Aurora Light', value: 'neon-aurora-light' },
-    { label: 'Neon Aurora Dark', value: 'neon-aurora-dark' },
+    { get label() { return $t("Rainbow Light") }, value: 'rainbow-light' },
+    { get label() { return $t("Rainbow Dark") }, value: 'rainbow-dark' },
+    { get label() { return $t("Neon Aurora Light") }, value: 'neon-aurora-light' },
+    { get label() { return $t("Neon Aurora Dark") }, value: 'neon-aurora-dark' },
 ]
 
 const selectedPalette = ref('neon-aurora-dark')
@@ -48,13 +50,13 @@ const graphColumnWidth = ref(DEFAULT_NODE_SIZE + NODE_BORDER_WIDTH * 2)
 // ---------------------------------------------------------------------------
 
 const BREAK_POINT_THEME_OPTIONS = [
-    { label: 'Dot', value: 'dot' },
-    { label: 'Slash', value: 'slash' },
-    { label: 'Arrow', value: 'arrow' },
-    { label: 'Ring', value: 'ring' },
-    { label: 'Line', value: 'line' },
-    { label: 'Double line', value: 'double-line' },
-    { label: 'Zig-zag', value: 'zig-zag' },
+    { get label() { return $t("Dot") }, value: 'dot' },
+    { get label() { return $t("Slash") }, value: 'slash' },
+    { get label() { return $t("Arrow") }, value: 'arrow' },
+    { get label() { return $t("Ring") }, value: 'ring' },
+    { get label() { return $t("Line") }, value: 'line' },
+    { get label() { return $t("Double line") }, value: 'double-line' },
+    { get label() { return $t("Zig-zag") }, value: 'zig-zag' },
 ]
 
 const selectedBreakPointTheme = ref('dot')
@@ -104,8 +106,8 @@ const displayedCommit = computed(() =>
 )
 
 const displayedCommitLabel = computed(() => {
-    if (selectedCommit.value) return 'Selected'
-    if (previewedCommit.value) return 'Previewed (hover)'
+    if (selectedCommit.value) return $t("Selected")
+    if (previewedCommit.value) return $t("Previewed (hover)")
     return null
 })
 </script>
@@ -114,12 +116,12 @@ const displayedCommitLabel = computed(() => {
     <div class="gitlog-test-view" :class="{ dark: isDark }">
         <!-- Toolbar -->
         <header class="toolbar">
-            <span class="toolbar-title">GitLog Test</span>
+            <span class="toolbar-title">{{ $t("GitLog Test") }}</span>
             <input
                 v-model="filterText"
                 type="text"
                 class="control-input"
-                placeholder="Filter commits..."
+                :placeholder="$t(&quot;Filter commits...&quot;)"
             />
             <select v-model="selectedPalette" class="control-select control-select--palette">
                 <option
@@ -132,7 +134,7 @@ const displayedCommitLabel = computed(() => {
             </select>
             <div class="sizing-group">
                 <label class="toggle">
-                    <span>Font {{ fontSize }}px</span>
+                    <span>{{ $t("Font") }} {{ fontSize }}{{ $t("px") }}</span>
                     <input
                         v-model.number="fontSize"
                         type="range"
@@ -141,7 +143,7 @@ const displayedCommitLabel = computed(() => {
                     />
                 </label>
                 <label class="toggle">
-                    <span>Node</span>
+                    <span>{{ $t("Node") }}</span>
                     <input
                         v-model.number="nodeSize"
                         type="number"
@@ -151,7 +153,7 @@ const displayedCommitLabel = computed(() => {
                     />
                 </label>
                 <label class="toggle">
-                    <span>Row H</span>
+                    <span>{{ $t("Row H") }}</span>
                     <input
                         v-model.number="rowHeight"
                         type="number"
@@ -161,7 +163,7 @@ const displayedCommitLabel = computed(() => {
                     />
                 </label>
                 <label class="toggle">
-                    <span>Col W</span>
+                    <span>{{ $t("Col W") }}</span>
                     <input
                         v-model.number="graphColumnWidth"
                         type="number"
@@ -182,11 +184,11 @@ const displayedCommitLabel = computed(() => {
             </div>
             <label class="toggle">
                 <input type="checkbox" v-model="isDark" />
-                <span>Dark</span>
+                <span>{{ $t("Dark") }}</span>
             </label>
             <label class="toggle">
                 <input type="checkbox" v-model="isFlipped" />
-                <span>Flipped</span>
+                <span>{{ $t("Flipped") }}</span>
             </label>
         </header>
 
@@ -236,15 +238,15 @@ const displayedCommitLabel = computed(() => {
             </div>
             <div class="commit-detail-body">
                 <div class="commit-detail-row">
-                    <span class="commit-detail-key">Message</span>
+                    <span class="commit-detail-key">{{ $t("Message") }}</span>
                     <span class="commit-detail-value">{{ displayedCommit.message }}</span>
                 </div>
                 <div class="commit-detail-row">
-                    <span class="commit-detail-key">Branch</span>
+                    <span class="commit-detail-key">{{ $t("Branch") }}</span>
                     <span class="commit-detail-value">{{ displayedCommit.branch }}</span>
                 </div>
                 <div v-if="displayedCommit.author" class="commit-detail-row">
-                    <span class="commit-detail-key">Author</span>
+                    <span class="commit-detail-key">{{ $t("Author") }}</span>
                     <span class="commit-detail-value">
                         {{ displayedCommit.author.name }}
                         <span v-if="displayedCommit.author.email" class="commit-detail-email">
@@ -253,11 +255,11 @@ const displayedCommitLabel = computed(() => {
                     </span>
                 </div>
                 <div class="commit-detail-row">
-                    <span class="commit-detail-key">Date</span>
+                    <span class="commit-detail-key">{{ $t("Date") }}</span>
                     <span class="commit-detail-value">{{ displayedCommit.committerDate }}</span>
                 </div>
                 <div v-if="displayedCommit.parents?.length" class="commit-detail-row">
-                    <span class="commit-detail-key">Parents</span>
+                    <span class="commit-detail-key">{{ $t("Parents") }}</span>
                     <span class="commit-detail-value">
                         <code v-for="p in displayedCommit.parents" :key="p" class="commit-detail-parent">{{ p }}</code>
                     </span>

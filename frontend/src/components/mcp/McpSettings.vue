@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 /**
  * McpSettings - the "External MCP" settings section: dedicated origin,
  * enablement, the copyable endpoint, and the entry point to the connection
@@ -47,7 +49,7 @@ async function toggle(event) {
 
 async function copyEndpoint() {
     try { await navigator.clipboard.writeText(endpoint.value) }
-    catch { store.error = 'Cannot copy the MCP URL. Select and copy it manually.' }
+    catch { store.error = $t("Cannot copy the MCP URL. Select and copy it manually.") }
 }
 
 function manage() { window.dispatchEvent(new CustomEvent('twicc:open-mcp-manager')) }
@@ -56,8 +58,8 @@ function manage() { window.dispatchEvent(new CustomEvent('twicc:open-mcp-manager
 <template>
     <section class="settings-section">
         <div class="mcp-help-heading">
-            <h3 class="settings-section-title">External MCP</h3>
-            <HelpFeatureLink help-key="external-mcp" label="What is external MCP?" />
+            <h3 class="settings-section-title">{{ $t("External MCP") }}</h3>
+            <HelpFeatureLink help-key="external-mcp" :label="$t(&quot;What is external MCP?&quot;)" />
         </div>
 
         <!-- Once the feature is usable this is the daily action, and the
@@ -68,7 +70,7 @@ function manage() { window.dispatchEvent(new CustomEvent('twicc:open-mcp-manager
                 <wa-button size="small" variant="neutral" appearance="accent" @click="manage">
                     <wa-icon name="plug" slot="start"></wa-icon>
                     <span class="mcp-action-label">
-                        Manage connections
+                        {{ $t("Manage connections") }}
                         <wa-badge v-if="store.pendingRequests.length" variant="brand">{{ store.pendingRequests.length }}</wa-badge>
                     </span>
                 </wa-button>
@@ -77,43 +79,37 @@ function manage() { window.dispatchEvent(new CustomEvent('twicc:open-mcp-manager
         </template>
 
         <span class="setting-group-hint">
-            Connect external MCP clients to this TwiCC instance. Internal agents keep automatic access.
+            {{ $t("Connect external MCP clients to this TwiCC instance. Internal agents keep automatic access.") }}
         </span>
 
         <div class="setting-group">
-            <label class="setting-group-label">Dedicated MCP URL <wa-icon name="cloud" class="synced-icon"></wa-icon></label>
+            <label class="setting-group-label">{{ $t("Dedicated MCP URL") }} <wa-icon name="cloud" class="synced-icon"></wa-icon></label>
             <div class="setting-input-apply-row">
                 <wa-input
                     :value="url" @input="url = $event.target.value" @keydown.enter.prevent="apply"
-                    placeholder="https://mcp.example.com" size="small" aria-label="Dedicated MCP URL"
+                    placeholder="https://mcp.example.com" size="small" :aria-label="$t(&quot;Dedicated MCP URL&quot;)"
                 ></wa-input>
                 <wa-button size="small" variant="neutral" :disabled="saving" @click="apply">
                     <wa-icon :name="applied ? 'check' : 'triangle-exclamation'" slot="start"></wa-icon>
-                    Apply
+                    {{ $t("Apply") }}
                 </wa-button>
             </div>
             <span class="setting-group-hint">
-                Your address for external MCP clients. Enter the HTTPS origin only, without <code>/mcp</code>.
-                Use a dedicated hostname, different from your External, Sharing and Peers addresses.
-                This hostname serves only MCP and its OAuth endpoints; the TwiCC interface stays inaccessible there.
-                The host must be reachable machine-to-machine: a tunnel-level access gate
-                (e.g. Cloudflare Access asking for an email or Google account) blocks MCP connections.
-                Use a public hostname without that gate. TwiCC protects MCP access with OAuth and requires
-                your approval for each connection.
+                {{ $t("Your address for external MCP clients. Enter the HTTPS origin only, without") }} <code>/mcp</code>{{ $t(". Use a dedicated hostname, different from your External, Sharing and Peers addresses. This hostname serves only MCP and its OAuth endpoints; the TwiCC interface stays inaccessible there. The host must be reachable machine-to-machine: a tunnel-level access gate (e.g. Cloudflare Access asking for an email or Google account) blocks MCP connections. Use a public hostname without that gate. TwiCC protects MCP access with OAuth and requires your approval for each connection.") }}
             </span>
         </div>
 
         <div class="setting-group">
-            <label class="setting-group-label">External access <wa-icon name="cloud" class="synced-icon"></wa-icon></label>
+            <label class="setting-group-label">{{ $t("External access") }} <wa-icon name="cloud" class="synced-icon"></wa-icon></label>
             <wa-switch
                 size="small" :checked="enabled"
                 :disabled="saving || !passwordConfigured || !store.config.mcpBaseUrl" @change="toggle"
-            >Accept external MCP clients</wa-switch>
+            >{{ $t("Accept external MCP clients") }}</wa-switch>
             <wa-callout v-if="store.config.passwordConfigured === false" variant="danger" size="small">
-                External MCP requires a TwiCC password. Set a password and restart TwiCC before enabling external access.
+                {{ $t("External MCP requires a TwiCC password. Set a password and restart TwiCC before enabling external access.") }}
             </wa-callout>
             <span class="setting-group-hint">
-                Needs the URL above. Changing that URL or turning access off revokes existing connections.
+                {{ $t("Needs the URL above. Changing that URL or turning access off revokes existing connections.") }}
             </span>
         </div>
 
@@ -124,15 +120,15 @@ function manage() { window.dispatchEvent(new CustomEvent('twicc:open-mcp-manager
         </wa-callout>
 
         <div v-if="enabled" class="setting-group">
-            <label class="setting-group-label">MCP endpoint</label>
+            <label class="setting-group-label">{{ $t("MCP endpoint") }}</label>
             <div class="mcp-endpoint-row">
                 <code class="mcp-endpoint">{{ endpoint }}</code>
                 <wa-button size="small" variant="neutral" appearance="outlined" @click="copyEndpoint">
                     <wa-icon name="copy" slot="start"></wa-icon>
-                    Copy
+                    {{ $t("Copy") }}
                 </wa-button>
             </div>
-            <span class="setting-group-hint">Give this URL to the external MCP client.</span>
+            <span class="setting-group-hint">{{ $t("Give this URL to the external MCP client.") }}</span>
         </div>
     </section>
 </template>

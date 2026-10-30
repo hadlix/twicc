@@ -386,7 +386,7 @@ test('7. no plain icon button carries a bare-text label', () => {
     const offenders = listVueFiles(srcDir).flatMap((file) =>
         plainIconPlusBareText(templateOf(readFileSync(file, 'utf8'))).map((o) => `${relative(srcDir, file)}: ${o}`))
     assert.deepEqual(offenders, [])
-    assert.match(read('../components/json/JsonHumanView.vue'), /<span>\{\{ diffSplitMode\[pair\.baseName\] \? 'Diff mode' : 'Old\/new mode' \}\}<\/span>/)
+    assert.match(read('../components/json/JsonHumanView.vue'), /<span>\{\{ diffSplitMode\[pair\.baseName\] \? \$t\("Diff mode"\) : \$t\("Old\/new mode"\) \}\}<\/span>/)
 })
 
 /** §6 invariants over a set of { rule, ancestors } entries. `measured`: the rule's translate is a

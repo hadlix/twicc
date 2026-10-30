@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // MessageSnippetsBar.vue - Displays message snippets as compact buttons below the textarea
 // Visual style mirrors the snippets tab in TerminalExtraKeysBar.vue
 import { onBeforeUnmount, ref } from 'vue'
@@ -139,7 +141,7 @@ onBeforeUnmount(() => clearTimeout(longPressTimer))
         <button
             v-if="showHistoryButton"
             class="snippet-btn history-btn"
-            title="Browse previous messages"
+            :title="$t(&quot;Browse previous messages&quot;)"
             @click="emit('open-history')"
         >
             <wa-icon name="arrow-up"></wa-icon>
@@ -156,13 +158,13 @@ onBeforeUnmount(() => clearTimeout(longPressTimer))
                     <wa-icon :name="activationMeta(char).icon" :style="activationMeta(char).iconStyle"></wa-icon>
                 </button>
                 <AppTooltip v-if="!canOpenCommand" :for="commandBtnDisabledId(char)">
-                    Clear the message first to use a command
+                    {{ $t("Clear the message first to use a command") }}
                 </AppTooltip>
             </template>
         </template>
         <button
             class="snippet-btn at-btn"
-            title="Insert a file path"
+            :title="$t(&quot;Insert a file path&quot;)"
             @click="emit('open-at')"
         >
             <wa-icon name="at"></wa-icon>
@@ -221,11 +223,11 @@ onBeforeUnmount(() => clearTimeout(longPressTimer))
                 </template>
             </GroupedSnippetEntries>
         </template>
-        <span v-else class="empty-text">No snippets</span>
+        <span v-else class="empty-text">{{ $t("No snippets") }}</span>
         <button
             class="snippet-btn manage-btn"
             @click="emit('manage-snippets')"
-        >⚙ Manage</button>
+        >{{ $t("⚙ Manage") }}</button>
     </div>
 </template>
 

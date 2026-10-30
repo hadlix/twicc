@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // Compact task progress shown next to the Tasks tab label: `done/total` while work remains, a green
 // check once every task is done. Renders nothing without tasks. Shared by the center tab strip, the
 // dock tab bars, the gutter chips (and their measurement mirrors) and the layout overlay.
@@ -19,8 +21,8 @@ const total = computed(() => props.progress?.total ?? 0)
 const allDone = computed(() => total.value > 0 && props.progress.done === total.value)
 const label = computed(() => {
     if (!total.value) return ''
-    if (allDone.value) return total.value === 1 ? 'Task done' : `All ${total.value} tasks done`
-    return `${props.progress.done} of ${total.value} tasks done`
+    if (allDone.value) return total.value === 1 ? $t("Task done") : $t("All {p0} tasks done", { p0: (total.value) })
+    return $t("{p0} of {p1} tasks done", { p0: (props.progress.done), p1: (total.value) })
 })
 </script>
 

@@ -1,3 +1,5 @@
+
+import { t as $t } from '../../i18n/index.js'
 // frontend/src/utils/uploads/controller.js
 // The upload lifecycle controller (spec §6.2–§6.5, §6.7–§6.9, §6.12–§6.13).
 //
@@ -49,9 +51,9 @@ export const PROGRESS_THROTTLE_MS = 250
 
 /** Where the user finds an upload again, for the "retry it from …" toasts. */
 const PANEL_LOCATIONS = {
-    files: 'the Files tab',
-    artifacts: 'the Artifacts tab',
-    composer: 'the message composer',
+    get files() { return $t("the Files tab") },
+    get artifacts() { return $t("the Artifacts tab") },
+    get composer() { return $t("the message composer") },
 }
 
 /**
@@ -248,21 +250,21 @@ export function createUploadsController(deps) {
     }
 
     function failureToast(filename, message) {
-        toast.error(message, { title: `Upload failed: ${filename}`, duration: TOAST_DURATION_MS })
+        toast.error(message, { get title() { return $t("Upload failed: {p0}", { p0: (filename) }) }, duration: TOAST_DURATION_MS })
     }
 
     function pausedToast(entry, message) {
         failureToast(
             entry.filename,
-            `${message || 'The upload stopped.'} You can retry it from ${panelLocation(entry)}.`,
+            $t("{p0} You can retry it from {p1}.", { p0: (message || 'The upload stopped.'), p1: (panelLocation(entry)) }),
         )
     }
 
     function networkToast() {
         if (networkToastShown) return
         networkToastShown = true
-        toast.error('The server cannot be reached. Uploads resume when the connection comes back.', {
-            title: 'Upload paused',
+        toast.error($t("The server cannot be reached. Uploads resume when the connection comes back."), {
+            get title() { return $t("Upload paused") },
             duration: TOAST_DURATION_MS,
         })
     }
@@ -272,15 +274,15 @@ export function createUploadsController(deps) {
         if (record.state === 'completed') {
             if (composer) return
             toast.success(record.target_dir, {
-                title: `Uploaded ${baseName(record.final_path) || record.filename}`,
+                get title() { return $t("Uploaded {p0}", { p0: (baseName(record.final_path) || record.filename) }) },
                 duration: TOAST_DURATION_MS,
                 copyPath: record.final_path || null,
             })
         } else if (record.state === 'failed') {
-            failureToast(record.filename, record.error || 'The server stopped the upload.')
+            failureToast(record.filename, record.error || $t("The server stopped the upload."))
         } else if (record.state === 'cancelled' && !composer && !cancelledHere.has(record.id)) {
-            toast.error('The upload was cancelled in another tab or on another device.', {
-                title: `Upload cancelled: ${record.filename}`,
+            toast.error($t("The upload was cancelled in another tab or on another device."), {
+                get title() { return $t("Upload cancelled: {p0}", { p0: (record.filename) }) },
                 duration: TOAST_DURATION_MS,
             })
         }
@@ -592,7 +594,7 @@ export function createUploadsController(deps) {
             const wasCancelling = entry.localState === 'cancelling'
             removeEntry(entry)
             if (wasLocal && !wasCancelling) {
-                failureToast(entry.filename, 'The upload is no longer on the server.')
+                failureToast(entry.filename, $t("The upload is no longer on the server."))
             }
         }
         nowRef.value = now()
@@ -713,7 +715,7 @@ export function createUploadsController(deps) {
             }
             return
         }
-        if (lastWasUpload500) pauseError(entry, 'Server error.')
+        if (lastWasUpload500) pauseError(entry, $t("Server error."))
         else pauseNetwork(entry)
     }
 
@@ -726,7 +728,7 @@ export function createUploadsController(deps) {
         }
         const record = entry.server
         if (!record) {
-            pauseError(entry, 'Unexpected answer from the server.')
+            pauseError(entry, $t("Unexpected answer from the server."))
         } else if (record.state === 'active' && record.error) {
             pauseError(entry, record.error)
         } else if (record.state === 'active') {
@@ -844,7 +846,7 @@ export function createUploadsController(deps) {
                 if (onRejected) {
                     notifyRejected(onRejected, { client_id: clientId, filename: file.name, code: REJECTED_FILE_UNREADABLE })
                 } else {
-                    failureToast(file.name, 'The file could not be read.')
+                    failureToast(file.name, $t("The file could not be read."))
                 }
                 continue
             }
@@ -975,7 +977,7 @@ export function createUploadsController(deps) {
         const entry = entries.get(key)
         if (!entry || entry.local || entry.server?.state !== 'active') return false
         const record = entry.server
-        const mismatch = 'The picked file is not the file of this upload.'
+        const mismatch = $t("The picked file is not the file of this upload.")
         if (file.size !== record.size) {
             failureToast(entry.filename, mismatch)
             return false
@@ -984,7 +986,7 @@ export function createUploadsController(deps) {
         try {
             fingerprint = await fingerprintFile(file)
         } catch {
-            failureToast(entry.filename, 'The picked file could not be read.')
+            failureToast(entry.filename, $t("The picked file could not be read."))
             return false
         }
         if (!exists(entry) || entry.local || entry.server?.state !== 'active') return false

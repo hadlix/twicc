@@ -1,18 +1,20 @@
+
+import { t as $t } from '../i18n/index.js'
 import { formatFullDateTime } from './date'
 
 // Duration presets shared by full-text search, bulk archive, and the sidebar's
 // session-list date separators. Order matches display order in lists, from the
 // most recent threshold to the oldest.
 export const DURATION_PRESETS = [
-    { value: '24h', label: '24 hours' },
-    { value: '3d',  label: '3 days' },
-    { value: '7d',  label: '7 days' },
-    { value: '10d', label: '10 days' },
-    { value: '20d', label: '20 days' },
-    { value: '30d', label: '30 days' },
-    { value: '2m',  label: '2 months' },
-    { value: '3m',  label: '3 months' },
-    { value: '6m',  label: '6 months' },
+    { value: '24h', get label() { return $t("24 hours") } },
+    { value: '3d',  get label() { return $t("3 days") } },
+    { value: "7d",  get label() { return $t("7 days") } },
+    { value: '10d', get label() { return $t("10 days") } },
+    { value: '20d', get label() { return $t("20 days") } },
+    { value: '30d', get label() { return $t("30 days") } },
+    { value: '2m',  get label() { return $t("2 months") } },
+    { value: '3m',  get label() { return $t("3 months") } },
+    { value: '6m',  get label() { return $t("6 months") } },
 ]
 
 /**
@@ -28,7 +30,7 @@ function presetCutoff(preset, now) {
     switch (preset) {
         case '24h': d.setDate(d.getDate() - 1); break
         case '3d':  d.setDate(d.getDate() - 3); break
-        case '7d':  d.setDate(d.getDate() - 7); break
+        case "7d":  d.setDate(d.getDate() - 7); break
         case '10d': d.setDate(d.getDate() - 10); break
         case '20d': d.setDate(d.getDate() - 20); break
         case '30d': d.setDate(d.getDate() - 30); break
@@ -99,7 +101,7 @@ export function sessionPresetBucket(mtime, nowMs) {
 export function dateBucketSeparator(ts, nowMs) {
     const { key, duration, cutoffMs } = sessionPresetBucket(ts, nowMs)
     const entry = key === 'recent'
-        ? { label: 'Last 24 hours' }
-        : { label: duration, prefix: 'Older than ', title: formatFullDateTime(cutoffMs) }
+        ? { get label() { return $t("Last 24 hours") } }
+        : { label: duration, get prefix() { return $t("Older than ") }, title: formatFullDateTime(cutoffMs) }
     return { key, entry }
 }

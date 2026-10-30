@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../i18n/index.js'
+
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
@@ -95,19 +97,19 @@ async function handleSubmit() {
         <wa-card class="login-card">
             <div class="login-header">
                 <BrandLogo :size="64" animated />
-                <h1 class="login-title">TwiCC</h1>
-                <p class="login-subtitle">Password required to continue</p>
+                <h1 class="login-title">{{ $t("TwiCC") }}</h1>
+                <p class="login-subtitle">{{ $t("Password required to continue") }}</p>
             </div>
 
             <wa-divider></wa-divider>
 
             <form @submit.prevent="handleSubmit" class="login-form">
                 <div class="form-group">
-                    <label class="form-label">Password</label>
+                    <label class="form-label">{{ $t("Password") }}</label>
                     <wa-input
                         ref="passwordInput"
                         type="password"
-                        placeholder="Enter password"
+                        :placeholder="$t(&quot;Enter password&quot;)"
                         :value="password"
                         @input="password = $event.target.value"
                         @wa-input="password = $event.target.value"
@@ -120,7 +122,7 @@ async function handleSubmit() {
 
                 <wa-callout v-if="error" variant="danger" size="small" class="login-error">
                     <wa-icon slot="icon" name="circle-exclamation"></wa-icon>
-                    {{ error }}
+                    {{ $t(error) }}
                 </wa-callout>
 
                 <wa-button
@@ -132,7 +134,7 @@ async function handleSubmit() {
                     class="login-button"
                 >
                     <wa-icon slot="start" name="right-to-bracket"></wa-icon>
-                    Sign in
+                    {{ $t("Sign in") }}
                 </wa-button>
             </form>
         </wa-card>

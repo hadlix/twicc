@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../../i18n/index.js'
+
 import { computed, ref, provide, inject, unref } from 'vue'
 import { INLINE_ARTIFACT_CONTEXT } from '../../../inline-artifacts/context.js'
 import { STREAMING_BLOCK_CONTEXT } from '../../../composables/streamPublicationKeys.js'
@@ -218,7 +220,7 @@ function toggleJsonView() {
                 <CodeCommentsIndicator :count="blockCommentsCount" :show-tooltip="false" class="detail-toggle-comments" />
             </div>
             <AppTooltip v-if="showDetailToggle" :for="`detail-toggle-${sessionId}-${detailToggleFor}`">
-                {{ isBlockDetailed ? 'Show conversation' : 'Show details' }}
+                {{ isBlockDetailed ? $t("Show conversation") : $t("Show details") }}
             </AppTooltip>
 
             <!-- JSON toggle button (visible on hover) -->
@@ -233,7 +235,7 @@ function toggleJsonView() {
                 >
                     <wa-icon name="code"></wa-icon>
                 </wa-button>
-                <AppTooltip v-if="!showJson" :for="`json-toggle-${sessionId}-${lineNum}`">Show JSON</AppTooltip>
+                <AppTooltip v-if="!showJson" :for="`json-toggle-${sessionId}-${lineNum}`">{{ $t("Show JSON") }}</AppTooltip>
             </div>
         </div>
 
@@ -248,9 +250,9 @@ function toggleJsonView() {
             >
                 <wa-icon name="code"></wa-icon>
             </wa-button>
-            <AppTooltip :for="`json-toggle-hide-${sessionId}-${lineNum}`">Hide JSON</AppTooltip>
+            <AppTooltip :for="`json-toggle-hide-${sessionId}-${lineNum}`">{{ $t("Hide JSON") }}</AppTooltip>
             <wa-tag :id="`line-number-${sessionId}-${lineNum}`" size="small" variant="brand" class="line-number">{{ lineNum }}</wa-tag>
-            <AppTooltip :for="`line-number-${sessionId}-${lineNum}`">Line number</AppTooltip>
+            <AppTooltip :for="`line-number-${sessionId}-${lineNum}`">{{ $t("Line number") }}</AppTooltip>
             <div class="json-tree">
                 <JsonViewer
                     :data="content"

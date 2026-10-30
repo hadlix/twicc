@@ -34,7 +34,7 @@ async def share_root(request, token):
         # A top-level page navigation to a share that's gone (unknown / revoked /
         # expired / deleted, or a vanished target/file): render the friendly page
         # instead of Django's bare 404. Status stays 404.
-        return share_unavailable_response()
+        return share_unavailable_response(request)
 
 
 async def share_asset_or_doc(request, token, asset):
@@ -54,5 +54,5 @@ async def share_asset_or_doc(request, token, asset):
         # the client code handles them as it already does.
         dest = request.headers.get("Sec-Fetch-Dest", "")
         if dest in ("document", "iframe") or "text/html" in request.headers.get("Accept", ""):
-            return share_unavailable_response()
+            return share_unavailable_response(request)
         raise

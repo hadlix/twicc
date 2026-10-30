@@ -1,3 +1,5 @@
+
+import { t as $t } from '../i18n/index.js'
 /**
  * useProviderActivation - Centralized enable/disable provider flow.
  *
@@ -53,8 +55,8 @@ function canDisableProvider(provider) {
  */
 function disableReasonFor(provider) {
     if (isInTransition(provider)) return null
-    if (isLastEnabled(provider)) return 'Cannot disable: at least one provider must remain active.'
-    if (hasActiveSession(provider)) return 'Cannot disable: active sessions in progress.'
+    if (isLastEnabled(provider)) return $t("Cannot disable: at least one provider must remain active.")
+    if (hasActiveSession(provider)) return $t("Cannot disable: active sessions in progress.")
     return null
 }
 

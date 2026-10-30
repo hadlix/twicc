@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // Shared date/ip/user-agent access log list: per-share "Recent views"
 // (ShareListPanel) and per-host denial details (ArtifactBookmarkDialog).
 // Rows: { at, ip, user_agent, count? } — count > 1 shows a ×N badge.
@@ -18,7 +20,7 @@ function toggleUa(i) { expandedUa.value[i] = !expandedUa.value[i] }
             <code v-if="a.ip">{{ a.ip }}</code>
             <span v-if="a.user_agent" class="ua" :class="{ 'ua--expanded': expandedUa[i] }"
                   role="button" tabindex="0"
-                  :title="expandedUa[i] ? '' : 'Click to show the full user agent'"
+                  :title="expandedUa[i] ? '' : $t(&quot;Click to show the full user agent&quot;)"
                   @click="toggleUa(i)" @keydown.enter="toggleUa(i)">{{ a.user_agent }}</span>
         </li>
     </ul>

@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../i18n/index.js'
+
 // Provider-agnostic dialog to manage the agent settings presets of a given
 // provider. Opens the list view by default; "Add" / "Edit" switch to a form
 // built on the shared matrix design: the model × effort picker (matrix +
@@ -45,7 +47,7 @@ const emit = defineEmits(['update:open'])
 const providerHelpers = computed(() => getProviderHelpers(props.provider))
 const presetsStore = useAgentSettingsPresetsStore()
 const benchmarkTaskStore = useBenchmarkTaskStore()
-const providerLabel = computed(() => providerHelpers.value?.constructor?.label ?? 'Agent')
+const providerLabel = computed(() => providerHelpers.value?.constructor?.label ?? $t("Agent"))
 
 // Preset records use historical key names (``model``, ``thinking``) while
 // the helpers' rendering hooks are keyed on wire names
@@ -82,7 +84,7 @@ function presetSummary(preset) {
         defaults: presetDefaults.value,
         untrusted: props.untrusted,
     })
-    return parts.length ? parts : [{ text: 'all default' }]
+    return parts.length ? parts : [{ get text() { return $t("all default") } }]
 }
 
 const view = ref('list')
@@ -97,8 +99,8 @@ const submitButtonRef = ref(null)
 const presets = computed(() => presetsStore.getPresets(props.provider))
 
 const dialogLabel = computed(() => {
-    if (view.value === 'list') return `${providerLabel.value} settings presets`
-    return editIndex.value === null ? 'Add preset' : 'Edit preset'
+    if (view.value === 'list') return $t("{p0} settings presets", { p0: (providerLabel.value) })
+    return editIndex.value === null ? $t("Add preset") : $t("Edit preset")
 })
 
 // Fields owned by the shared picker (matrix + switches). Everything the picker
@@ -256,15 +258,15 @@ function handleSave() {
     errorMessage.value = ''
     const trimmedName = formData.value.name.trim()
     if (!trimmedName) {
-        errorMessage.value = 'Name is required'
+        errorMessage.value = $t("Name is required")
         return
     }
     if (RESERVED_PRESET_NAMES.has(trimmedName)) {
-        errorMessage.value = `"${trimmedName}" is a reserved name and cannot be used`
+        errorMessage.value = $t("\"{p0}\" is a reserved name and cannot be used", { p0: (trimmedName) })
         return
     }
     if (presetsStore.findIndexByName(props.provider, trimmedName, editIndex.value) !== -1) {
-        errorMessage.value = 'A preset with this name already exists'
+        errorMessage.value = $t("A preset with this name already exists")
         return
     }
     // Picker-owned fields have no explicit "Default" control: a value equal to
@@ -298,7 +300,7 @@ function handleSave() {
     >
         <div v-if="view === 'list'" class="dialog-content">
             <div v-if="presets.length === 0" class="empty-message">
-                No presets yet. Add one to get started.
+                {{ $t("No presets yet. Add one to get started.") }}
             </div>
             <div v-else class="preset-list" data-reorder-list>
                 <div v-for="(preset, index) in presets" :key="index" class="preset-row" data-reorder-row>
@@ -315,13 +317,13 @@ function handleSave() {
                         />
                     </div>
                     <div class="preset-actions">
-                        <button class="action-btn" title="Edit" @click="openEditForm(index)">
+                        <button class="action-btn" :title="$t(&quot;Edit&quot;)" @click="openEditForm(index)">
                             <wa-icon name="pen-to-square" />
                         </button>
-                        <button class="action-btn" title="Duplicate" @click="handleDuplicate(index)">
+                        <button class="action-btn" :title="$t(&quot;Duplicate&quot;)" @click="handleDuplicate(index)">
                             <wa-icon name="copy" />
                         </button>
-                        <button class="action-btn action-btn-danger" title="Delete" @click="handleDelete(index)">
+                        <button class="action-btn action-btn-danger" :title="$t(&quot;Delete&quot;)" @click="handleDelete(index)">
                             <wa-icon name="trash-can" />
                         </button>
                     </div>
@@ -331,7 +333,7 @@ function handleSave() {
         <form v-else id="preset-form" class="dialog-content" @submit.prevent="handleSave">
             <div class="form-group">
                 <label class="form-label" for="preset-name-input">
-                    Name <span class="form-label-quiet">(mandatory)</span>
+                    {{ $t("Name") }} <span class="form-label-quiet">{{ $t("(mandatory)") }}</span>
                 </label>
                 <wa-input
                     id="preset-name-input"
@@ -347,8 +349,8 @@ function handleSave() {
                  on the default follows it at apply time. -->
             <div class="form-group">
                 <div class="matrix-heading">
-                    <label class="form-label">Model &amp; effort picker</label>
-                    <HelpTextLink help-key="model-effort-score" label="What are those numbers?" />
+                    <label class="form-label">{{ $t("Model & effort picker") }}</label>
+                    <HelpTextLink help-key="model-effort-score" :label="$t(&quot;What are those numbers?&quot;)" />
                 </div>
                 <AgentSettingsDefaultsPicker
                     :provider="props.provider"
@@ -373,8 +375,8 @@ function handleSave() {
                         :icon="permissionSelectIcon(field).icon"
                         :color="permissionSelectIcon(field).color"
                     />
-                    <wa-option :value="DEFAULT_SENTINEL">Default</wa-option>
-                    <small class="select-group-label">Force to:</small>
+                    <wa-option :value="DEFAULT_SENTINEL">{{ $t("Default") }}</wa-option>
+                    <small class="select-group-label">{{ $t("Force to:") }}</small>
                     <wa-option
                         v-for="opt in providerHelpers.getFieldChoices(field)"
                         :key="String(opt.value)"
@@ -393,20 +395,20 @@ function handleSave() {
                 </wa-select>
             </div>
 
-            <wa-callout v-if="errorMessage" variant="danger">{{ errorMessage }}</wa-callout>
+            <wa-callout v-if="errorMessage" variant="danger">{{ $t(errorMessage) }}</wa-callout>
         </form>
 
         <div slot="footer" class="dialog-footer">
             <template v-if="view === 'list'">
-                <wa-button variant="neutral" appearance="outlined" @click="closeDialog">Close</wa-button>
+                <wa-button variant="neutral" appearance="outlined" @click="closeDialog">{{ $t("Close") }}</wa-button>
                 <wa-button variant="brand" @click="openAddForm">
                     <wa-icon slot="start" name="plus"></wa-icon>
-                    Add preset
+                    {{ $t("Add preset") }}
                 </wa-button>
             </template>
             <template v-else>
-                <wa-button variant="neutral" appearance="outlined" @click="cancelForm">Cancel</wa-button>
-                <wa-button ref="submitButtonRef" variant="brand" type="submit">Save</wa-button>
+                <wa-button variant="neutral" appearance="outlined" @click="cancelForm">{{ $t("Cancel") }}</wa-button>
+                <wa-button ref="submitButtonRef" variant="brand" type="submit">{{ $t("Save") }}</wa-button>
             </template>
         </div>
     </wa-dialog>

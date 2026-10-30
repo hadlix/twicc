@@ -1,3 +1,5 @@
+
+import { t as $t } from '../../i18n/index.js'
 import { parseCodeModeScript } from './parseCodeModeScript.js'
 import { formatToolNameForHeader } from '../../utils/toolNames.js'
 
@@ -10,16 +12,16 @@ const WEB_RUN_TOOL_NAME = 'web__run'
 export const IMAGE_GEN_TOOL_NAME = 'image_gen__imagegen'
 
 const WEB_OPERATION_DEFINITIONS = [
-    { key: 'search_query', category: 'search', label: 'Search' },
-    { key: 'image_query', category: 'search', label: 'Image search' },
-    { key: 'open', category: 'fetch', label: 'Open' },
-    { key: 'click', category: 'fetch', label: 'Click' },
-    { key: 'find', category: 'fetch', label: 'Find' },
-    { key: 'screenshot', category: 'fetch', label: 'Screenshot' },
-    { key: 'finance', category: 'other', label: 'Finance' },
-    { key: 'weather', category: 'other', label: 'Weather' },
-    { key: 'sports', category: 'other', label: 'Sports' },
-    { key: 'time', category: 'other', label: 'Time' },
+    { key: 'search_query', category: 'search', get label() { return $t("Search") } },
+    { key: 'image_query', category: 'search', get label() { return $t("Image search") } },
+    { key: 'open', category: 'fetch', get label() { return $t("Open") } },
+    { key: 'click', category: 'fetch', get label() { return $t("Click") } },
+    { key: 'find', category: 'fetch', get label() { return $t("Find") } },
+    { key: 'screenshot', category: 'fetch', get label() { return $t("Screenshot") } },
+    { key: 'finance', category: 'other', get label() { return $t("Finance") } },
+    { key: 'weather', category: 'other', get label() { return $t("Weather") } },
+    { key: 'sports', category: 'other', get label() { return $t("Sports") } },
+    { key: 'time', category: 'other', get label() { return $t("Time") } },
 ]
 
 function isObject(value) {
@@ -50,7 +52,7 @@ function fetchSummaryItems(input) {
     }
     for (const item of nonEmptyArray(input, 'click')) {
         if (typeof item.ref_id !== 'string' || !item.ref_id.trim()) continue
-        const suffix = Number.isInteger(item.id) ? ` · link ${item.id}` : ''
+        const suffix = Number.isInteger(item.id) ? $t(" · link {p0}", { p0: (item.id) }) : ''
         items.push(`${item.ref_id}${suffix}`)
     }
     for (const item of nonEmptyArray(input, 'find')) {
@@ -62,7 +64,7 @@ function fetchSummaryItems(input) {
     }
     for (const item of nonEmptyArray(input, 'screenshot')) {
         if (typeof item.ref_id !== 'string' || !item.ref_id.trim()) continue
-        const suffix = Number.isInteger(item.pageno) ? ` · page ${item.pageno + 1}` : ''
+        const suffix = Number.isInteger(item.pageno) ? $t(" · page {p0}", { p0: (item.pageno + 1) }) : ''
         items.push(`${item.ref_id}${suffix}`)
     }
     return compactStrings(items)

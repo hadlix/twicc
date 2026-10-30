@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../i18n/index.js'
+
 import { computed, provide } from 'vue'
 import { INLINE_ARTIFACT_CONTEXT } from '../inline-artifacts/context.js'
 import ShareItemsList from './ShareItemsList.vue'
@@ -13,7 +15,7 @@ const current = computed(() => props.stack[props.stack.length - 1])
 // Same label as the owner's subagent tabs: the session slug, else the short id.
 const agentLabel = (id) => {
     const { name, isFallback } = getAgentDisplay(id, store)
-    return isFallback ? `Agent "${name}"` : name
+    return isFallback ? $t("Agent \"{p0}\"", { p0: (name) }) : name
 }
 </script>
 
@@ -24,7 +26,7 @@ const agentLabel = (id) => {
             <header class="subagent-head">
                 <nav class="crumbs">
                     <span v-for="(id, i) in stack" :key="id" class="crumb">
-                        Agent "{{ agentLabel(id) }}"<span v-if="i < stack.length - 1"> ›</span>
+                        {{ $t("Agent \"") }}{{ agentLabel(id) }}"<span v-if="i < stack.length - 1"> ›</span>
                     </span>
                 </nav>
                 <wa-button size="small" appearance="plain" @click="emit('close')">

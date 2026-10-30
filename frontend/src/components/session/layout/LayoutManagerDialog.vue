@@ -1,4 +1,6 @@
 <script setup>
+import { t as $t } from '../../../i18n/index.js'
+
 // The single home for managing the named-layouts catalog: rename + delete. Opened from both the
 // settings "Layouts" section and the main-area layout menu (one reusable surface — the rename/delete
 // logic lives here only). Visual language (action buttons, inline "Delete?" confirmation, icons)
@@ -40,7 +42,7 @@ const namedLayouts = computed(() => layoutsStore.getAllLayouts)
 // default has no parent scope to inherit from.
 const reassignOptions = computed(() => [
     { id: SINGLE_PANE_ID, name: SINGLE_PANE_NAME },
-    ...(deleteRefs.value.projects.length ? [{ id: INHERIT, name: 'Auto (inherited from parent scope)' }] : []),
+    ...(deleteRefs.value.projects.length ? [{ id: INHERIT, name: "Auto (inherited from parent scope)" }] : []),
     ...namedLayouts.value.filter((l) => l.id !== deletingId.value),
 ])
 
@@ -87,14 +89,14 @@ function commitRename() {
     const id = editingId.value
     const trimmed = editingName.value.trim()
     if (!trimmed) {
-        editError.value = 'Name cannot be empty.'
+        editError.value = $t("Name cannot be empty.")
         return
     }
     const dup = namedLayouts.value.some(
         (l) => l.id !== id && l.name.trim().toLowerCase() === trimmed.toLowerCase(),
     )
     if (dup) {
-        editError.value = `A layout named "${trimmed}" already exists.`
+        editError.value = $t("A layout named \"{p0}\" already exists.", { p0: (trimmed) })
         return
     }
     layoutsStore.renameLayout(id, trimmed)
@@ -137,12 +139,12 @@ async function confirmDelete() {
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ default_layout_id: projectTarget }),
                     })
-                    if (!res.ok) throw new Error('project update failed')
+                    if (!res.ok) throw new Error($t("project update failed"))
                     dataStore.updateProject(await res.json())
                 }),
             )
         } catch {
-            deleteError.value = 'Could not reassign all projects. Please retry.'
+            deleteError.value = $t("Could not reassign all projects. Please retry.")
             isDeleting.value = false
             return
         }
@@ -176,14 +178,13 @@ defineExpose({ open, close })
 <template>
     <wa-dialog
         ref="dialogRef"
-        label="Manage layouts"
+        :label="$t(&quot;Manage layouts&quot;)"
         class="layout-manager-dialog"
         @wa-hide="onDialogHide"
     >
         <div class="dialog-content">
             <p v-if="!namedLayouts.length" class="empty-message">
-                No saved layouts yet. Dock some panels in a session, then use the layout menu’s
-                “Save layout” to create one.
+                {{ $t("No saved layouts yet. Dock some panels in a session, then use the layout menu’s “Save layout” to create one.") }}
             </p>
 
             <div v-else class="layout-list">
@@ -196,16 +197,16 @@ defineExpose({ open, close })
                                 class="rename-input"
                                 :value.prop="editingName"
                                 size="small"
-                                placeholder="Layout name"
+                                :placeholder="$t(&quot;Layout name&quot;)"
                                 @input="editingName = $event.target.value"
                                 @keydown.enter.prevent="commitRename"
                                 @keydown.escape.prevent="cancelRename"
                             ></wa-input>
                             <div class="layout-actions">
-                                <button class="action-btn action-btn-confirm-ok" @click="commitRename" title="Save name">
+                                <button class="action-btn action-btn-confirm-ok" @click="commitRename" :title="$t(&quot;Save name&quot;)">
                                     <wa-icon name="check" />
                                 </button>
-                                <button class="action-btn" @click="cancelRename" title="Cancel rename">
+                                <button class="action-btn" @click="cancelRename" :title="$t(&quot;Cancel rename&quot;)">
                                     <wa-icon name="xmark" />
                                 </button>
                             </div>
@@ -217,28 +218,28 @@ defineExpose({ open, close })
                             <div class="layout-actions">
                                 <!-- Delete confirmation (inline, mirrors WorkspaceManageDialog) -->
                                 <template v-if="deletingId === l.id">
-                                    <span class="delete-confirm-label">Delete?</span>
+                                    <span class="delete-confirm-label">{{ $t("Delete?") }}</span>
                                     <button
                                         class="action-btn action-btn-confirm-danger"
                                         :disabled="isDeleting"
                                         @click="confirmDelete"
-                                        title="Confirm delete"
+                                        :title="$t(&quot;Confirm delete&quot;)"
                                     ><wa-icon name="check" /></button>
                                     <button
                                         class="action-btn"
                                         :disabled="isDeleting"
                                         @click="cancelDelete"
-                                        title="Cancel delete"
+                                        :title="$t(&quot;Cancel delete&quot;)"
                                     ><wa-icon name="xmark" /></button>
                                 </template>
                                 <template v-else>
-                                    <button class="action-btn" @click="startRename(l)" title="Rename">
+                                    <button class="action-btn" @click="startRename(l)" :title="$t(&quot;Rename&quot;)">
                                         <wa-icon name="pen-to-square" />
                                     </button>
                                     <button
                                         class="action-btn action-btn-danger"
                                         @click="startDelete(l)"
-                                        title="Delete"
+                                        :title="$t(&quot;Delete&quot;)"
                                     ><wa-icon name="trash-can" /></button>
                                 </template>
                             </div>
@@ -250,19 +251,18 @@ defineExpose({ open, close })
                         v-if="editingId === l.id && editError"
                         variant="danger"
                         size="small"
-                    >{{ editError }}</wa-callout>
+                    >{{ $t(editError) }}</wa-callout>
 
                     <!-- Reassignment, shown only when deleting a referenced layout. The inline
                          "Delete?" confirmation stays above; here we just collect the target. -->
                     <div v-if="deletingId === l.id && hasReferences" class="reassign-panel">
                         <span class="reassign-text">
-                            Used by
-                            <template v-if="deleteRefs.global">the global default</template>
-                            <template v-if="deleteRefs.global && deleteRefs.projects.length"> and </template>
+                            {{ $t("Used by") }}
+                            <template v-if="deleteRefs.global">{{ $t("the global default") }}</template>
+                            <template v-if="deleteRefs.global && deleteRefs.projects.length"> {{ $t("and") }} </template>
                             <template v-if="deleteRefs.projects.length">
                                 {{ deleteRefs.projects.length }}
-                                project{{ deleteRefs.projects.length > 1 ? 's' : '' }}</template>.
-                            Reassign to:
+                                {{ $t("project") }}{{ deleteRefs.projects.length > 1 ? $t("s") : '' }}</template>{{ $t(". Reassign to:") }}
                         </span>
                         <wa-select
                             class="reassign-select"
@@ -277,14 +277,14 @@ defineExpose({ open, close })
                                 :label="o.name"
                             >{{ o.name }}</wa-option>
                         </wa-select>
-                        <wa-callout v-if="deleteError" variant="danger" size="small">{{ deleteError }}</wa-callout>
+                        <wa-callout v-if="deleteError" variant="danger" size="small">{{ $t(deleteError) }}</wa-callout>
                     </div>
                 </div>
             </div>
         </div>
 
         <div slot="footer" class="dialog-footer">
-            <wa-button variant="neutral" appearance="outlined" @click="close">Close</wa-button>
+            <wa-button variant="neutral" appearance="outlined" @click="close">{{ $t("Close") }}</wa-button>
         </div>
     </wa-dialog>
 </template>
